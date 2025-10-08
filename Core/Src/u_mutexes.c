@@ -7,7 +7,7 @@ mutex_t temp_mutex = {
 };
 
 /* Initializes all ThreadX mutexes. 
-*  Calls to _create_mutex() should go in here
+*  Calls to create_mutex() should go in here
 */
 uint8_t mutexes_init() {
     /* Create Mutexes. */
