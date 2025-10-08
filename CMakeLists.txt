@@ -47,12 +47,34 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    # Add user sources here
+    # Embedded-Base ThreadX Utils
+    "../Drivers/Embedded-Base/threadX/src/u_tx_can.c"
+    "../Drivers/Embedded-Base/threadX/src/u_tx_debug.c"
+    "../Drivers/Embedded-Base/threadX/src/u_tx_mutex.c"
+    "../Drivers/Embedded-Base/threadX/src/u_tx_queues.c"
+    "../Drivers/Embedded-Base/threadX/src/u_tx_threads.c"
+
+    # Misc Embedded-Base Stuff (drivers, middleware, utils, etc.)
+    "../Drivers/Embedded-Base/general/src/lan8670.c"
+    "../Drivers/Embedded-Base/general/src/sht30.c"
+    "../Drivers/Embedded-Base/general/src/lsm6dso_reg.c"
+    "../Drivers/Embedded-Base/general/src/lsm6dso.c"
+    "../Drivers/Embedded-Base/platforms/stm32h563/src/fdcan.c"
+    "./Drivers/Embedded-Base/middleware/src/bitstream.c"
+    "./Drivers/Embedded-Base/middleware/src/debounce.c"
+    "./Drivers/Embedded-Base/middleware/src/timer.c"
+    "./Drivers/Embedded-Base/middleware/src/c_utils.c"
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    "./Drivers/Embedded-Base/general/include/"
+    "./Drivers/Embedded-Base/middleware/include/"
+    "./Drivers/Embedded-Base/platforms/stm32h563/include/"
+    "./Drivers/Embedded-Base/threadX/inc/"
+    "./NetXDuo"
+    "./Core/Inc/"
 )
 
 # Add project symbols (macros)
