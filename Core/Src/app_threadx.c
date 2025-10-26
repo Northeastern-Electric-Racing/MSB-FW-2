@@ -20,12 +20,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "app_threadx.h"
-#include "u_threads.h"
-#include "u_queues.h"
-#include "u_mutexes.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "u_threads.h" 
+#include "u_queues.h" 
+#include "u_mutexes.h" 
 
 /* USER CODE END Includes */
 
