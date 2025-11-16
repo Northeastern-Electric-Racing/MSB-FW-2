@@ -52,6 +52,6 @@ uint8_t threads_init(TX_BYTE_POOL *byte_pool) {
     CATCH_ERROR(create_thread(byte_pool, &_default_thread), U_SUCCESS);      // Create Default thread.
     CATCH_ERROR(create_thread(byte_pool, &_sensors_thread), U_SUCCESS);      // Create Default thread.
 
-    DEBUG_PRINTLN("Ran threads_init().");
+    PRINTLN_INFO("Ran threads_init().");
     return U_SUCCESS;
 }

@@ -3,9 +3,13 @@
 #include <stdlib.h>
 
 #include "u_can.h"
+#include "main.h"
 #include "u_tx_debug.h"
+#include "u_tx_queues.h"
 
 #include "sht30.h"
+
+extern queue_t can_outgoing;
 
 extern I2C_HandleTypeDef hi2c1; /** TODO: Replace with actual */
 
@@ -50,7 +54,7 @@ uint8_t read_sht30() {
 
     memcpy(can_message.data, &data, can_message.len);
 
-    /** TODO: figure out can sending */
+    queue_send(&can_outgoing, &can_message);
 
     return U_SUCCESS;
 }

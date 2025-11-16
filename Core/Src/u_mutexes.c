@@ -14,6 +14,6 @@ uint8_t mutexes_init() {
     CATCH_ERROR(create_mutex(&temp_mutex), U_SUCCESS);       // Create Temp Mutex.
     // add more as necessary.
 
-    DEBUG_PRINTLN("Ran mutexes_init().");
+    PRINTLN_INFO("Ran mutexes_init().");
     return U_SUCCESS;
 }
