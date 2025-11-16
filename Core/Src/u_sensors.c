@@ -11,7 +11,7 @@
 
 extern queue_t can_outgoing;
 
-extern I2C_HandleTypeDef hi2c1; /** TODO: Replace with actual */
+extern I2C_HandleTypeDef hi2c1;
 
 static sht30_t sht30;
 
