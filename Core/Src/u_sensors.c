@@ -15,15 +15,15 @@ extern I2C_HandleTypeDef hi2c1;
 
 static sht30_t sht30;
 
-static inline uint8_t _sht30_i2c_write(uint8_t *data, uint8_t dev_address, uint8_t length){
+static uint8_t _sht30_i2c_write(uint8_t *data, uint8_t dev_address, uint8_t length){
     return HAL_I2C_Master_Transmit(&hi2c1, dev_address, data, length, HAL_MAX_DELAY);
 }
 
-static inline uint8_t _sht30_i2c_read(uint8_t *data, uint16_t command, uint8_t dev_address, uint8_t length) {
+static uint8_t _sht30_i2c_read(uint8_t *data, uint16_t command, uint8_t dev_address, uint8_t length) {
     return HAL_I2C_Mem_Read(&hi2c1, dev_address, command, sizeof(command), data, length, HAL_MAX_DELAY);
 }
 
-static inline uint8_t _sht30_i2c_blocking_read(uint8_t *data, uint16_t command, uint8_t dev_address, uint8_t length) {
+static uint8_t _sht30_i2c_blocking_read(uint8_t *data, uint16_t command, uint8_t dev_address, uint8_t length) {
     uint8_t command_buffer[2] = { (command & 0xff00u) >> 8u, command & 0xffu };
     _sht30_i2c_write(command_buffer, dev_address, sizeof(command_buffer));
     tx_thread_sleep(1);
