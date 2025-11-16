@@ -50,7 +50,7 @@ uint8_t read_sht30() {
     data.temp = sht30.temp;
     data.humidity = sht30.humidity;
 
-    can_msg_t can_message = { .id = SHT30_CAN_ID, .len = 4, .data = { 0 } };
+    can_msg_t can_message = { .id = SHT30_CAN_ID, .len = 8, .data = { 0 } };
 
     memcpy(can_message.data, &data, can_message.len);
 
