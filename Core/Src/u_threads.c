@@ -1,5 +1,6 @@
 #include "u_threads.h"
 #include "u_tx_debug.h"
+#include "u_sensors.h"
 
 /* Default Thread */
 static thread_t _default_thread = {
@@ -37,8 +38,7 @@ static thread_t _sensors_thread = {
 void sensors_thread(ULONG thread_input) {
 
     while(1) {
-        
-        
+        read_sht30();
         tx_thread_sleep(_sensors_thread.sleep);
     }
 }

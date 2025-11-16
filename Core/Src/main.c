@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "u_sensors.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -137,6 +137,8 @@ int main(void)
   MX_DCACHE1_Init();
   MX_ICACHE_Init();
   /* USER CODE BEGIN 2 */
+
+  init_sht30();
 
   /* USER CODE END 2 */
 
