@@ -114,9 +114,9 @@ uint16_t init_imu() {
     imu.mdelay = _delay;
     imu.handle = &hspi1;
 
-    int status = lis2mdl_device_id_get(&imu, &id);
+    int status = lsm6dsv_device_id_get(&imu, &id);
     if(status != 0) {
-        PRINTLN_ERROR("ERROR: Failed to call lis2mdl_device_id_get (Status: %d).", status);
+        PRINTLN_ERROR("ERROR: Failed to call lsm6dsv_device_id_get (Status: %d).", status);
         return U_ERROR;
     }
 
@@ -269,7 +269,7 @@ static uint8_t _sht30_i2c_blocking_read(uint8_t *data, uint16_t command, uint8_t
 }
 
 uint8_t init_sht30() {
-    return sht30_init(&sht30, (Write_ptr) _sht30_i2c_write, (Read_ptr) _sht30_i2c_read, _sht30_i2c_blocking_read, SHT30_I2C_ADDR);
+    return sht30_init(&sht30, (Write_ptr) _sht30_i2c_write, (Read_ptr) _sht30_i2c_read, (Read_ptr) _sht30_i2c_blocking_read, SHT30_I2C_ADDR);
 }
 
 uint8_t read_sht30() {
