@@ -13,3 +13,15 @@ uint8_t init_sht30();
  * @return whether there were errors in reading/sending the data
  */
 uint8_t read_sht30();
+
+/**
+ * @brief initializes the lsm6dsv
+ * @return whether there were errors initializing the lsm6dsv
+ */
+uint8_t init_lsm6dsv();
+
+/**
+ * @brief reads and sends data from the lsm6dsv
+ * @return whether there were errors in reading/sending the data
+ */
+uint8_t read_lsm6dsv();
