@@ -15,13 +15,13 @@ uint8_t init_sht30();
 uint8_t read_sht30();
 
 /**
- * @brief initializes the lsm6dsv
- * @return whether there were errors initializing the lsm6dsv
+ * @brief initializes the lsm6dsv imu
+ * @return whether there were errors initializing the lsm6dsv imu
  */
-uint8_t init_lsm6dsv();
+uint16_t init_imu();
 
 /**
  * @brief reads and sends data from the lsm6dsv
  * @return whether there were errors in reading/sending the data
  */
-uint8_t read_lsm6dsv();
+uint8_t read_imu();

@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "u_sensors.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
