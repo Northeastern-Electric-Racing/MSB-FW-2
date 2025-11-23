@@ -6,10 +6,9 @@
 #include "main.h"
 #include "u_tx_debug.h"
 #include "u_tx_queues.h"
+#include "u_queues.h"
 
 #include "sht30.h"
-
-extern queue_t can_outgoing;
 
 extern I2C_HandleTypeDef hi2c1;
 
