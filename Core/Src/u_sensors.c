@@ -30,7 +30,7 @@ static uint8_t _sht30_i2c_blocking_read(uint8_t *data, uint16_t command, uint8_t
 }
 
 uint8_t init_sht30() {
-    return sht30_init(&sht30, (Write_ptr) _sht30_i2c_write, (Read_ptr) _sht30_i2c_read, _sht30_i2c_blocking_read, SHT30_I2C_ADDR);
+    return sht30_init(&sht30, (Write_ptr) _sht30_i2c_write, (Read_ptr) _sht30_i2c_read, (Read_ptr) _sht30_i2c_blocking_read, SHT30_I2C_ADDR);
 }
 
 uint8_t read_sht30() {
