@@ -53,7 +53,7 @@ uint8_t read_sht30() {
 
     memcpy(can_message.data, &data, can_message.len);
 
-    queue_send(&can_outgoing, &can_message);
+    queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
 
     return U_SUCCESS;
 }
