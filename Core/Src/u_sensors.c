@@ -188,6 +188,18 @@ uint16_t init_imu() {
     return U_SUCCESS;
 }
 
+static int16_t _float_to_int16(float value) {
+    if (value > 32767.0f) {
+        return 32767;
+    }
+
+    if (value < -32768.0f) {
+        return -32768;
+    }
+
+    return (int16_t) value;
+}
+
 uint16_t read_imu() {
     LSM6DSV_Axes_t accel_axes;
     LSM6DSV_Axes_t gyro_axes;
