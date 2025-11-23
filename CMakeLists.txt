@@ -62,8 +62,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 
     # Misc Embedded-Base Stuff (drivers, middleware, utils, etc.)
     "../Drivers/Embedded-Base/general/src/sht30.c"
-    "../Drivers/Embedded-Base/general/src/lsm6dso_reg.c"
-    "../Drivers/Embedded-Base/general/src/lsm6dso.c"
+    "../Drivers/Embedded-Base/general/include/lsm6dsv_reg.h"
+    "../Drivers/Embedded-Base/general/src/lsm6dsv_reg.c"
     "../Drivers/Embedded-Base/platforms/stm32h563/src/fdcan.c"
     "./Drivers/Embedded-Base/middleware/src/bitstream.c"
     "./Drivers/Embedded-Base/middleware/src/debounce.c"
@@ -74,6 +74,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Core/Src/u_can.c"
     "./Core/Src/u_mutexes.c"
     "./Core/Src/u_queues.c"
+    "./Core/Src/u_sensors.c"
     "./Core/Src/u_threads.c"
 )
 
