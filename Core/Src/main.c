@@ -138,6 +138,8 @@ int main(void)
   MX_ICACHE_Init();
   /* USER CODE BEGIN 2 */
 
+  init_sht30();
+
   /* USER CODE END 2 */
 
   MX_ThreadX_Init();
