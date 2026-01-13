@@ -107,81 +107,64 @@ uint16_t imu_getGyroscopeData(LSM6DSV_Axes_t *axes) {
 }
 
 uint16_t init_imu() {
-    uint8_t id;
-
     imu.read_reg = _lsm6dsv_read;
     imu.read_reg = _lsm6dsv_write;
     imu.mdelay = _delay;
     imu.handle = &hspi1;
 
-    int status = lsm6dsv_device_id_get(&imu, &id);
-    if(status != 0) {
-        PRINTLN_ERROR("ERROR: Failed to call lsm6dsv_device_id_get (Status: %d).", status);
+    uint8_t id;
+    uint8_t status = lsm6dsv_device_id_get(&imu, &id);
+
+    if (status != 0) {
+        PRINTLN_ERROR("Failed to call lsm6dsv_device_id_get() (Status: %d).", status);
         return U_ERROR;
     }
 
     if (id != LSM6DSV_ID) {
-        PRINTLN_ERROR("ERROR: Failed IMU ID (Status: %d).", status);
+        PRINTLN_ERROR("lsm6dsv_device_id_get() returned an unexpected ID (id=%d, expected=%d). This means that the IMU is not configured correctly.", id, LSM6DSV_ID);
         return U_ERROR;
     }
 
-    status = lsm6dsv_sw_reset(&imu);
+    /* Reset IMU. */
+    status = lsm6dsv_reset_set(&imu, LSM6DSV_GLOBAL_RST);
     if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_sw_reset (Status: %d).", status);
+        PRINTLN_ERROR("Failed to reset the IMU via lsm6dsv_reset_set() (Status: %d).", status);
         return U_ERROR;
     }
+    HAL_Delay(30); // This is probably overkill, but the datasheet lists the gyroscope's "Turn-on time" as 30ms, and I can't find anything else that specifies how long resets take.
 
-    status = lsm6dsv_xl_mode_set(&imu, LSM6DSV_XL_HIGH_PERFORMANCE_MD);
+    /* Enable Block Data Update. */
+    status = lsm6dsv_block_data_update_set(&imu, PROPERTY_ENABLE); // Makes it so "output registers are not updated until LSB and MSB have been read". Datasheet says this is enabled by default but figured it was better to be explicit.
     if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_xl_mode_set (Status: %d).", status);
+        PRINTLN_ERROR("Failed to enable Block Data Update via lsm6dsv_block_data_update_set() (Status: %d).", status);
         return U_ERROR;
     }
 
-    status = lsm6dsv_xl_data_rate_set(&imu, LSM6DSV_EIS_960Hz);
+    /* Set Accelerometer Full Scale. */
+    status = lsm6dsv_xl_full_scale_set(&imu, LSM6DSV_2g);
     if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_xl_data_rate_set (Status: %d).", status);
+        PRINTLN_ERROR("Failed to set IMU Accelerometer Full Scale via lsm6dsv_xl_full_scale_set() (Status: %d).", status);
         return U_ERROR;
     }
 
-    status = lsm6dsv_xl_data_rate_set(&imu, LSM6DSV_EIS_960Hz);
+    /* Set gyroscope full scale. */
+    status = lsm6dsv_gy_full_scale_set(&imu, LSM6DSV_2000dps);
     if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_xl_data_rate_set (Status: %d).", status);
+        PRINTLN_ERROR("Failed to set IMU Gyroscope Full Scale via lsm6dsv_gy_full_scale_set() (Status: %d).", status);
         return U_ERROR;
     }
 
-    status = lsm6dsv_xl_full_scale_set(&imu, LSM6DSV_OIS_2g);
+    /* Set accelerometer output data rate. */
+    status = lsm6dsv_xl_data_rate_set(&imu, LSM6DSV_ODR_AT_120Hz);
     if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_xl_full_scale_set (Status: %d).", status);
+        PRINTLN_ERROR("Failed to set IMU Accelerometer Datarate via lsm6dsv_xl_data_rate_set() (Status: %d).", status);
         return U_ERROR;
     }
 
-    status = lsm6dsv_filt_xl_lp2_set(&imu, 1);
-    if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_filt_xl_lp2_set (Status: %d).", status);
-        return U_ERROR;
-    }
-
-    status = lsm6dsv_filt_xl_lp2_bandwidth_set(&imu, LSM6DSV_OIS_XL_LP_ULTRA_LIGHT);
-    if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_filt_xl_lp2_bandwidth_set (Status: %d).", status);
-        return U_ERROR;
-    }
-
-    status = lsm6dsv_gy_mode_set(&imu, LSM6DSV_GY_HIGH_PERFORMANCE_MD);
-    if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_gy_mode_set (Status: %d).", status);
-        return U_ERROR;
-    }
-
+    /* Set gyroscope output data rate. */
     status = lsm6dsv_gy_data_rate_set(&imu, LSM6DSV_ODR_AT_120Hz);
     if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_gy_data_rate_set (Status: %d).", status);
-        return U_ERROR;
-    }
-
-    status = lsm6dsv_gy_full_scale_set(&imu, LSM6DSV_250dps);
-    if (status != 0) {
-        PRINTLN_ERROR("ERROR: failed lsm6dsv_gy_full_scale_set (Status: %d).", status);
+        PRINTLN_ERROR("Failed to set IMU Gyroscope Datarate via lsm6dsv_gy_data_rate_set() (Status: %d).", status);
         return U_ERROR;
     }
 
