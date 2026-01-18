@@ -39,6 +39,7 @@ void sensors_thread(ULONG thread_input) {
 
     while(1) {
         read_imu();
+        read_magnetometer();
         read_sht30();
         tx_thread_sleep(_sensors_thread.sleep);
     }

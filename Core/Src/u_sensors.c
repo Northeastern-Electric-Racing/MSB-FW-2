@@ -11,12 +11,15 @@
 #include "sht30.h"
 
 #include "lsm6dsv_reg.h"
+#include <lis2mdl_reg.h>
 
 extern I2C_HandleTypeDef hi2c1;
 extern SPI_HandleTypeDef hspi1;
+extern SPI_HandleTypeDef hspi2;
 
 static sht30_t sht30;
 static stmdev_ctx_t imu;
+static stmdev_ctx_t *lis2mdl_ctx = NULL;
 
 /** 
  * IMU 
@@ -228,6 +231,116 @@ uint16_t read_imu() {
 
     queue_send(&can_outgoing, &imu_accel_msg, TX_NO_WAIT);
     queue_send(&can_outgoing, &imu_gyro_msg, TX_NO_WAIT);
+
+    return U_SUCCESS;
+}
+
+/** 
+ * COMPASS STUFF 
+ */
+
+static int32_t _lis2mdl_read(void *handle, uint8_t register_address, uint8_t *data, uint16_t length) {
+    uint8_t spi_reg = (uint8_t)(register_address | 0x80);
+    HAL_StatusTypeDef status;
+    
+    /* Send the register address we're trying to read from. */
+    status = HAL_SPI_Transmit((SPI_HandleTypeDef *) handle, &spi_reg, sizeof(spi_reg), HAL_MAX_DELAY);
+    if (status != HAL_OK) {
+        PRINTLN_ERROR("ERROR: Failed to send register address to lis2mdl over SPI (Status: %d/%s).", status, hal_status_toString(status));
+        return -1;
+    }
+    
+    /* Receive the data. */
+    status = HAL_SPI_Receive((SPI_HandleTypeDef *) handle, data, length, HAL_MAX_DELAY);
+    if (status != HAL_OK) {
+        PRINTLN_ERROR("ERROR: Failed to read from the lis2mdl over SPI (Status: %d/%s).", status, hal_status_toString(status));
+        return -1;
+    }
+    
+    return 0;
+}
+
+static int32_t _lis2mdl_write(void *handle, uint8_t register_address, const uint8_t *data, uint16_t length){
+    HAL_StatusTypeDef status;
+
+    status = HAL_SPI_Transmit((SPI_HandleTypeDef *)handle, &register_address, sizeof(register_address), HAL_MAX_DELAY);
+    if (status != HAL_OK) {
+        PRINTLN_ERROR("ERROR: Failed to send register address to lis2mdl over SPI (Status: %d/%s).", status, hal_status_toString(status));
+        return -1;
+    }
+    
+    status = HAL_SPI_Transmit((SPI_HandleTypeDef *)handle, data, length, HAL_MAX_DELAY);
+    if (status != HAL_OK) {
+        PRINTLN_ERROR("ERROR: Failed to write to the lis2mdl over SPI (Status: %d/%s).", status, hal_status_toString(status));
+        return -1;
+    }
+
+    return 0;
+}
+
+uint16_t init_magnetometer() {
+    uint8_t status;
+
+    lis2mdl_ctx = malloc(sizeof(stmdev_ctx_t));
+    if (lis2mdl_ctx == NULL) {
+        PRINTLN_ERROR("lis2mdl_ctx struct malloc failed.");
+        return U_ERROR;
+    }
+
+    lis2mdl_ctx->handle = &hspi2;
+    lis2mdl_ctx->read_reg = _lis2mdl_read;
+    lis2mdl_ctx->write_reg = _lis2mdl_write;
+    
+    lis2mdl_device_id_get(lis2mdl_ctx, &status);
+
+    if (status != LIS2MDL_ID) {
+        PRINTLN_ERROR("Device ID is not for LIS2MDL (Status %d/%s)", status, hal_status_toString(status));
+        return U_ERROR;
+    }
+
+    lis2mdl_reset_set(lis2mdl_ctx, 1);
+    lis2mdl_operating_mode_set(lis2mdl_ctx, LIS2MDL_CONTINUOUS_MODE);
+    lis2mdl_data_rate_set(lis2mdl_ctx, LIS2MDL_ODR_50Hz);
+    lis2mdl_offset_temp_comp_set(lis2mdl_ctx, 1);
+    lis2mdl_block_data_update_set(lis2mdl_ctx, 1);
+
+    return U_SUCCESS;
+}
+
+uint16_t read_magnetometer() {
+    if (lis2mdl_ctx == NULL) {
+        return U_ERROR;
+    }
+
+    int16_t raw_axes[3];    
+
+    uint8_t data_ready;
+    lis2mdl_mag_data_ready_get(lis2mdl_ctx, &data_ready);
+    if (!data_ready) {
+        return U_SUCCESS;
+    }
+
+    lis2mdl_magnetic_raw_get(lis2mdl_ctx, raw_axes);
+
+    struct __attribute__((__packed__)) {
+		int16_t axes_1;
+		int16_t axes_2;
+		int16_t axes_3;
+	} axes_data;
+
+    axes_data.axes_1 = _float_to_int16(lis2mdl_from_lsb_to_mgauss(raw_axes[0]) * 1000.0f);
+    axes_data.axes_2 = _float_to_int16(lis2mdl_from_lsb_to_mgauss(raw_axes[1]) * 1000.0f);
+    axes_data.axes_3 = _float_to_int16(lis2mdl_from_lsb_to_mgauss(raw_axes[2]) * 1000.0f);
+
+    can_msg_t message = { 
+        .id = MAGNOMETER_CAN_ID, 
+        .len = 6, 
+        .data = { 0 } 
+    };
+
+    memcpy(message.data, &axes_data, sizeof(axes_data));
+
+    queue_send(&can_outgoing, &message, TX_NO_WAIT);
 
     return U_SUCCESS;
 }
