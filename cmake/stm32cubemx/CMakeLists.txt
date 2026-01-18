@@ -24,6 +24,7 @@ set(MX_Include_Dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/netxduo/ports/cortex_m33/gnu/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/threadx/ports/cortex_m33/gnu/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/STM32_MotionFX_Library/Inc
 )
 
 # STM32CubeMX generated application sources
@@ -738,9 +739,11 @@ set(NetXDuo_Src
 # Link directories setup
 set(MX_LINK_DIRS
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/STM32_MotionFX_Library/Lib
 )
 # Project static libraries
-set(MX_LINK_LIBS 
+set(MX_LINK_LIBS  
+	:MotionFX_CM33F_wc32_ot_hard.a
     STM32_Drivers
     ${TOOLCHAIN_LINK_LIBRARIES}
     ThreadX	NetXDuo	
