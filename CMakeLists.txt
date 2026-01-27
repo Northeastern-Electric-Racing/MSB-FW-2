@@ -71,6 +71,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Drivers/Embedded-Base/middleware/src/c_utils.c"
 
     # Repo Source Files
+    "./Core/Src/u_utils.c"
     "./Core/Src/u_can.c"
     "./Core/Src/u_mutexes.c"
     "./Core/Src/u_queues.c"
