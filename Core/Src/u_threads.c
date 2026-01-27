@@ -27,20 +27,28 @@ void default_thread(ULONG thread_input) {
 /* Sensors Thread */
 static thread_t _sensors_thread = {
     .name       = "Sensors Thread",  /* Name */
-    .size       = 512,               /* Stack Size (in bytes) */
+    .size       = 1024,              /* Stack Size (in bytes) */
     .priority   = 9,                 /* Priority */
     .threshold  = 0,                 /* Preemption Threshold */
     .time_slice = TX_NO_TIME_SLICE,  /* Time Slice */
     .auto_start = TX_AUTO_START,     /* Auto Start */
-    .sleep      = 500,               /* Sleep (in ticks) */
+    .sleep      = 20,                /* Sleep (in ticks) */
     .function   = sensors_thread     /* Thread Function */
 };
 void sensors_thread(ULONG thread_input) {
+    uint32_t count = 25;
 
     while(1) {
-        read_imu();
-        read_magnetometer();
-        read_sht30();
+        CATCH_ERROR(read_imu_and_magnometer());
+
+        if (count >= 25) {
+            CATCH_ERROR(read_sht30());
+            send_sht30_data();
+            send_imu_and_magnometer_data();
+            count = 0;
+        }
+
+        count++;
         tx_thread_sleep(_sensors_thread.sleep);
     }
 }

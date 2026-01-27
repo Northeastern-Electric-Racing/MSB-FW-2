@@ -6,5 +6,6 @@
 #define IMU_ACCEL_CAN_ID    0xFC
 #define IMU_GYRO_CAN_ID     0xFB
 #define MAGNOMETER_CAN_ID   0XFD
+#define ORIENTATION_CAN_ID  0XFD
 
 // u_TODO - finish this file
