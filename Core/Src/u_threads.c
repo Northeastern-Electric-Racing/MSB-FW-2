@@ -39,10 +39,10 @@ void sensors_thread(ULONG thread_input) {
     uint32_t count = 25;
 
     while(1) {
-        CATCH_ERROR(read_imu_and_magnometer());
+        CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
 
         if (count >= 25) {
-            CATCH_ERROR(read_sht30());
+            CATCH_ERROR(read_sht30(), U_SUCCESS);
             send_sht30_data();
             send_imu_and_magnometer_data();
             count = 0;
