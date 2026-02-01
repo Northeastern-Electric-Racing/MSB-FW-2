@@ -20,6 +20,7 @@
 #include "app_threadx.h"
 #include "main.h"
 #include "u_queues.h"
+#include "fdcan.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
