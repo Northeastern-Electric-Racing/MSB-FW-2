@@ -117,7 +117,7 @@ int32_t _lsm6dsv_write(void *handle, uint8_t register_address, uint8_t *data, ui
 }
 
 void _delay(uint32_t delay) {
-    return tx_thread_sleep(delay);
+    tx_thread_sleep(delay);
 }
 
 uint16_t imu_get_accelerometer_data(LSM6DSV_Axes_t *axes) {
