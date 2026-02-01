@@ -1,6 +1,7 @@
 #include "u_threads.h"
 #include "u_tx_debug.h"
 #include "u_sensors.h"
+#include "timer.h"
 
 /* Default Thread */
 static thread_t _default_thread = {
@@ -25,6 +26,7 @@ void default_thread(ULONG thread_input) {
 }
 
 /* Sensors Thread */
+static nertimer_t data_send_timer;
 static thread_t _sensors_thread = {
     .name       = "Sensors Thread",  /* Name */
     .size       = 1024,              /* Stack Size (in bytes) */
@@ -36,19 +38,19 @@ static thread_t _sensors_thread = {
     .function   = sensors_thread     /* Thread Function */
 };
 void sensors_thread(ULONG thread_input) {
-    uint32_t count = 25;
+    const uint16_t DATA_SEND_INTERVAL = 25 * _sensors_thread.sleep;
+    start_timer(&data_send_timer, DATA_SEND_INTERVAL);
 
     while(1) {
         CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
 
-        if (count >= 25) {
+        if (is_timer_expired(&data_send_timer)) {
             CATCH_ERROR(read_sht30(), U_SUCCESS);
             send_sht30_data();
             send_imu_and_magnometer_data();
-            count = 0;
+            start_timer(&data_send_timer, DATA_SEND_INTERVAL);
         }
 
-        count++;
         tx_thread_sleep(_sensors_thread.sleep);
     }
 }
