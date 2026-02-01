@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include "u_can.h"
 #include "u_tx_debug.h"
-#include "u_nx_ethernet.h"
 
 /* CAN interfaces */
 can_t can2;
