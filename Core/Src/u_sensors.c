@@ -10,7 +10,7 @@
 #include "u_queues.h"
 #include "u_utils.h"
 #include "motion_fx.h"
-#include "u_tx_debug.h"
+#include "tx_api.h"
 
 #include "sht30.h"
 #include "lsm6dsv_reg.h"
