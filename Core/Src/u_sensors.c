@@ -10,7 +10,6 @@
 #include "u_queues.h"
 #include "u_utils.h"
 #include "motion_fx.h"
-#include "tx_api.h"
 
 #include "sht30.h"
 #include "lsm6dsv_reg.h"
@@ -118,7 +117,7 @@ int32_t _lsm6dsv_write(void *handle, uint8_t register_address, uint8_t *data, ui
 }
 
 void _delay(uint32_t delay) {
-    tx_thread_sleep(delay);
+    HAL_Delay(delay);
 }
 
 uint16_t imu_get_accelerometer_data(LSM6DSV_Axes_t *axes) {

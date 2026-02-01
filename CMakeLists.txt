@@ -54,11 +54,12 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Embedded-Base ThreadX Utils
-    "../Drivers/Embedded-Base/threadX/src/u_tx_can.c"
-    "../Drivers/Embedded-Base/threadX/src/u_tx_debug.c"
-    "../Drivers/Embedded-Base/threadX/src/u_tx_mutex.c"
-    "../Drivers/Embedded-Base/threadX/src/u_tx_queues.c"
-    "../Drivers/Embedded-Base/threadX/src/u_tx_threads.c"
+    "./Drivers/Embedded-Base/threadX/src/u_tx_debug.c"
+    "./Drivers/Embedded-Base/threadX/src/u_tx_mutex.c"
+    "./Drivers/Embedded-Base/threadX/src/u_tx_queues.c"
+    "./Drivers/Embedded-Base/threadX/src/u_tx_threads.c"
+    "./Drivers/Embedded-Base/middleware/src/bitstream.c"
+    "./Drivers/Embedded-Base/middleware/src/c_utils.c"
 
     # Misc Embedded-Base Stuff (drivers, middleware, utils, etc.)
     "../Drivers/Embedded-Base/general/src/sht30.c"
