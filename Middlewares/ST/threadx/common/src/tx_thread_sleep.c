@@ -71,7 +71,7 @@
 /*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
-UINT  _tx_threathd_sleep(ULONG timer_ticks)
+UINT  _tx_thread_sleep(ULONG timer_ticks)
 {
 
 TX_INTERRUPT_SAVE_AREA
