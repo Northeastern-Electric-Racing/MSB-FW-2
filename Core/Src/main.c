@@ -21,6 +21,7 @@
 #include "main.h"
 #include "u_queues.h"
 #include "fdcan.h"
+#include "u_tx_debug.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
