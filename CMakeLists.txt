@@ -59,7 +59,6 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "../Drivers/Embedded-Base/threadX/src/u_tx_mutex.c"
     "../Drivers/Embedded-Base/threadX/src/u_tx_queues.c"
     "../Drivers/Embedded-Base/threadX/src/u_tx_threads.c"
-    "../Drivers/Embedded-Base/threadX/src/u_tx_timers.c"
 
     # Misc Embedded-Base Stuff (drivers, middleware, utils, etc.)
     "../Drivers/Embedded-Base/general/src/sht30.c"
@@ -97,12 +96,14 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined symbols
 )
 
-# Remove wrong libob.a library dependency when using cpp files
-list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_LIBRARIES ob)
+# Compiler options
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
+    -Wno-unused-parameter # u_TODO - this doesn't seem to be working
+)
 
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
-    threadx
+
     # Add user defined libraries
 )
