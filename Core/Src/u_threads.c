@@ -2,6 +2,7 @@
 #include "u_tx_debug.h"
 #include "u_sensors.h"
 #include "timer.h"
+#include "tx_api.h"
 
 /* Default Thread */
 static thread_t _default_thread = {
