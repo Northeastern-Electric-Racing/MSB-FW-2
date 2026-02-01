@@ -6,6 +6,7 @@
 #include "u_can.h"
 #include "u_queues.h"
 #include "main.h"
+#include "u_inbox.h"
 
 #define PRIO_DEFAULT          0
 #define PRIO_CAN_INCOMING     0
