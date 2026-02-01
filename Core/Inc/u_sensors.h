@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __U_SENSORS_H
+#define __U_SENSORS_H
 
 #include <stdint.h>
 
@@ -69,3 +70,5 @@ uint16_t read_sht30();
  * @brief sends temp and humidity data from the sht30 over CAN
  */
 void send_sht30_data();
+
+#endif /* u_sensors.h */

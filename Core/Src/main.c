@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "app_threadx.h"
 #include "main.h"
+#include "u_queues.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -92,6 +93,48 @@ static void MX_TIM15_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/* Make printf() use LPUART1 */
+int _write(int file, char *ptr, int len)
+{
+    HAL_UART_Transmit(&hlpuart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
+    return len;
+}
+
+/* FDCAN FIFO0 Interrupt Callback */
+/* Callback for any FIFO0 interrupt stuff */
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+{
+
+	/* If a message has just been recieved... */
+	if (RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE)
+	{
+		can_msg_t message;
+		FDCAN_RxHeaderTypeDef rx_header;
+
+    /* Get the message. */
+    HAL_StatusTypeDef status = HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rx_header, message.data);
+    if (status != HAL_OK) {
+      PRINTLN_ERROR("Failed to call HAL_FDCAN_GetRxMessage() (Status: %ld/%s).", status, hal_status_toString(status));
+      return;
+    }
+
+    /* Pack the message into the struct. */
+    message.id = rx_header.Identifier;
+		message.id_is_extended = (rx_header.IdType == FDCAN_EXTENDED_ID);
+	  message.len = (uint8_t)rx_header.DataLength;
+
+		/* Check message size */
+		if (rx_header.DataLength > 8)
+		{
+			PRINTLN_ERROR("Recieved CAN message is larger than 8 bytes (rx_header.DataLength: %ld).", rx_header.DataLength);
+			return;
+		}
+
+		/* Send message to incoming CAN queue */
+    queue_send(&can_incoming, &message, TX_NO_WAIT);
+	}
+}
 
 /* USER CODE END 0 */
 
