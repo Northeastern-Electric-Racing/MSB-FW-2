@@ -65,10 +65,10 @@ void Error_Handler(void);
 #define TOF_RST_GPIO_Port GPIOE
 #define TOF_LPN_Pin GPIO_PIN_5
 #define TOF_LPN_GPIO_Port GPIOE
-#define DEBUG_LED2_Pin GPIO_PIN_2
-#define DEBUG_LED2_GPIO_Port GPIOG
 #define DEBUG_LED1_Pin GPIO_PIN_3
 #define DEBUG_LED1_GPIO_Port GPIOG
+#define DEBUG_LED2_Pin GPIO_PIN_4
+#define DEBUG_LED2_GPIO_Port GPIOG
 
 /* USER CODE BEGIN Private defines */
 

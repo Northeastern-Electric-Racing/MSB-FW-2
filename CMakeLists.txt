@@ -54,16 +54,18 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Embedded-Base ThreadX Utils
-    "../Drivers/Embedded-Base/threadX/src/u_tx_can.c"
-    "../Drivers/Embedded-Base/threadX/src/u_tx_debug.c"
-    "../Drivers/Embedded-Base/threadX/src/u_tx_mutex.c"
-    "../Drivers/Embedded-Base/threadX/src/u_tx_queues.c"
-    "../Drivers/Embedded-Base/threadX/src/u_tx_threads.c"
+    "./Drivers/Embedded-Base/threadX/src/u_tx_debug.c"
+    "./Drivers/Embedded-Base/threadX/src/u_tx_mutex.c"
+    "./Drivers/Embedded-Base/threadX/src/u_tx_queues.c"
+    "./Drivers/Embedded-Base/threadX/src/u_tx_threads.c"
+    "./Drivers/Embedded-Base/middleware/src/bitstream.c"
+    "./Drivers/Embedded-Base/middleware/src/c_utils.c"
 
     # Misc Embedded-Base Stuff (drivers, middleware, utils, etc.)
     "../Drivers/Embedded-Base/general/src/sht30.c"
-    "../Drivers/Embedded-Base/general/src/lsm6dso_reg.c"
-    "../Drivers/Embedded-Base/general/src/lsm6dso.c"
+    "../Drivers/Embedded-Base/general/include/lsm6dsv_reg.h"
+    "../Drivers/Embedded-Base/general/src/lsm6dsv_reg.c"
+    "../Drivers/Embedded-Base/general/src/lis2mdl_reg.c"
     "../Drivers/Embedded-Base/platforms/stm32h563/src/fdcan.c"
     "./Drivers/Embedded-Base/middleware/src/bitstream.c"
     "./Drivers/Embedded-Base/middleware/src/debounce.c"
@@ -71,6 +73,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Drivers/Embedded-Base/middleware/src/c_utils.c"
 
     # Repo Source Files
+    "./Core/Src/u_utils.c"
     "./Core/Src/u_can.c"
     "./Core/Src/u_mutexes.c"
     "./Core/Src/u_queues.c"
@@ -94,8 +97,10 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined symbols
 )
 
-# Remove wrong libob.a library dependency when using cpp files
-list(REMOVE_ITEM CMAKE_C_IMPLICIT_LINK_LIBRARIES ob)
+# Compiler options
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE
+    -Wno-unused-parameter # u_TODO - this doesn't seem to be working
+)
 
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
