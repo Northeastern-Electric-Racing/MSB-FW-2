@@ -481,7 +481,7 @@ void motion_fx_init() {
 	iKnobs.modx = DECIMATION;
 
 	MotionFX_setKnobs(mFXState, &iKnobs);
-	MotionFX_enable_6X(mFXState, MFX_ENGINE_ENABLE);
+	MotionFX_enable_9X(mFXState, MFX_ENGINE_ENABLE);
 }
 
 void calibrate() {
