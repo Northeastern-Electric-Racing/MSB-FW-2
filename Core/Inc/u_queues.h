@@ -1,10 +1,13 @@
 #pragma once
 
 #include "u_tx_queues.h"
+#include "u_nx_ethernet.h"
 
 /* Queue List */
 extern queue_t can_incoming; // Incoming CAN Queue
 extern queue_t can_outgoing; // Outgoing CAN Queue
+extern queue_t eth_incoming; // Incoming Ethernet Queue
+extern queue_t eth_outgoing; // Outgoing Ethernet Queue
 // add more as necessary
 
 /* API */
