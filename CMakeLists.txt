@@ -86,6 +86,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     "./Drivers/Embedded-Base/general/include/"
     "./Drivers/Embedded-Base/middleware/include/"
+    "./Drivers/Embedded-Base/NetX/inc/"
     "./Drivers/Embedded-Base/platforms/stm32h563/include/"
     "./Drivers/Embedded-Base/threadX/inc/"
     "./NetXDuo"
