@@ -9,3 +9,5 @@ uint8_t threads_init(TX_BYTE_POOL *byte_pool);
 /* Thread Functions */
 void default_thread(ULONG thread_input);
 void sensors_thread(ULONG thread_input);
+void vEthernetIncoming(ULONG thread_input);
+void vEthernetOutgoing(ULONG thread_input);
