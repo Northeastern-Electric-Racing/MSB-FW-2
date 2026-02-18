@@ -79,6 +79,10 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Core/Src/u_queues.c"
     "./Core/Src/u_sensors.c"
     "./Core/Src/u_threads.c"
+
+    # Ethernet Implementations
+    "./Core/Src/u_ethernet.c"
+    "./Drivers/Embedded-Base/NetX/src/u_nx_ethernet.c"
 )
 
 # Add include paths
@@ -89,6 +93,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     "./Drivers/Embedded-Base/NetX/inc/"
     "./Drivers/Embedded-Base/platforms/stm32h563/include/"
     "./Drivers/Embedded-Base/threadX/inc/"
+    "./Middlewares/ST/netxduo/common/drivers/ethernet/"
     "./NetXDuo"
     "./Core/Inc/"
 )
