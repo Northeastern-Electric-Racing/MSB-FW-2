@@ -82,6 +82,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 
     # Ethernet Implementations
     "./Core/Src/u_ethernet.c"
+    "./Drivers/Embedded-Base/NetX/src/u_nx_debug.c"
     "./Drivers/Embedded-Base/NetX/src/u_nx_ethernet.c"
 )
 
