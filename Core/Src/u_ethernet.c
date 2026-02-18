@@ -12,8 +12,10 @@ void _ethernet_recieve(ethernet_message_t message) {
 
 /* Initializes ethernet. */
 int ethernet1_init(void) {
+    // commented out because I don't think we do this for this board
     /* PHY_RESET Pin has to be set HIGH for the PHY to function. */
-    HAL_GPIO_WritePin(PHY_RESET_GPIO_Port, PHY_RESET_Pin, GPIO_PIN_SET);
+    //HAL_GPIO_WritePin(PHY_RESET_GPIO_Port, PHY_RESET_Pin, GPIO_PIN_SET);
+
 
     /* Init the ethernet. */ 
     return ethernet_init(VCU, nx_stm32_eth_driver, _ethernet_recieve);
