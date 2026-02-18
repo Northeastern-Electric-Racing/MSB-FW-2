@@ -3,6 +3,8 @@
 #include "u_sensors.h"
 #include "timer.h"
 #include "tx_api.h"
+#include "u_nx_ethernet.h"
+#include "u_ethernet.h"
 
 /* Default Thread */
 static thread_t _default_thread = {
@@ -56,24 +58,11 @@ void sensors_thread(ULONG thread_input) {
     }
 }
 
-/* Initializes all ThreadX threads. 
-*  Calls to create_thread() should go in here
-*/
-uint8_t threads_init(TX_BYTE_POOL *byte_pool) {
-
-    /* Create Threads */
-    CATCH_ERROR(create_thread(byte_pool, &_default_thread), U_SUCCESS);      // Create Default thread.
-    CATCH_ERROR(create_thread(byte_pool, &_sensors_thread), U_SUCCESS);      // Create Sensors thread.
-
-    PRINTLN_INFO("Ran threads_init().");
-    return U_SUCCESS;
-}
-
 /* Incoming Ethernet Thread. Processes incoming messages. */
 static thread_t ethernet_incoming_thread = {
         .name       = "Incoming Ethernet Thread",  /* Name */
         .size       = 512,                         /* Stack Size (in bytes) */
-        .priority   = PRIO_vEthernetIncoming,      /* Priority */
+        .priority   = 2,      /* Priority */
         .threshold  = 0,                           /* Preemption Threshold */
         .time_slice = TX_NO_TIME_SLICE,            /* Time Slice */
         .auto_start = TX_AUTO_START,               /* Auto Start */
@@ -99,7 +88,7 @@ void vEthernetIncoming(ULONG thread_input) {
 static thread_t ethernet_outgoing_thread = {
         .name       = "Outgoing Ethernet Thread",  /* Name */
         .size       = 512,                         /* Stack Size (in bytes) */
-        .priority   = PRIO_vEthernetOutgoing,      /* Priority */
+        .priority   = 2,      /* Priority */
         .threshold  = 0,                           /* Preemption Threshold */
         .time_slice = TX_NO_TIME_SLICE,            /* Time Slice */
         .auto_start = TX_AUTO_START,               /* Auto Start */
@@ -125,3 +114,19 @@ void vEthernetOutgoing(ULONG thread_input) {
         /* No sleep. Thread timing is controlled completely by the queue timeout. */
     }
 }
+
+/* Initializes all ThreadX threads. 
+*  Calls to create_thread() should go in here
+*/
+uint8_t threads_init(TX_BYTE_POOL *byte_pool) {
+
+    /* Create Threads */
+    CATCH_ERROR(create_thread(byte_pool, &_default_thread), U_SUCCESS);      // Create Default thread.
+    CATCH_ERROR(create_thread(byte_pool, &_sensors_thread), U_SUCCESS);      // Create Sensors thread.
+    CATCH_ERROR(create_thread(byte_pool, &ethernet_incoming_thread), U_SUCCESS); // Create Incoming Ethernet thread.
+    CATCH_ERROR(create_thread(byte_pool, &ethernet_outgoing_thread), U_SUCCESS);    // Create Outgoing Ethernet thread.
+
+    PRINTLN_INFO("Ran threads_init().");
+    return U_SUCCESS;
+}
+
