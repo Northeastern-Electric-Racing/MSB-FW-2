@@ -65,37 +65,10 @@ void Error_Handler(void);
 #define TOF_RST_GPIO_Port GPIOE
 #define TOF_LPN_Pin GPIO_PIN_5
 #define TOF_LPN_GPIO_Port GPIOE
-#define MUX1_SEL1_Pin GPIO_PIN_6
-#define MUX1_SEL1_GPIO_Port GPIOF
-#define MUX1_SEL2_Pin GPIO_PIN_7
-#define MUX1_SEL2_GPIO_Port GPIOF
-#define MUX1_SEL3_Pin GPIO_PIN_8
-#define MUX1_SEL3_GPIO_Port GPIOF
-#define MUX1_SEL4_Pin GPIO_PIN_9
-#define MUX1_SEL4_GPIO_Port GPIOF
-#define PHY_IRQ_Pin GPIO_PIN_7
-#define PHY_IRQ_GPIO_Port GPIOE
-#define PHY_IRQ_EXTI_IRQn EXTI7_IRQn
-#define PHY_RX_ER_Pin GPIO_PIN_8
-#define PHY_RX_ER_GPIO_Port GPIOE
-#define PHY_RESET_Pin GPIO_PIN_10
-#define PHY_RESET_GPIO_Port GPIOE
-#define PHY_GPIO_Pin GPIO_PIN_11
-#define PHY_GPIO_GPIO_Port GPIOE
 #define DEBUG_LED1_Pin GPIO_PIN_3
 #define DEBUG_LED1_GPIO_Port GPIOG
 #define DEBUG_LED2_Pin GPIO_PIN_4
 #define DEBUG_LED2_GPIO_Port GPIOG
-#define MUX2_SEL1_Pin GPIO_PIN_6
-#define MUX2_SEL1_GPIO_Port GPIOC
-#define MUX2_SEL2_Pin GPIO_PIN_7
-#define MUX2_SEL2_GPIO_Port GPIOC
-#define MUX2_SEL3_Pin GPIO_PIN_8
-#define MUX2_SEL3_GPIO_Port GPIOC
-#define MUX2_SEL4_Pin GPIO_PIN_9
-#define MUX2_SEL4_GPIO_Port GPIOC
-#define MSB_ADDR_Pin GPIO_PIN_10
-#define MSB_ADDR_GPIO_Port GPIOC
 
 /* USER CODE BEGIN Private defines */
 

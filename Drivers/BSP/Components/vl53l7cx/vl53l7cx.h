@@ -1,21 +1,21 @@
 /**
- ******************************************************************************
- * @file    vl53l7cx.h
- * @author  IMG SW Application Team
- * @brief   This file contains all the functions prototypes for the vl53l7cx.c
- *          driver.
- ******************************************************************************
- * @attention
- *
- * Copyright (c) 2022 STMicroelectronics.
- * All rights reserved.
- *
- * This software is licensed under terms that can be found in the LICENSE file
- * in the root directory of this software component.
- * If no LICENSE file comes with this software, it is provided AS-IS.
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * @file    vl53l7cx.h
+  * @author  IMG SW Application Team
+  * @brief   This file contains all the functions prototypes for the vl53l7cx.c
+  *          driver.
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2022 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef VL53L7CX_H
@@ -31,84 +31,73 @@ extern "C" {
 #include <stdint.h>
 
 #include "vl53l7cx_api.h"
-#include "vl53l7cx_plugin_detection_thresholds.h"
 #include "vl53l7cx_plugin_xtalk.h"
+#include "vl53l7cx_plugin_detection_thresholds.h"
 
 /** @addtogroup BSP
- * @{
- */
+  * @{
+  */
 
 /** @addtogroup Components
- * @{
- */
+  * @{
+  */
 
 /** @addtogroup VL53L7CX
- * @{
- */
+  * @{
+  */
 
 /** @defgroup VL53L7CX_Exported_Constants Exported Constants
- * @{
- */
-#define VL53L7CX_ID (0xF002U)
-#define VL53L7CX_ID_REG (0x010FU)
+  * @{
+  */
+#define VL53L7CX_ID       (0xF002U)
+#define VL53L7CX_ID_REG   (0x010FU)
 
-#define VL53L7CX_DEVICE_ADDRESS (VL53L7CX_DEFAULT_I2C_ADDRESS)
-#define VL53L7CX_TARGET_PER_ZONE (VL53L7CX_NB_TARGET_PER_ZONE)
-#define VL53L7CX_MAX_NB_ZONES (VL53L7CX_RESOLUTION_8X8)
+#define VL53L7CX_DEVICE_ADDRESS      (VL53L7CX_DEFAULT_I2C_ADDRESS)
+#define VL53L7CX_TARGET_PER_ZONE     (VL53L7CX_NB_TARGET_PER_ZONE)
+#define VL53L7CX_MAX_NB_ZONES        (VL53L7CX_RESOLUTION_8X8)
 
 /* vl53l7cx ranging profiles */
-#define VL53L7CX_PROFILE_4x4_CONTINUOUS (1U)
-#define VL53L7CX_PROFILE_4x4_AUTONOMOUS (2U)
-#define VL53L7CX_PROFILE_8x8_CONTINUOUS (3U)
-#define VL53L7CX_PROFILE_8x8_AUTONOMOUS (4U)
+#define VL53L7CX_PROFILE_4x4_CONTINUOUS        (1U)
+#define VL53L7CX_PROFILE_4x4_AUTONOMOUS        (2U)
+#define VL53L7CX_PROFILE_8x8_CONTINUOUS        (3U)
+#define VL53L7CX_PROFILE_8x8_AUTONOMOUS        (4U)
 
 /* vl53l7cx threshold/interrupt criteria */
-#define VL53L7CX_IT_DEFAULT                                                    \
-  (0xFFU) /*!< IT if new measurement is ready (thresholds are not considered)  \
-           */
-#define VL53L7CX_IT_IN_WINDOW                                                  \
-  (VL53L7CX_IN_WINDOW) /*!< IT if distance > HighThreshold */
-#define VL53L7CX_IT_OUT_OF_WINDOW                                              \
-  (VL53L7CX_OUT_OF_WINDOW) /*!< IT if distance < LowThreshold OR distance >    \
-                              HighThreshold */
-#define VL53L7CX_IT_BELOW_LOW                                                  \
-  (VL53L7CX_LESS_THAN_EQUAL_MIN_CHECKER) /*!< IT if distance <= LowThreshold   \
-                                          */
-#define VL53L7CX_IT_ABOVE_HIGH                                                 \
-  (VL53L7CX_GREATER_THAN_MAX_CHECKER) /*!< IT if distance > HighThreshold */
-#define VL53L7CX_IT_EQUAL_LOW                                                  \
-  (VL53L7CX_EQUAL_MIN_CHECKER) /*!< IT if distance == LowThreshold */
-#define VL53L7CX_IT_NOT_EQUAL_LOW                                              \
-  (VL53L7CX_NOT_EQUAL_MIN_CHECKER) /*!< IT if distance != LowThreshold */
+#define VL53L7CX_IT_DEFAULT           (0xFFU) /*!< IT if new measurement is ready (thresholds are not considered) */
+#define VL53L7CX_IT_IN_WINDOW         (VL53L7CX_IN_WINDOW) /*!< IT if distance > HighThreshold */
+#define VL53L7CX_IT_OUT_OF_WINDOW     (VL53L7CX_OUT_OF_WINDOW) /*!< IT if distance < LowThreshold OR distance > HighThreshold */
+#define VL53L7CX_IT_BELOW_LOW         (VL53L7CX_LESS_THAN_EQUAL_MIN_CHECKER) /*!< IT if distance <= LowThreshold */
+#define VL53L7CX_IT_ABOVE_HIGH        (VL53L7CX_GREATER_THAN_MAX_CHECKER) /*!< IT if distance > HighThreshold */
+#define VL53L7CX_IT_EQUAL_LOW         (VL53L7CX_EQUAL_MIN_CHECKER) /*!< IT if distance == LowThreshold */
+#define VL53L7CX_IT_NOT_EQUAL_LOW     (VL53L7CX_NOT_EQUAL_MIN_CHECKER) /*!< IT if distance != LowThreshold */
 
 /* vl53l7cx ranging modes */
-#define VL53L7CX_MODE_BLOCKING_CONTINUOUS (1U)
-#define VL53L7CX_MODE_BLOCKING_ONESHOT (2U)
-#define VL53L7CX_MODE_ASYNC_CONTINUOUS (3U)
-#define VL53L7CX_MODE_ASYNC_ONESHOT (4U)
+#define VL53L7CX_MODE_BLOCKING_CONTINUOUS   (1U)
+#define VL53L7CX_MODE_BLOCKING_ONESHOT      (2U)
+#define VL53L7CX_MODE_ASYNC_CONTINUOUS      (3U)
+#define VL53L7CX_MODE_ASYNC_ONESHOT         (4U)
 
 /* vl53l7cx error codes */
-#define VL53L7CX_OK (0)
-#define VL53L7CX_ERROR (-1)
-#define VL53L7CX_INVALID_PARAM (-2)
-#define VL53L7CX_TIMEOUT (-3)
-#define VL53L7CX_NOT_IMPLEMENTED (-4)
+#define VL53L7CX_OK                  (0)
+#define VL53L7CX_ERROR               (-1)
+#define VL53L7CX_INVALID_PARAM       (-2)
+#define VL53L7CX_TIMEOUT             (-3)
+#define VL53L7CX_NOT_IMPLEMENTED     (-4)
 /**
- * @}
- */
+  * @}
+  */
 
 /** @defgroup VL53L7CX_Exported_Types Exported Types
- * @{
- */
+  * @{
+  */
 typedef int32_t (*VL53L7CX_Init_Func)(void);
 typedef int32_t (*VL53L7CX_DeInit_Func)(void);
 typedef int32_t (*VL53L7CX_GetTick_Func)(void);
-typedef int32_t (*VL53L7CX_WriteReg_Func)(uint16_t, uint16_t, uint8_t *,
-                                          uint16_t);
-typedef int32_t (*VL53L7CX_ReadReg_Func)(uint16_t, uint16_t, uint8_t *,
-                                         uint16_t);
+typedef int32_t (*VL53L7CX_WriteReg_Func)(uint16_t, uint16_t, uint8_t *, uint16_t);
+typedef int32_t (*VL53L7CX_ReadReg_Func)(uint16_t, uint16_t, uint8_t *, uint16_t);
 
-typedef struct {
+typedef struct
+{
   VL53L7CX_Init_Func Init;
   VL53L7CX_DeInit_Func DeInit;
   uint16_t Address;
@@ -117,19 +106,21 @@ typedef struct {
   VL53L7CX_GetTick_Func GetTick;
 } VL53L7CX_IO_t;
 
-typedef struct {
+typedef struct
+{
   VL53L7CX_IO_t IO;
   VL53L7CX_Configuration Dev;
-  uint8_t IsInitialized;    /*!< NotInitialized: 0, Initialized: 1 */
-  uint8_t IsRanging;        /*!< Not Started: 0, Started: 1 */
-  uint8_t IsBlocking;       /*!< Interrupt: 0, Polling: 1 */
-  uint8_t IsContinuous;     /*!< One shot: 0, Continuous: 1 */
-  uint8_t IsAmbientEnabled; /*!< Enabled: 0, Disabled: 1 */
-  uint8_t IsSignalEnabled;  /*!< Enabled: 0, Disabled: 1 */
+  uint8_t IsInitialized;      /*!< NotInitialized: 0, Initialized: 1 */
+  uint8_t IsRanging;          /*!< Not Started: 0, Started: 1 */
+  uint8_t IsBlocking;         /*!< Interrupt: 0, Polling: 1 */
+  uint8_t IsContinuous;       /*!< One shot: 0, Continuous: 1 */
+  uint8_t IsAmbientEnabled;   /*!< Enabled: 0, Disabled: 1 */
+  uint8_t IsSignalEnabled;    /*!< Enabled: 0, Disabled: 1 */
   uint8_t RangingProfile;
 } VL53L7CX_Object_t;
 
-typedef struct {
+typedef struct
+{
   uint8_t NumberOfTargets;
   uint32_t Distance[VL53L7CX_NB_TARGET_PER_ZONE]; /*!< millimeters */
   uint32_t Status[VL53L7CX_NB_TARGET_PER_ZONE];   /*!< OK: 0, NOK: !0 */
@@ -137,40 +128,46 @@ typedef struct {
   float_t Signal[VL53L7CX_NB_TARGET_PER_ZONE];    /*!< kcps / spad */
 } VL53L7CX_ZoneResult_t;
 
-typedef struct {
+typedef struct
+{
   uint32_t NumberOfZones;
   VL53L7CX_ZoneResult_t ZoneResult[VL53L7CX_MAX_NB_ZONES];
 } VL53L7CX_Result_t;
 
-typedef struct {
-  uint32_t Criteria;      /*!< interrupt generation criteria */
-  uint32_t LowThreshold;  /*!< expressed in millimeters */
-  uint32_t HighThreshold; /*!< expressed in millimeters */
+typedef struct
+{
+  uint32_t Criteria;       /*!< interrupt generation criteria */
+  uint32_t LowThreshold;   /*!< expressed in millimeters */
+  uint32_t HighThreshold;  /*!< expressed in millimeters */
 } VL53L7CX_ITConfig_t;
 
-typedef struct {
+typedef struct
+{
   uint8_t TopLeftX;  /*!< Top Left x coordinate */
   uint8_t TopLeftY;  /*!< Top Left y coordinate */
   uint8_t BotRightX; /*!< Bot Right x coordinate */
   uint8_t BotRightY; /*!< Bot Right y coordinate */
 } VL53L7CX_ROIConfig_t;
 
-typedef struct {
+typedef struct
+{
   uint8_t RangingProfile;
-  uint32_t TimingBudget;  /*!< Expressed in milliseconds */
-  uint32_t Frequency;     /*!< Expressed in Hz */
-  uint32_t EnableAmbient; /*<! Enable: 1, Disable: 0 */
-  uint32_t EnableSignal;  /*<! Enable: 1, Disable: 0 */
+  uint32_t TimingBudget;   /*!< Expressed in milliseconds */
+  uint32_t Frequency;      /*!< Expressed in Hz */
+  uint32_t EnableAmbient;  /*<! Enable: 1, Disable: 0 */
+  uint32_t EnableSignal;   /*<! Enable: 1, Disable: 0 */
 } VL53L7CX_ProfileConfig_t;
 
-typedef struct {
+typedef struct
+{
   uint32_t NumberOfZones;
   uint32_t MaxNumberOfTargetsPerZone;
-  uint32_t CustomROI;          /*<! Not available: 0, Available: 1 */
-  uint32_t ThresholdDetection; /*<! Not available: 0, Available: 1 */
+  uint32_t CustomROI;           /*<! Not available: 0, Available: 1 */
+  uint32_t ThresholdDetection;  /*<! Not available: 0, Available: 1 */
 } VL53L7CX_Capabilities_t;
 
-typedef struct {
+typedef struct
+{
   int32_t (*Init)(VL53L7CX_Object_t *);
   int32_t (*DeInit)(VL53L7CX_Object_t *);
   int32_t (*ReadID)(VL53L7CX_Object_t *, uint32_t *);
@@ -187,27 +184,22 @@ typedef struct {
   int32_t (*GetPowerMode)(VL53L7CX_Object_t *, uint32_t *);
 } VL53L7CX_RANGING_SENSOR_Drv_t;
 /**
- * @}
- */
+  * @}
+  */
 
 /** @defgroup VL53L7CX_Exported_Functions VL53L7CX Exported Functions
- * @{
- */
+  * @{
+  */
 /* RANGING_SENSOR methods */
 int32_t VL53L7CX_RegisterBusIO(VL53L7CX_Object_t *pObj, VL53L7CX_IO_t *pIO);
 int32_t VL53L7CX_Init(VL53L7CX_Object_t *pObj);
 int32_t VL53L7CX_DeInit(VL53L7CX_Object_t *pObj);
 int32_t VL53L7CX_ReadID(VL53L7CX_Object_t *pObj, uint32_t *pId);
-int32_t VL53L7CX_GetCapabilities(VL53L7CX_Object_t *pObj,
-                                 VL53L7CX_Capabilities_t *pCap);
-int32_t VL53L7CX_ConfigProfile(VL53L7CX_Object_t *pObj,
-                               VL53L7CX_ProfileConfig_t *pConfig);
-int32_t VL53L7CX_ConfigROI(VL53L7CX_Object_t *pObj,
-                           VL53L7CX_ROIConfig_t *pROIConfig);
-int32_t VL53L7CX_ConfigIT(VL53L7CX_Object_t *pObj,
-                          VL53L7CX_ITConfig_t *pITConfig);
-int32_t VL53L7CX_GetDistance(VL53L7CX_Object_t *pObj,
-                             VL53L7CX_Result_t *pResult);
+int32_t VL53L7CX_GetCapabilities(VL53L7CX_Object_t *pObj, VL53L7CX_Capabilities_t *pCap);
+int32_t VL53L7CX_ConfigProfile(VL53L7CX_Object_t *pObj, VL53L7CX_ProfileConfig_t *pConfig);
+int32_t VL53L7CX_ConfigROI(VL53L7CX_Object_t *pObj, VL53L7CX_ROIConfig_t *pROIConfig);
+int32_t VL53L7CX_ConfigIT(VL53L7CX_Object_t *pObj, VL53L7CX_ITConfig_t *pITConfig);
+int32_t VL53L7CX_GetDistance(VL53L7CX_Object_t *pObj, VL53L7CX_Result_t *pResult);
 int32_t VL53L7CX_Start(VL53L7CX_Object_t *pObj, uint32_t Mode);
 int32_t VL53L7CX_Stop(VL53L7CX_Object_t *pObj);
 int32_t VL53L7CX_SetAddress(VL53L7CX_Object_t *pObj, uint32_t Address);
@@ -216,14 +208,13 @@ int32_t VL53L7CX_SetPowerMode(VL53L7CX_Object_t *pObj, uint32_t PowerMode);
 int32_t VL53L7CX_GetPowerMode(VL53L7CX_Object_t *pObj, uint32_t *pPowerMode);
 
 /* additional methods */
-int32_t VL53L7CX_XTalkCalibration(VL53L7CX_Object_t *pObj, uint16_t Reflectance,
-                                  uint16_t Distance);
+int32_t VL53L7CX_XTalkCalibration(VL53L7CX_Object_t *pObj, uint16_t Reflectance, uint16_t Distance);
 /**
- * @}
- */
+  * @}
+  */
 
 /* RANGING_SENSOR driver structure */
-extern VL53L7CX_RANGING_SENSOR_Drv_t VL53L7CX_RANGING_SENSOR_Driver;
+extern VL53L7CX_RANGING_SENSOR_Drv_t   VL53L7CX_RANGING_SENSOR_Driver;
 
 #ifdef __cplusplus
 }
@@ -231,13 +222,13 @@ extern VL53L7CX_RANGING_SENSOR_Drv_t VL53L7CX_RANGING_SENSOR_Driver;
 
 #endif /* VL53L7CX_H */
 /**
- * @}
- */
+  * @}
+  */
 
 /**
- * @}
- */
+  * @}
+  */
 
 /**
- * @}
- */
+  * @}
+  */
