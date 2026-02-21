@@ -38,6 +38,7 @@ static float calibration_y = 0.0f;
 static float calibration_z = 0.0f;
 
 static VL53L7CX_Object_t vl53l7cx_obj;
+static VL53L7CX_IO_t vl53l7cx_io;
 
 static struct __attribute__((__packed__)) {
   int16_t accel_x;
@@ -576,10 +577,12 @@ void send_sht30_data() {
 }
 
 int32_t init_vl53l7cx() {
+  VL53L7CX_RegisterBusIO(&vl53l7cx_obj, &vl53l7cx_io);
   int32_t init_retval = VL53L7CX_Init(&vl53l7cx_obj);
   if (init_retval) {
     PRINTLN_ERROR("ERROR: Cannot initalize VL53L7CX sensor (status %d)",
                   init_retval);
+    return init_retval;
   }
   VL53L7CX_ProfileConfig_t conf = {
       .RangingProfile = VL53L7CX_PROFILE_4x4_CONTINUOUS,
@@ -592,26 +595,37 @@ int32_t init_vl53l7cx() {
   if (config_retval) {
     PRINTLN_ERROR("ERROR: Cannot write config to VL53L7CX sensor (status %d)",
                   config_retval);
+    return config_retval;
   }
 
-  return init_retval | init_retval;
+  return 0;
 }
 
 int32_t read_vl53l7cx() {
+  int32_t status;
+  status = VL53L7CX_Start(&vl53l7cx_obj, VL53L7CX_MODE_ASYNC_CONTINUOUS);
+  if (status) {
+    PRINTLN_ERROR("ERROR: Could not start ranging vl53l7cx sensor (status %d)",
+                  status);
+    return status;
+  }
   VL53L7CX_Result_t full_data;
-  int32_t status = VL53L7CX_GetDistance(&vl53l7cx_obj, &full_data);
+  status = VL53L7CX_GetDistance(&vl53l7cx_obj, &full_data);
   if (status) {
     PRINTLN_ERROR(
-        "ERROR: Could not retrive value from vl53l7cx sensore (status %d)",
+        "ERROR: Could not retrive value from vl53l7cx sensor (status %d)",
         status);
     return status;
   }
   int j = 0;
   for (size_t i = 0; i < 7; i += 2) {
+    // WARN: Possibly dangerous pointer dereference. Needs testing
     vl53l7cx_data.distance[j] = ((*full_data.ZoneResult[i].Distance +
                                   *full_data.ZoneResult[i + 1].Distance) /
                                  2);
   }
+  VL53L7CX_Stop(&vl53l7cx_obj);
+  return 0;
 }
 
 void send_vl53l7cx_data() {
