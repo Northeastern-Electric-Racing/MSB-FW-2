@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/cdefs.h>
@@ -77,36 +78,9 @@ typedef struct {
   float z;
 } LSM6DSV_Axes_t;
 
-// Should be split into two nibbles, one high for the number of packets in the
-// message (max 16), and one low to track which packet in the series it is
-typedef uint8_t vl53l7cx_msg_progress_t;
-
-typedef struct __attribute__((__packed__)) {
-  uint32_t numberofzones;
-  struct __attribute__((__packed__)) {
-    uint8_t NumberOfTargets;
-    uint32_t Distance[VL53L7CX_NB_TARGET_PER_ZONE]; /*!< millimeters */
-    uint32_t Status[VL53L7CX_NB_TARGET_PER_ZONE];   /*!< OK: 0, NOK: !0 */
-    float_t Ambient[VL53L7CX_NB_TARGET_PER_ZONE];   /*!< kcps / spad */
-    float_t Signal[VL53L7CX_NB_TARGET_PER_ZONE];    /*!< kcps / spad */
-  } ZoneResult[VL53L7CX_MAX_NB_ZONES];
-
-} VL53L7CX_Packed_Result_t;
-
-// Because sizeof(VL53L7CX_Result_t)>64, the data needs to be sent as multiple
-// can frames
-typedef struct __attribute__((__packed__)) {
-  vl53l7cx_msg_progress_t progress;
-
-  /// Represents a counter for how many messages have been sent. It is the
-  /// user's resposibility to recognize that throughout the program's lifetime,
-  /// this value may be identical to a prevoius value as it ranges from [0,255]
-  uint8_t message_id;
-
-  // The actual data. Only 6 bytes because the header takes up 2 of the 8 needed
-  // bytes
-  uint8_t data[6];
-} vl53l7cx_frame_t;
+static struct __attribute__((__packed__)) {
+  uint16_t distance[4];
+} vl53l7cx_data;
 
 int32_t _lsm6dsv_read(void *handle, uint8_t register_address, uint8_t *data,
                       uint16_t length) {
@@ -602,18 +576,29 @@ void send_sht30_data() {
 }
 
 int32_t init_vl53l7cx() {
-  int32_t retval = VL53L7CX_Init(&vl53l7cx_obj);
-  if (retval) {
+  int32_t init_retval = VL53L7CX_Init(&vl53l7cx_obj);
+  if (init_retval) {
     PRINTLN_ERROR("ERROR: Cannot initalize VL53L7CX sensor (status %d)",
-                  retval);
+                  init_retval);
+  }
+  VL53L7CX_ProfileConfig_t conf = {
+      .RangingProfile = VL53L7CX_PROFILE_4x4_CONTINUOUS,
+      .Frequency = 10,
+      .EnableSignal = 1,
+      .EnableAmbient = 1,
+  };
+
+  int config_retval = VL53L7CX_ConfigProfile(&vl53l7cx_obj, &conf);
+  if (config_retval) {
+    PRINTLN_ERROR("ERROR: Cannot write config to VL53L7CX sensor (status %d)",
+                  config_retval);
   }
 
-  return retval;
+  return init_retval | init_retval;
 }
 
 int32_t read_vl53l7cx() {
-  // NOTE: Each CAN message can only hold 8 bytes
-  VL53L7CX_Object_t full_data;
+  VL53L7CX_Result_t full_data;
   int32_t status = VL53L7CX_GetDistance(&vl53l7cx_obj, &full_data);
   if (status) {
     PRINTLN_ERROR(
@@ -621,6 +606,18 @@ int32_t read_vl53l7cx() {
         status);
     return status;
   }
-  uint8_t num_frames = sizeof(full_data);
-  VL53L7CX_Packed_Result_t packed_result;
+  int j = 0;
+  for (size_t i = 0; i < 7; i += 2) {
+    vl53l7cx_data.distance[j] = ((*full_data.ZoneResult[i].Distance +
+                                  *full_data.ZoneResult[i + 1].Distance) /
+                                 2);
+  }
+}
+
+void send_vl53l7cx_data() {
+  can_msg_t can_message = {.id = VL53L7CX_CAN_ID, .len = 8, .data = {0}};
+
+  memcpy(can_message.data, &vl53l7cx_data, can_message.len);
+
+  queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
 }

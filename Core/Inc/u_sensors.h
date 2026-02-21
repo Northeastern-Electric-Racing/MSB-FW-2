@@ -76,7 +76,7 @@ void send_sht30_data();
  * @brief sets up vl53l7cx time of flight sensor
  * @return if there were errors initalizing the sensor
  */
-int32_t init_vl53l7cx(); // QUESTION: should this be 16 bit or something else
+int32_t init_vl53l7cx();
 
 /*
  * @brief Gets data from the vl53l7cx and updates a global variable accordingly
