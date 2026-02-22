@@ -22,6 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "fdcan.h"
+#include "u_queues.h"
 
 /* USER CODE END Includes */
 
