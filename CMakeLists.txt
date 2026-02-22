@@ -74,7 +74,15 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 
     # Repo Source Files
     "./Core/Src/u_utils.c"
+    "./Core/Src/u_inbox.c"
     "./Core/Src/u_can.c"
+    "./Core/Src/u_load_cell.c"
+    "./Core/Src/u_misc_adc.c"
+    "./Core/Src/u_shock_pot.c"
+    "./Core/Src/u_steering_angle.c"
+    "./Core/Src/u_strain_gauge.c"
+    "./Core/Src/u_thermocouple.c"
+    "./Core/Src/u_adcs.c"
     "./Core/Src/u_mutexes.c"
     "./Core/Src/u_queues.c"
     "./Core/Src/u_sensors.c"

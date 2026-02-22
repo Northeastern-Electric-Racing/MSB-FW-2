@@ -74,6 +74,8 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   CATCH_ERROR(init_sht30(), U_SUCCESS);
   motion_fx_init();
   CATCH_ERROR(threads_init(byte_pool), U_SUCCESS);
+
+  PRINTLN_INFO("Got past end of init");
   
   /* USER CODE END App_ThreadX_MEM_POOL */
   /* USER CODE BEGIN App_ThreadX_Init */
