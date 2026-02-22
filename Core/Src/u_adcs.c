@@ -1,6 +1,6 @@
 #include "u_tx_debug.h"
 #include "u_adcs.h"
-#include "main.c"
+#include "main.h"
 
 typedef enum {
     ADC1_CHANNEL0 = 0,
