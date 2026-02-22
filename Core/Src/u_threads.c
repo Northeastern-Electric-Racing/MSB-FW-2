@@ -130,7 +130,6 @@ void sensors_thread(ULONG thread_input) {
   }
 }
 
-<<<<<<< HEAD
 /* ADCs Thread */
 static thread_t _adcs_thread = {
     .name       = "ADCs Thread",     /* Name */
