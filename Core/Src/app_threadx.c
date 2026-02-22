@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    app_threadx.c
-  * @author  MCD Application Team
-  * @brief   ThreadX applicative file
-  ******************************************************************************
-    * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    app_threadx.c
+ * @author  MCD Application Team
+ * @brief   ThreadX applicative file
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2025 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -23,10 +23,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "u_threads.h" 
-#include "u_queues.h" 
-#include "u_mutexes.h" 
+#include "u_mutexes.h"
+#include "u_queues.h"
 #include "u_sensors.h"
+#include "u_threads.h"
 
 /* USER CODE END Includes */
 
@@ -64,7 +64,7 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 {
   UINT ret = TX_SUCCESS;
   /* USER CODE BEGIN App_ThreadX_MEM_POOL */
-  TX_BYTE_POOL *byte_pool = (TX_BYTE_POOL*)memory_ptr;
+  TX_BYTE_POOL *byte_pool = (TX_BYTE_POOL *)memory_ptr;
 
   /* Init user-written code that uses ThreadX stuff here. */
   CATCH_ERROR(queues_init(byte_pool), U_SUCCESS);
@@ -72,9 +72,10 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   CATCH_ERROR(init_imu(), U_SUCCESS);
   CATCH_ERROR(init_magnetometer(), U_SUCCESS);
   CATCH_ERROR(init_sht30(), U_SUCCESS);
+  CATCH_ERROR(init_vl53l7cx(), U_SUCCESS);
   motion_fx_init();
   CATCH_ERROR(threads_init(byte_pool), U_SUCCESS);
-  
+
   /* USER CODE END App_ThreadX_MEM_POOL */
   /* USER CODE BEGIN App_ThreadX_Init */
   /* USER CODE END App_ThreadX_Init */
