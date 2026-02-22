@@ -13,6 +13,7 @@
 #include "u_steering_angle.h"
 #include "u_load_cell.h"
 #include "u_misc_adc.h"
+#include "u_utils.h"
 
 #define PRIO_DEFAULT          0
 #define PRIO_CAN_INCOMING     0
@@ -142,22 +143,29 @@ void adcs_thread(ULONG thread_input) {
 
     while(1) {
         // Do nothing with data for now
-        thermocouple_data_t thermo_data = thermocouple_get_data();
+        if (device_loc == DEVICE_BACK) {
+            thermocouple_data_t thermo_data = thermocouple_get_data();
+        }
+
         strain_gauge_data_t strain_gauge_data = strain_gauge_get_data();
         load_cell_data_t load_cell2_data = load_cell2_get_data();
         misc_adc_data_t misc_adc2_data = misc_adc2_get_data();
 
-        CATCH_ERROR(adc_switchMuxStates(HIGH), U_SUCCESS);
+        CATCH_ERROR(adc_switchMuxStates(LOW), U_SUCCESS);
 
         tx_thread_sleep(_sensors_thread.sleep / 2);
 
         shock_pot_data_t shock_pot_data = shock_pot_get_data();
-        steering_angle_data_t steering_angle_data = steering_angle_get_data();
+
+        if (device_loc == DEVICE_FRONT) {
+            steering_angle_data_t steering_angle_data = steering_angle_get_data();
+        }
+
         load_cell_data_t load_cell1_data = load_cell1_get_data();
         misc_adc_data_t misc_adc1_data = misc_adc1_get_data();
         misc_adc_data_t misc_adc3_data = misc_adc3_get_data();
 
-        CATCH_ERROR(adc_switchMuxStates(LOW), U_SUCCESS);
+        CATCH_ERROR(adc_switchMuxStates(HIGH), U_SUCCESS);
 
         tx_thread_sleep(_sensors_thread.sleep / 2);
     }

@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "fdcan.h"
 #include "u_queues.h"
+#include "u_utils.h"
 
 /* USER CODE END Includes */
 
@@ -74,6 +75,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim15;
 
 /* USER CODE BEGIN PV */
+device_loc_t device_loc = DEVICE_BACK;
 
 /* USER CODE END PV */
 
@@ -199,6 +201,14 @@ int main(void)
   MX_TIM1_Init();
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
+  bool loc1 = HAL_GPIO_ReadPin(MSB_ADDR_GPIO_Port, MSB_ADDR_Pin);
+
+  if (loc1) {
+    device_loc = DEVICE_FRONT;
+  }
+  else {
+    device_loc = DEVICE_BACK;
+  }
 
   /* USER CODE END 2 */
 
