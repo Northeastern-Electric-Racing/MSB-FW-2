@@ -597,18 +597,19 @@ int32_t init_vl53l7cx() {
                   config_retval);
     return config_retval;
   }
+  int status = VL53L7CX_Start(&vl53l7cx_obj, VL53L7CX_MODE_ASYNC_CONTINUOUS);
+  if (status) {
+    PRINTLN_ERROR("ERROR: Could not start ranging vl53l7cx sensor (status %d)",
+                  status);
+    return status;
+  }
 
   return 0;
 }
 
 int32_t read_vl53l7cx() {
   int32_t status;
-  status = VL53L7CX_Start(&vl53l7cx_obj, VL53L7CX_MODE_ASYNC_CONTINUOUS);
-  if (status) {
-    PRINTLN_ERROR("ERROR: Could not start ranging vl53l7cx sensor (status %d)",
-                  status);
-    return status;
-  }
+
   VL53L7CX_Result_t full_data;
   status = VL53L7CX_GetDistance(&vl53l7cx_obj, &full_data);
   if (status) {
@@ -624,7 +625,6 @@ int32_t read_vl53l7cx() {
                                   *full_data.ZoneResult[i + 1].Distance) /
                                  2);
   }
-  VL53L7CX_Stop(&vl53l7cx_obj);
   return 0;
 }
 
