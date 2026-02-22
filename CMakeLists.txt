@@ -22,7 +22,6 @@ endif()
 set(CMAKE_PROJECT_NAME MSB-FW-2)
 
 # NER Include toolchain file
-include("cmake/gcc-arm-none-eabi.cmake")
 
 # Enable compile command to ease indexing with e.g. clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
@@ -74,6 +73,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 
     # Repo Source Files
     "./Core/Src/u_utils.c"
+    "./Core/Src/u_inbox.c"
     "./Core/Src/u_can.c"
     "./Core/Src/u_mutexes.c"
     "./Core/Src/u_queues.c"
