@@ -620,9 +620,10 @@ int32_t read_vl53l7cx() {
   }
   int j = 0;
   for (size_t i = 0; i < 7; i += 2) {
-    // WARN: Possibly dangerous pointer dereference. Needs testing
-    vl53l7cx_data.distance[j] = ((*full_data.ZoneResult[i].Distance +
-                                  *full_data.ZoneResult[i + 1].Distance) /
+    // ZoneResult.Distance is a 1U sized array and can always be safely
+    // derefrenced at zero
+    vl53l7cx_data.distance[j] = ((full_data.ZoneResult[i].Distance[0] +
+                                  full_data.ZoneResult[i + 1].Distance[0]) /
                                  2);
   }
   return 0;
