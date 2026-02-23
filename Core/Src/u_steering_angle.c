@@ -2,6 +2,8 @@
 #include "u_adcs.h"
 #include "u_steering_angle.h"
 #include "u_utils.h"
+#include "u_can.h"
+#include "u_queues.h"
 
 #define STEERING_ANGLE1_ZERO_OFFSET   0.0f
 #define STEERING_ANGLE1_SCALE_FACTOR  1.0f
@@ -15,4 +17,18 @@ steering_angle_data_t steering_angle_get_data() {
     sp.angle[STEERING_ANGLE1] = adc_calibrate(steeringAngle1Volts, STEERING_ANGLE1_ZERO_OFFSET, STEERING_ANGLE1_SCALE_FACTOR);
 
     return sp;
+}
+
+void send_steering_angle_data(steering_angle_data_t data) {
+    struct __attribute__((__packed__)) {
+		int32_t steering_angle_1;
+	} steering_angle_data;
+
+    steering_angle_data.steering_angle_1 = data.angle;
+
+    can_msg_t can_message = {.id = STEERING_ANGLE_CAN_ID, .len = 4, .data = {0}};
+
+    memcpy(can_message.data, &steering_angle_data, can_message.len);
+
+    queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
 }

@@ -14,4 +14,9 @@ typedef struct {
  */
 thermocouple_data_t thermocouple_get_data();
 
+/**
+ * @brief Sends the thermocouple data over CAN
+ */
+void send_thermocouple_data(thermocouple_data_t data);
+
 #endif /* u_threads.h */

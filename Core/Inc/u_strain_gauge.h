@@ -14,4 +14,9 @@ typedef struct {
  */
 strain_gauge_data_t strain_gauge_get_data();
 
+/**
+ * @brief Sends the strain gauge data over CAN
+ */
+void send_strain_gauge_data(strain_gauge_data_t data);
+
 #endif /* u_strain_guages.h */

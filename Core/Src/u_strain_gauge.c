@@ -2,6 +2,8 @@
 #include "u_adcs.h"
 #include "u_strain_gauge.h"
 #include "u_utils.h"
+#include "u_can.h"
+#include "u_queues.h"
 
 #define STRAIN_GAUGE1_ZERO_OFFSET   0.0f
 #define STRAIN_GAUGE1_SCALE_FACTOR  1.0f
@@ -30,4 +32,31 @@ strain_gauge_data_t strain_gauge_get_data() {
     sg.strain[STRAIN_GAUGE4] = adc_calibrate(strain4Volts, STRAIN_GAUGE4_ZERO_OFFSET, STRAIN_GAUGE4_SCALE_FACTOR);
 
     return sg;
+}
+
+void send_strain_gauge_data(strain_gauge_data_t data) {
+    struct __attribute__((__packed__)) {
+		int32_t strain1;
+		int32_t strain2;
+	} strain_gauges_1_2;
+
+    struct __attribute__((__packed__)) {
+		int32_t strain3;
+		int32_t strain4;
+	} strain_gauges_3_4;
+
+    strain_gauges_1_2.strain1 = data.strain[STRAIN_GAUGE1];
+    strain_gauges_1_2.strain2 = data.strain[STRAIN_GAUGE2];
+
+    strain_gauges_3_4.strain3 = data.strain[STRAIN_GAUGE3];
+    strain_gauges_3_4.strain4 = data.strain[STRAIN_GAUGE4];
+
+    can_msg_t can_message_1 = {.id = STRAIN_GAUGE_1_2_CAN_ID, .len = 8, .data = {0}};
+    can_msg_t can_message_2 = {.id = STRAIN_GAUGE_3_4_CAN_ID, .len = 8, .data = {0}};
+
+    memcpy(can_message_1.data, &strain_gauges_1_2, can_message_1.len);
+    memcpy(can_message_2.data, &strain_gauges_3_4, can_message_2.len);
+
+    queue_send(&can_outgoing, &can_message_1, TX_NO_WAIT);
+    queue_send(&can_outgoing, &can_message_2, TX_NO_WAIT);
 }

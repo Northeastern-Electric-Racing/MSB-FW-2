@@ -14,4 +14,9 @@ typedef struct {
  */
 shock_pot_data_t shock_pot_get_data();
 
+/**
+ * @brief Sends the shock pot data over CAN
+ */
+void send_shock_pot_data(shock_pot_data_t data);
+
 #endif /* u_shock_pot.h */

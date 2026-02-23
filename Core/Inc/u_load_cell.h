@@ -20,4 +20,9 @@ load_cell_data_t load_cell1_get_data();
  */
 load_cell_data_t load_cell2_get_data();
 
+/**
+ * @brief Sends the load cell data over CAN
+ */
+void send_load_cell_data(load_cell_data_t lc1_data, load_cell_data_t lc2_data);
+
 #endif /* u_load_cell.h */

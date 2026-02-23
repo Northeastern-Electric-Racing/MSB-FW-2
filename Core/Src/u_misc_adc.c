@@ -2,6 +2,8 @@
 #include "u_adcs.h"
 #include "u_misc_adc.h"
 #include "u_utils.h"
+#include "u_can.h"
+#include "u_queues.h"
 
 #define MISC_ADC1_ZERO_OFFSET   0.0f
 #define MISC_ADC1_SCALE_FACTOR  1.0f
@@ -43,4 +45,18 @@ misc_adc_data_t misc_adc3_get_data() {
     ms.data = adc_calibrate(volts, MISC_ADC3_ZERO_OFFSET, MISC_ADC3_SCALE_FACTOR);
 
     return ms;
+}
+
+void send_misc_adc_data(misc_adc_data_t data, uint32_t can_id) {
+    struct __attribute__((__packed__)) {
+		int32_t data;
+	} misc_adc1_data;
+
+    misc_adc1_data.data = data.data;
+
+    can_msg_t can_message = {.id = can_id, .len = 4, .data = {0}};
+
+    memcpy(can_message.data, &misc_adc1_data, can_message.len);
+
+    queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
 }

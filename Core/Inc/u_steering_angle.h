@@ -14,4 +14,9 @@ typedef struct {
  */
 steering_angle_data_t steering_angle_get_data();
 
+/**
+ * @brief Sends the steering angle data over CAN
+ */
+void send_steering_angle_data(steering_angle_data_t data);
+
 #endif /* u_steering_angle.h */

@@ -26,4 +26,9 @@ misc_adc_data_t misc_adc2_get_data();
  */
 misc_adc_data_t misc_adc3_get_data();
 
+/**
+ * @brief Sends the miscellaneous adc data over CAN
+ */
+void send_misc_adc_data(misc_adc_data_t data, uint32_t can_id);
+
 #endif /* u_misc_adc.h */
