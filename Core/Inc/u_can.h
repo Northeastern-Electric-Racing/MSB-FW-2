@@ -14,7 +14,6 @@ uint8_t can2_init(FDCAN_HandleTypeDef *hcan);
 /* List of CAN interfaces */
 extern can_t can2;
 
-#define SHT30_CAN_ID 0xBAA       // 0xBBE for rear
 #define IMU_ACCEL_CAN_ID 0xBAB   // 0xBBF for rear
 #define IMU_GYRO_CAN_ID 0xBAC    // 0xBC0 for rear
 #define MAGNOMETER_CAN_ID 0xBAD  // 0xBC1 for rear

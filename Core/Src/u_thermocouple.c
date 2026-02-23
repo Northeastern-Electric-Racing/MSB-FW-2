@@ -24,7 +24,7 @@ void send_thermocouple_data(thermocouple_data_t data) {
 		int32_t thermocouple1;
 	} thermocouple_data;
 
-    thermocouple_data.thermocouple1 = data.temp;
+    thermocouple_data.thermocouple1 = data.temp[THERMOCOUPLE1];
 
     can_msg_t can_message = {.id = THERMOCOUPLE_CAN_ID, .len = 4, .data = {0}};
 

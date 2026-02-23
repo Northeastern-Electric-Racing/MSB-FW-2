@@ -24,7 +24,7 @@ void send_steering_angle_data(steering_angle_data_t data) {
 		int32_t steering_angle_1;
 	} steering_angle_data;
 
-    steering_angle_data.steering_angle_1 = data.angle;
+    steering_angle_data.steering_angle_1 = data.angle[STEERING_ANGLE1];
 
     can_msg_t can_message = {.id = STEERING_ANGLE_CAN_ID, .len = 4, .data = {0}};
 

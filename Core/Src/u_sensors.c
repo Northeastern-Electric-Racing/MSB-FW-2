@@ -15,10 +15,8 @@
 
 #include "lis2mdl_reg.h"
 #include "lsm6dsv_reg.h"
-#include "sht30.h"
 #include "vl53l7cx.h"
 
-static sht30_t sht30;
 static stmdev_ctx_t imu;
 static stmdev_ctx_t lis2mdl_ctx;
 
@@ -59,11 +57,6 @@ static struct __attribute__((__packed__)) {
     int16_t pitch;
     int16_t yaw;
 } orientation_data;
-
-static struct __attribute__((__packed__)) {
-    float temp;
-    float humidity;
-} sht30_data;
 
 /**
  * IMU
@@ -520,28 +513,8 @@ void calibrate() {
 }
 
 /**
- * SHT30
+ * VL53L7CX
  */
-
-uint8_t _sht30_i2c_write(uint8_t *data, uint8_t dev_address, uint8_t length) {
-    return HAL_I2C_Master_Transmit(&hi2c1, dev_address, data, length,
-                                    HAL_MAX_DELAY);
-}
-
-uint8_t _sht30_i2c_read(uint8_t *data, uint16_t command, uint8_t dev_address,
-                        uint8_t length) {
-    return HAL_I2C_Mem_Read(&hi2c1, dev_address, command, sizeof(command), data,
-                            length, HAL_MAX_DELAY);
-}
-
-uint8_t _sht30_i2c_blocking_read(uint8_t *data, uint16_t command,
-                                 uint8_t dev_address, uint8_t length) {
-    uint8_t command_buffer[2] = {(command & 0xff00u) >> 8u, command & 0xffu};
-    _sht30_i2c_write(command_buffer, dev_address, sizeof(command_buffer));
-    tx_thread_sleep(1);
-    return HAL_I2C_Master_Receive(&hi2c1, dev_address, data, length,
-                                    HAL_MAX_DELAY);
-}
 
 int32_t init_vl53l7cx() {
     VL53L7CX_RegisterBusIO(&vl53l7cx_obj, &vl53l7cx_io);

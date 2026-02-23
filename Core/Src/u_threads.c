@@ -12,6 +12,7 @@
 #include "u_load_cell.h"
 #include "u_misc_adc.h"
 #include "u_utils.h"
+#include "u_sensors.h"
 
 #define PRIO_DEFAULT          0
 #define PRIO_CAN_INCOMING     0
@@ -118,9 +119,6 @@ void sensors_thread(ULONG thread_input) {
     CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
 
     if (is_timer_expired(&data_send_timer)) {
-      CATCH_ERROR(read_sht30(), U_SUCCESS);
-      CATCH_ERROR(read_vl53l7cx(), U_SUCCESS);
-      send_sht30_data();
       send_vl53l7cx_data();
       send_imu_and_magnometer_data();
       start_timer(&data_send_timer, DATA_SEND_INTERVAL);
@@ -153,7 +151,7 @@ void adcs_thread(ULONG thread_input) {
         send_strain_gauge_data(strain_gauge_data);
         
         load_cell_data_t load_cell2_data = load_cell2_get_data();
-        
+
         misc_adc_data_t misc_adc2_data = misc_adc2_get_data();
         send_misc_adc_data(misc_adc2_data, MISC_ADC2_CAN_ID);
 
