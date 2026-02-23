@@ -51,8 +51,8 @@ void send_strain_gauge_data(strain_gauge_data_t data) {
     strain_gauges_3_4.strain3 = data.strain[STRAIN_GAUGE3];
     strain_gauges_3_4.strain4 = data.strain[STRAIN_GAUGE4];
 
-    can_msg_t can_message_1 = {.id = STRAIN_GAUGE_1_2_CAN_ID, .len = 8, .data = {0}};
-    can_msg_t can_message_2 = {.id = STRAIN_GAUGE_3_4_CAN_ID, .len = 8, .data = {0}};
+    can_msg_t can_message_1 = {.id = convert_can_id(STRAIN_GAUGE_1_2_CAN_ID), .len = 8, .data = {0}};
+    can_msg_t can_message_2 = {.id = convert_can_id(STRAIN_GAUGE_3_4_CAN_ID), .len = 8, .data = {0}};
 
     memcpy(can_message_1.data, &strain_gauges_1_2, can_message_1.len);
     memcpy(can_message_2.data, &strain_gauges_3_4, can_message_2.len);

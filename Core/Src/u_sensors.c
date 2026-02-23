@@ -457,13 +457,13 @@ uint16_t read_imu_and_magnometer() {
 }
 
 void send_imu_and_magnometer_data() {
-    can_msg_t imu_accel_msg = {.id = IMU_ACCEL_CAN_ID, .len = 8, .data = {0}};
+    can_msg_t imu_accel_msg = {.id = convert_can_id(IMU_ACCEL_CAN_ID), .len = 8, .data = {0}};
 
-    can_msg_t imu_gyro_msg = {.id = IMU_GYRO_CAN_ID, .len = 8, .data = {0}};
+    can_msg_t imu_gyro_msg = {.id = convert_can_id(IMU_GYRO_CAN_ID), .len = 8, .data = {0}};
 
-    can_msg_t mag_msg = {.id = MAGNOMETER_CAN_ID, .len = 8, .data = {0}};
+    can_msg_t mag_msg = {.id = convert_can_id(MAGNOMETER_CAN_ID), .len = 8, .data = {0}};
 
-    can_msg_t orientation_msg = {.id = ORIENTATION_CAN_ID, .len = 8, .data = {0}};
+    can_msg_t orientation_msg = {.id = convert_can_id(ORIENTATION_CAN_ID), .len = 8, .data = {0}};
 
     memcpy(imu_accel_msg.data, &accel_data, sizeof(accel_data));
     memcpy(imu_gyro_msg.data, &gyro_data, sizeof(gyro_data));
@@ -541,35 +541,6 @@ uint8_t _sht30_i2c_blocking_read(uint8_t *data, uint16_t command,
     tx_thread_sleep(1);
     return HAL_I2C_Master_Receive(&hi2c1, dev_address, data, length,
                                     HAL_MAX_DELAY);
-}
-
-uint16_t init_sht30() {
-    return sht30_init(&sht30, (Write_ptr)_sht30_i2c_write,
-                        (Read_ptr)_sht30_i2c_read,
-                        (Read_ptr)_sht30_i2c_blocking_read, SHT30_I2C_ADDR);
-}
-
-uint16_t read_sht30() {
-    int status = sht30_get_temp_humid(&sht30);
-
-    if (status) {
-        PRINTLN_ERROR("ERROR: Failed to get sht30 data (Status: %d/%s).", status,
-                    hal_status_toString(status));
-        return U_ERROR;
-    }
-
-    sht30_data.temp = sht30.temp;
-    sht30_data.humidity = sht30.humidity;
-
-    return U_SUCCESS;
-}
-
-void send_sht30_data() {
-    can_msg_t can_message = {.id = SHT30_CAN_ID, .len = 8, .data = {0}};
-
-    memcpy(can_message.data, &sht30_data, can_message.len);
-
-    queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
 }
 
 int32_t init_vl53l7cx() {

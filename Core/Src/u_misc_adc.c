@@ -54,7 +54,7 @@ void send_misc_adc_data(misc_adc_data_t data, uint32_t can_id) {
 
     misc_adc1_data.data = data.data;
 
-    can_msg_t can_message = {.id = can_id, .len = 4, .data = {0}};
+    can_msg_t can_message = {.id = convert_can_id(can_id), .len = 4, .data = {0}};
 
     memcpy(can_message.data, &misc_adc1_data, can_message.len);
 

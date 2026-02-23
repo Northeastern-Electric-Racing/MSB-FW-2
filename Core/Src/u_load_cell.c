@@ -42,7 +42,7 @@ void send_load_cell_data(load_cell_data_t lc1_data, load_cell_data_t lc2_data) {
     load_cell_data.load_cell1 = lc1_data.force[LOAD_CELL1];
     load_cell_data.load_cell2 = lc2_data.force[LOAD_CELL2];
 
-    can_msg_t can_message = {.id = LOAD_CELLS_CAN_ID, .len = 8, .data = {0}};
+    can_msg_t can_message = {.id = convert_can_id(LOAD_CELLS_CAN_ID), .len = 8, .data = {0}};
 
     memcpy(can_message.data, &load_cell_data, can_message.len);
 

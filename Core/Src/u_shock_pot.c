@@ -33,7 +33,7 @@ void send_shock_pot_data(shock_pot_data_t data) {
     shock_pot_data.shock_pot1 = data.position[SHOCK_POT1];
     shock_pot_data.shock_pot2 = data.position[SHOCK_POT2];
 
-    can_msg_t can_message = {.id = SHOCK_POTS_CAN_ID, .len = 8, .data = {0}};
+    can_msg_t can_message = {.id = convert_can_id(SHOCK_POTS_CAN_ID), .len = 8, .data = {0}};
 
     memcpy(can_message.data, &shock_pot_data, can_message.len);
 

@@ -39,4 +39,10 @@ float adc_to_voltage(uint16_t rawData);
  */
 float adc_calibrate(float volts, float zero_offset, float scale_factor);
 
+/**
+ * @brief Adds 20 to the can message if it is the back MSB
+ * @return The converted can_id
+ */
+uint32_t convert_can_id(uint32_t can_id);
+
 #endif /* u_utils.h */
