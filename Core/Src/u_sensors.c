@@ -450,13 +450,13 @@ uint16_t read_imu_and_magnometer() {
 }
 
 void send_imu_and_magnometer_data() {
-    can_msg_t imu_accel_msg = {.id = convert_can_id(IMU_ACCEL_CAN_ID), .len = 8, .data = {0}};
+    can_msg_t imu_accel_msg = {.id = convert_can_id(IMU_ACCEL_CAN_ID), .len = 6, .data = {0}};
 
-    can_msg_t imu_gyro_msg = {.id = convert_can_id(IMU_GYRO_CAN_ID), .len = 8, .data = {0}};
+    can_msg_t imu_gyro_msg = {.id = convert_can_id(IMU_GYRO_CAN_ID), .len = 6, .data = {0}};
 
-    can_msg_t mag_msg = {.id = convert_can_id(MAGNOMETER_CAN_ID), .len = 8, .data = {0}};
+    can_msg_t mag_msg = {.id = convert_can_id(MAGNOMETER_CAN_ID), .len = 6, .data = {0}};
 
-    can_msg_t orientation_msg = {.id = convert_can_id(ORIENTATION_CAN_ID), .len = 8, .data = {0}};
+    can_msg_t orientation_msg = {.id = convert_can_id(ORIENTATION_CAN_ID), .len = 6, .data = {0}};
 
     memcpy(imu_accel_msg.data, &accel_data, sizeof(accel_data));
     memcpy(imu_gyro_msg.data, &gyro_data, sizeof(gyro_data));

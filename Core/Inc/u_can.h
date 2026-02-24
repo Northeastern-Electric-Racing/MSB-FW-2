@@ -14,19 +14,19 @@ uint8_t can2_init(FDCAN_HandleTypeDef *hcan);
 /* List of CAN interfaces */
 extern can_t can2;
 
-#define IMU_ACCEL_CAN_ID 0xBAB   // 0xBBF for rear
-#define IMU_GYRO_CAN_ID 0xBAC    // 0xBC0 for rear
-#define MAGNOMETER_CAN_ID 0xBAD  // 0xBC1 for rear
-#define ORIENTATION_CAN_ID 0xBAE // 0xBC2 for rear
-#define VL53L7CX_CAN_ID 0xBAF    // 0xBC3 for rear, measures ride height
-#define STRAIN_GAUGE_1_2_CAN_ID 0xDAA
-#define STRAIN_GAUGE_3_4_CAN_ID 0xDAB
-#define THERMOCOUPLE_CAN_ID 0xDAC
-#define STEERING_ANGLE_CAN_ID 0xDAD
-#define SHOCK_POTS_CAN_ID 0xDAD
-#define LOAD_CELLS_CAN_ID 0xDAE
-#define MISC_ADC1_CAN_ID 0xDAE
-#define MISC_ADC2_CAN_ID 0xDAF
-#define MISC_ADC3_CAN_ID 0xDB0
+#define IMU_ACCEL_CAN_ID        0xBAB // 0xBBF for rear
+#define IMU_GYRO_CAN_ID         0xBAC // 0xBC0 for rear
+#define MAGNOMETER_CAN_ID       0xBB0 // 0xBC4 for rear
+#define ORIENTATION_CAN_ID      0xBAE // 0xBC2 for rear
+#define VL53L7CX_CAN_ID         0xBAF 
+#define STRAIN_GAUGE_1_2_CAN_ID 0xDAA // 0xDBE for rear
+#define STRAIN_GAUGE_3_4_CAN_ID 0xDAB // 0xDBF for rear
+#define THERMOCOUPLE_CAN_ID     0xDAC
+#define STEERING_ANGLE_CAN_ID   0xDAD
+#define SHOCK_POTS_CAN_ID       0xDAE // 0xDC2 for rear
+#define LOAD_CELLS_CAN_ID       0xDAF // 0xDC3 for rear
+#define MISC_ADC1_CAN_ID        0xDB0 // 0xDC4 for rear
+#define MISC_ADC2_CAN_ID        0xDB1 // 0xDC5 for rear
+#define MISC_ADC3_CAN_ID        0xDB2 // 0xDC6 for rear
 
 #endif /* u_can.h */
