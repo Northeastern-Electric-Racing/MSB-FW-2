@@ -15,6 +15,7 @@
 #include "u_nx_ethernet.h"
 #include "u_threads.h"
 #include "u_ethernet.h"
+#include "u_board_config.h" // Include the board configuration header for board-specific definitions
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
