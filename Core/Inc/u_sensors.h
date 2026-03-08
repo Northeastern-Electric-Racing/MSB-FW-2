@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __U_SENSORS_H
+#define __U_SENSORS_H
 
 #include <stdint.h>
 
@@ -88,3 +89,5 @@ int32_t read_vl53l7cx();
  * @brief sends time of flight data over CAN
  */
 void send_vl53l7cx_data();
+
+#endif /* u_sensors.h */
