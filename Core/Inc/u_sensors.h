@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __U_SENSORS_H
+#define __U_SENSORS_H
 
 #include <stdint.h>
 
@@ -56,35 +57,20 @@ void motion_fx_init();
 void calibrate();
 
 /**
- * @brief initializes the sht30 for reading temp and humidity
- * @return whether there were errors initializing the sht30
- */
-uint16_t init_sht30();
-
-/**
- * @brief reads temp and humidity data from the sht30
- * @return whether there were errors in reading the data
- */
-uint16_t read_sht30();
-
-/**
- * @brief sends temp and humidity data from the sht30 over CAN
- */
-void send_sht30_data();
-
-/**
  * @brief sets up vl53l7cx time of flight sensor
  * @return if there were errors initalizing the sensor
  */
 int32_t init_vl53l7cx();
 
-/*
+/**
  * @brief Gets data from the vl53l7cx and updates a global variable accordingly
  * @returns if there were any errors in reading the data
  */
 int32_t read_vl53l7cx();
 
-/*
+/**
  * @brief sends time of flight data over CAN
  */
 void send_vl53l7cx_data();
+
+#endif /* u_sensors.h */
