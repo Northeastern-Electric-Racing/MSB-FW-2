@@ -34,8 +34,6 @@ int adc_switchMuxStates(mux_state_t state) {
         HAL_GPIO_WritePin(MUX2_SEL3_GPIO_Port, MUX2_SEL3_Pin, GPIO_PIN_SET);
         HAL_GPIO_WritePin(MUX2_SEL4_GPIO_Port, MUX2_SEL4_Pin, GPIO_PIN_SET);
 
-        tx_thread_sleep(1);
-
         PRINTLN_INFO("Switched mux_state to HIGH.");
     }
     else {
@@ -48,8 +46,6 @@ int adc_switchMuxStates(mux_state_t state) {
         HAL_GPIO_WritePin(MUX2_SEL2_GPIO_Port, MUX2_SEL2_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(MUX2_SEL3_GPIO_Port, MUX2_SEL3_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(MUX2_SEL4_GPIO_Port, MUX2_SEL4_Pin, GPIO_PIN_RESET);
-
-        tx_thread_sleep(1);
 
         PRINTLN_INFO("Switched mux_state to LOW.");
     }

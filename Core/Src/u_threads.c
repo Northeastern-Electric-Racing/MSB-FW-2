@@ -136,7 +136,7 @@ static thread_t _adcs_thread = {
     .threshold  = 0,                 /* Preemption Threshold */
     .time_slice = TX_NO_TIME_SLICE,  /* Time Slice */
     .auto_start = TX_AUTO_START,     /* Auto Start */
-    .sleep      = 98,                /* Sleep (in ticks) */
+    .sleep      = 100,               /* Sleep (in ticks) */
     .function   = sensors_thread     /* Thread Function */
 };
 void adcs_thread(ULONG thread_input) {
