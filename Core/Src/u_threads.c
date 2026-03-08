@@ -19,20 +19,16 @@ static thread_t _default_thread = {
         .threshold  = 0,                 /* Preemption Threshold */
         .time_slice = TX_NO_TIME_SLICE,  /* Time Slice */
         .auto_start = TX_AUTO_START,     /* Auto Start */
-        .sleep      = 50,                /* Sleep (in ticks) */
+        .sleep      = 200,                /* Sleep (in ticks) */
         .function   = default_thread     /* Thread Function */
     };
 void default_thread(ULONG thread_input) {
     
   while(1) {
-      /* Kick watch dog */
-      HAL_IWDG_Refresh(&hiwdg);
-
-    // u_TODO - the watchdogs gotta be pet here probably
-
-    /* Sleep Thread for specified number of ticks. */
-    tx_thread_sleep(_default_thread.sleep);
-  }
+        /* Kick watch dog */
+        HAL_IWDG_Refresh(&hiwdg);
+        tx_thread_sleep(_default_thread.sleep);
+    }
 }
 
 /* CAN Incoming Thread. Processes incoming messages. */
