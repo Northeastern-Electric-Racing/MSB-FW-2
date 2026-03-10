@@ -22,6 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "fdcan.h"
+#include "u_queues.h"
+#include "u_utils.h"
 
 /* USER CODE END Includes */
 
@@ -71,6 +74,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim15;
 
 /* USER CODE BEGIN PV */
+device_loc_t device_loc = DEVICE_BACK;
 
 /* USER CODE END PV */
 
@@ -93,13 +97,54 @@ static void MX_ADC1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_TIM1_Init(void);
-static void MX_IWDG_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/* Make printf() use LPUART1 */
+int _write(int file, char *ptr, int len)
+{
+    HAL_UART_Transmit(&hlpuart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
+    return len;
+}
+
+/* FDCAN FIFO0 Interrupt Callback */
+/* Callback for any FIFO0 interrupt stuff */
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+{
+
+	/* If a message has just been recieved... */
+	if (RxFifo0ITs & FDCAN_IT_RX_FIFO0_NEW_MESSAGE)
+	{
+		can_msg_t message;
+		FDCAN_RxHeaderTypeDef rx_header;
+
+    /* Get the message. */
+    HAL_StatusTypeDef status = HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rx_header, message.data);
+    if (status != HAL_OK) {
+      PRINTLN_ERROR("Failed to call HAL_FDCAN_GetRxMessage() (Status: %ld/%s).", status, hal_status_toString(status));
+      return;
+    }
+
+    /* Pack the message into the struct. */
+    message.id = rx_header.Identifier;
+		message.id_is_extended = (rx_header.IdType == FDCAN_EXTENDED_ID);
+	  message.len = (uint8_t)rx_header.DataLength;
+
+		/* Check message size */
+		if (rx_header.DataLength > 8)
+		{
+			PRINTLN_ERROR("Recieved CAN message is larger than 8 bytes (rx_header.DataLength: %ld).", rx_header.DataLength);
+			return;
+		}
+
+		/* Send message to incoming CAN queue */
+    queue_send(&can_incoming, &message, TX_NO_WAIT);
+	}
+}
 
 /* USER CODE END 0 */
 
@@ -150,8 +195,15 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM15_Init();
   MX_TIM1_Init();
-  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
+  bool loc1 = HAL_GPIO_ReadPin(MSB_ADDR_GPIO_Port, MSB_ADDR_Pin);
+
+  if (loc1) {
+    device_loc = DEVICE_FRONT;
+  }
+  else {
+    device_loc = DEVICE_BACK;
+  }
 
   /* USER CODE END 2 */
 
@@ -555,6 +607,36 @@ static void MX_FDCAN2_Init(void)
 
 /**
   * @brief GPDMA1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPDMA1_Init(void)
+{
+
+  /* USER CODE BEGIN GPDMA1_Init 0 */
+
+  /* USER CODE END GPDMA1_Init 0 */
+
+  /* Peripheral clock enable */
+  __HAL_RCC_GPDMA1_CLK_ENABLE();
+
+  /* GPDMA1 interrupt Init */
+    HAL_NVIC_SetPriority(GPDMA1_Channel0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel0_IRQn);
+    HAL_NVIC_SetPriority(GPDMA1_Channel1_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(GPDMA1_Channel1_IRQn);
+
+  /* USER CODE BEGIN GPDMA1_Init 1 */
+
+  /* USER CODE END GPDMA1_Init 1 */
+  /* USER CODE BEGIN GPDMA1_Init 2 */
+
+  /* USER CODE END GPDMA1_Init 2 */
+
+}
+
+/**
+  * @brief I2C1 Initialization Function
   * @param None
   * @retval None
   */
