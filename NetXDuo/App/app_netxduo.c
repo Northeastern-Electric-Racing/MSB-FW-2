@@ -18,6 +18,11 @@
 #include "u_board_config.h" // Include the board configuration header for board-specific definitions
 /* USER CODE END Includes */
 
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 /* Define board-specific name and ID */
@@ -31,6 +36,11 @@
     #error "No MSB board defined. Please define MSB_BOARD_1 or MSB_BOARD_2."
 #endif
 /* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
@@ -49,14 +59,13 @@
   */
 UINT MX_NetXDuo_Init(VOID *memory_ptr)
 {
-    UINT ret = NX_SUCCESS;
-    TX_BYTE_POOL *byte_pool = (TX_BYTE_POOL*)memory_ptr;
+  UINT ret = NX_SUCCESS;
+  TX_BYTE_POOL *byte_pool = (TX_BYTE_POOL*)memory_ptr;
 
-    /* USER CODE BEGIN App_NetXDuo_MEM_POOL */
+   /* USER CODE BEGIN App_NetXDuo_MEM_POOL */
     (void)byte_pool;
-    /* USER CODE END App_NetXDuo_MEM_POOL */
-
-    /* USER CODE BEGIN 0 */
+  /* USER CODE END App_NetXDuo_MEM_POOL */
+  /* USER CODE BEGIN 0 */
     int status;
 
     // Log the board name and ID
@@ -77,12 +86,12 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
         return NX_NOT_SUCCESSFUL;
     }
     PRINTLN_INFO("Threads initialized successfully for %s (ID: %d).", BOARD_NAME, BOARD_ID);
-    /* USER CODE END 0 */
+  /* USER CODE END 0 */
 
-    /* USER CODE BEGIN MX_NetXDuo_Init */
-    /* USER CODE END MX_NetXDuo_Init */
+  /* USER CODE BEGIN MX_NetXDuo_Init */
+  /* USER CODE END MX_NetXDuo_Init */
 
-    return ret;
+  return ret;
 }
 
 /* USER CODE BEGIN 1 */
