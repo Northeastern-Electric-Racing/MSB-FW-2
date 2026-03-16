@@ -38,10 +38,10 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
             uint32_t diff;
             
             if (left_val2 > left_val1) {
-                diff = left_val2 - left_val1
+                diff = left_val2 - left_val1;
             }
             else {
-                diff = 0xFFFFFFFF - left_val1 + left_val2
+                diff = 0xFFFFFFFF - left_val1 + left_val2;
             }
 
             float frequency = (float)TIM_CLOCK_HZ / diff;
@@ -61,10 +61,10 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
             right_val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
 
             if (right_val2 > right_val1) {
-                diff = right_val2 - right_val1
+                diff = right_val2 - right_val1;
             }
             else {
-                diff = 0xFFFFFFFF - right_val1 + right_val2
+                diff = 0xFFFFFFFF - right_val1 + right_val2;
             }
 
             float frequency = (float)TIM_CLOCK_HZ / diff;
