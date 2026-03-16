@@ -14,10 +14,13 @@ set(MX_Defines_Syms
 # STM32CubeMX generated include paths
 set(MX_Include_Dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../NetXDuo/App
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../NetXDuo/Target
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../X-CUBE-TOF1/Target
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../AZURE_RTOS/App
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H5xx_HAL_Driver/Inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H5xx_HAL_Driver/Inc/Legacy
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/netxduo/common/drivers/ethernet
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/threadx/common/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Device/ST/STM32H5xx/Include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/netxduo/common/inc
@@ -25,15 +28,20 @@ set(MX_Include_Dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/threadx/ports/cortex_m33/gnu/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/STM32_MotionFX_Library/Inc
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/BSP/Components/vl53l7cx/modules
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/BSP/Components/vl53l7cx/porting
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/BSP/Components/vl53l7cx
 )
 
 # STM32CubeMX generated application sources
 set(MX_Application_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../AZURE_RTOS/App/app_azure_rtos.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../NetXDuo/Target/nx_stm32_phy_custom_driver.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../NetXDuo/App/app_netxduo.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/tx_initialize_low_level.S
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/main.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/app_threadx.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/custom_bus.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/stm32h5xx_it.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/stm32h5xx_hal_msp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/stm32h5xx_hal_timebase_tim.c
@@ -73,6 +81,12 @@ set(STM32_Drivers_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_uart_ex.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32H5xx_HAL_Driver/Src/stm32h5xx_hal_spi_ex.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/BSP/Components/vl53l7cx/modules/vl53l7cx_api.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/BSP/Components/vl53l7cx/modules/vl53l7cx_plugin_detection_thresholds.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/BSP/Components/vl53l7cx/modules/vl53l7cx_plugin_motion_indicator.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/BSP/Components/vl53l7cx/modules/vl53l7cx_plugin_xtalk.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/BSP/Components/vl53l7cx/porting/platform.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/BSP/Components/vl53l7cx/vl53l7cx.c
 )
 
 # Drivers Midllewares
@@ -735,6 +749,7 @@ set(NetXDuo_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/netxduo/common/src/nxd_nd_cache_invalidate.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/netxduo/common/src/nxd_nd_cache_ip_address_find.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/netxduo/common/src/nx_http_proxy_client.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/netxduo/common/drivers/ethernet/nx_stm32_eth_driver.c
 )
 
 # Link directories setup
