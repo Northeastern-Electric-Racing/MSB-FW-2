@@ -83,6 +83,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Core/Src/u_ethernet.c"
     "./Drivers/Embedded-Base/NetX/src/u_nx_debug.c"
     "./Drivers/Embedded-Base/NetX/src/u_nx_ethernet.c"
+    "../Drivers/Embedded-Base/NetX/src/nxd_ptp_client.c"
 )
 
 # Add include paths
