@@ -15,11 +15,15 @@
 #include "lsm6dsv_reg.h"
 #include "lis2mdl_reg.h"
 
+#include "hdc2021debr.h"
+
 extern I2C_HandleTypeDef hi2c1;
 extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi2;
 
 static sht30_t sht30;
+static hdc2021debr_t hdc2021;
+
 static stmdev_ctx_t imu;
 static stmdev_ctx_t lis2mdl_ctx;
 
@@ -63,6 +67,10 @@ static struct __attribute__((__packed__)) {
 	float humidity;
 } sht30_data;
 
+static struct __attribute__((__packed__)) {
+	float temp;
+	float humidity;
+} hdc2021_data;
 
 /** 
  * IMU 
@@ -542,3 +550,46 @@ void send_sht30_data() {
 
     queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
 }
+
+/**
+ * HDC2021
+ */
+
+uint8_t _hdc2021_i2c_write(uint8_t *data, uint8_t dev_address, uint8_t length){
+    return HAL_I2C_Master_Transmit(&hi2c1, dev_address, data, length, HAL_MAX_DELAY);
+}
+
+uint8_t _hdc2021_i2c_read(uint8_t *data, uint16_t command, uint8_t dev_address, uint8_t length) {
+    return HAL_I2C_Mem_Read(&hi2c1, dev_address, command, sizeof(command), data, length, HAL_MAX_DELAY);
+}
+
+uint16_t init_hdc2021() {
+    return hdc2021_init(&hdc2021, (Write_ptr) _hdc2021_i2c_write, (Read_ptr) _hdc2021_i2c_read, HDC2021_I2C_ADDR);
+}
+
+uint16_t read_hdc2021() {
+    int status = hdc2021_get_temp_humid(&hdc2021);
+
+    if (status) {
+        PRINTLN_ERROR("ERROR: Failed to get hdc2021 data (Status: %d/%s).", status, hal_status_toString(status));
+        return U_ERROR;
+    }
+
+    hdc2021_data.temp = hdc2021.temp;
+    hdc2021_data.humidity = hdc2021.humidity;
+
+    return U_SUCCESS;
+}
+
+void send_hdc2021_data() {
+    can_msg_t can_message = { 
+        .id = HDC2021_CAN_ID, 
+        .len = 8, 
+        .data = { 0 } 
+    };
+
+    memcpy(can_message.data, &hdc2021_data, can_message.len);
+
+    queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
+}
+

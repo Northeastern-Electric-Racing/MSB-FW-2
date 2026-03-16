@@ -69,3 +69,20 @@ uint16_t read_sht30();
  * @brief sends temp and humidity data from the sht30 over CAN
  */
 void send_sht30_data();
+
+/**
+ * @brief initializes the hdc2021 for reading temp and humidity
+ * @return whether there were errors initializing the sht30
+ */
+uint16_t init_hdc2021();
+
+/**
+ * @brief reads temp and humidity data from the hdc2021
+ * @return whether there were errors in reading the data
+ */
+uint16_t read_hdc2021();
+
+/**
+ * @brief sends temp and humidity data from the hdc2021 over CAN
+ */
+void send_hdc2021_data();

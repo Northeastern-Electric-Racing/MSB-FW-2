@@ -48,6 +48,8 @@ void sensors_thread(ULONG thread_input) {
         if (is_timer_expired(&data_send_timer)) {
             CATCH_ERROR(read_sht30(), U_SUCCESS);
             send_sht30_data();
+            CATCH_ERROR(read_hdc2021(), U_SUCCESS);
+            send_hdc2021_data();
             send_imu_and_magnometer_data();
             start_timer(&data_send_timer, DATA_SEND_INTERVAL);
         }
