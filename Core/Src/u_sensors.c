@@ -559,12 +559,12 @@ uint8_t _hdc2021_i2c_write(uint8_t *data, uint8_t dev_address, uint8_t length){
     return HAL_I2C_Master_Transmit(&hi2c1, dev_address, data, length, HAL_MAX_DELAY);
 }
 
-uint8_t _hdc2021_i2c_read(uint8_t *data, uint16_t command, uint8_t dev_address, uint8_t length) {
-    return HAL_I2C_Mem_Read(&hi2c1, dev_address, command, sizeof(command), data, length, HAL_MAX_DELAY);
+uint8_t _hdc2021_i2c_read(uint8_t *data, uint8_t reg, uint8_t dev_address, uint8_t length) {
+    return HAL_I2C_Mem_Read(&hi2c1, dev_address, reg, sizeof(reg), data, length, HAL_MAX_DELAY);
 }
 
 uint16_t init_hdc2021() {
-    return hdc2021_init(&hdc2021, (Write_ptr) _hdc2021_i2c_write, (Read_ptr) _hdc2021_i2c_read, HDC2021_I2C_ADDR);
+    return hdc2021_init(&hdc2021, (Write_ptr_hdc) _hdc2021_i2c_write, (Read_ptr_hdc) _hdc2021_i2c_read, HDC2021_I2C_ADDR);
 }
 
 uint16_t read_hdc2021() {
