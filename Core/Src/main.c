@@ -126,7 +126,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     /* Get the message. */
     HAL_StatusTypeDef status = HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rx_header, message.data);
     if (status != HAL_OK) {
-      PRINTLN_ERROR("Failed to call HAL_FDCAN_GetRxMessage() (Status: %ld/%s).", status, hal_status_toString(status));
+      PRINTLN_ERROR("Failed to call HAL_FDCAN_GetRxMessage() (Status: %d/%s).", status, hal_status_toString(status));
       return;
     }
 
