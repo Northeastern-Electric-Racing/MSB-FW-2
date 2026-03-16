@@ -81,7 +81,6 @@ static void MX_GPDMA1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_ETH_Init(void);
-static void MX_I2C1_Init(void);
 static void MX_I2C2_Init(void);
 static void MX_LPUART1_UART_Init(void);
 static void MX_UART4_Init(void);
@@ -93,6 +92,7 @@ static void MX_ADC1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -138,7 +138,6 @@ int main(void)
   MX_ADC2_Init();
   MX_FDCAN2_Init();
   MX_ETH_Init();
-  MX_I2C1_Init();
   MX_I2C2_Init();
   MX_LPUART1_UART_Init();
   MX_UART4_Init();
@@ -150,6 +149,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM15_Init();
   MX_TIM1_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
