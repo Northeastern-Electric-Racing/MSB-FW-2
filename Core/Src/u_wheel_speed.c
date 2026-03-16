@@ -60,6 +60,8 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
         else {
             right_val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
 
+            uint32_t diff;
+
             if (right_val2 > right_val1) {
                 diff = right_val2 - right_val1;
             }
