@@ -13,6 +13,7 @@
 #include "u_misc_adc.h"
 #include "u_utils.h"
 #include "u_sensors.h"
+#include "u_wheel_speed.h"
 
 #define PRIO_DEFAULT          0
 #define PRIO_CAN_INCOMING     0
@@ -122,6 +123,10 @@ void sensors_thread(ULONG thread_input) {
       send_vl53l7cx_data();
       send_imu_and_magnometer_data();
       start_timer(&data_send_timer, DATA_SEND_INTERVAL);
+
+      if (device_loc == DEVICE_FRONT) {
+        send_wheel_speed();
+      }
     }
 
     tx_thread_sleep(_sensors_thread.sleep);

@@ -22,6 +22,7 @@
 #include "stm32h5xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "u_wheel_speed.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -218,5 +219,9 @@ void TIM2_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim) {
+  wheel_speed_capture_callback(htim);
+}
 
 /* USER CODE END 1 */

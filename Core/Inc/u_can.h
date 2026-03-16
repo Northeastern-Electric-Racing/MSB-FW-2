@@ -28,5 +28,6 @@ extern can_t can2;
 #define MISC_ADC1_CAN_ID        0xDB0 // 0xDC4 for rear
 #define MISC_ADC2_CAN_ID        0xDB1 // 0xDC5 for rear
 #define MISC_ADC3_CAN_ID        0xDB2 // 0xDC6 for rear
+#define WHEEL_SPEED_CAN_ID      0xDB0
 
 #endif /* u_can.h */
