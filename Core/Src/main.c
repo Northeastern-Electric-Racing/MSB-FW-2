@@ -97,6 +97,7 @@ static void MX_ADC1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -195,6 +196,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM15_Init();
   MX_TIM1_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   bool loc1 = HAL_GPIO_ReadPin(MSB_ADDR_GPIO_Port, MSB_ADDR_Pin);
 
