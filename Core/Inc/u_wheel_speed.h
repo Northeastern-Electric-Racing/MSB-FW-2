@@ -27,7 +27,4 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim);
  */
 void send_wheel_speed();
 
-extern float fl_rpm;
-extern float fr_rpm;
-
 #endif /* u_wheel_speed.h */
