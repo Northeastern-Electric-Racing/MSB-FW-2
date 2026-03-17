@@ -25,10 +25,8 @@ static thread_t _default_thread = {
 void default_thread(ULONG thread_input) {
     
   while(1) {
-      /* Kick watch dog */
-      HAL_IWDG_Refresh(&hiwdg);
-
-    // u_TODO - the watchdogs gotta be pet here probably
+    /* Kick watch dog */
+    HAL_IWDG_Refresh(&hiwdg);
 
     /* Sleep Thread for specified number of ticks. */
     tx_thread_sleep(_default_thread.sleep);
