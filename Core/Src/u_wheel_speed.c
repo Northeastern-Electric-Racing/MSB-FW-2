@@ -2,8 +2,8 @@
 #include "u_can.h"
 #include "u_queues.h"
 
-static TIM_HandleTypeDef  *htim_left;
-static TIM_HandleTypeDef  *htim_right;
+static TIM_HandleTypeDef *htim_left;
+static TIM_HandleTypeDef *htim_right;
 
 /* Left Wheel */
 static uint32_t left_val1 = 0;
