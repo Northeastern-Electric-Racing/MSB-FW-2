@@ -18,10 +18,6 @@
 #include "sht30.h"
 #include "vl53l7cx.h"
 
-extern I2C_HandleTypeDef hi2c1;
-extern SPI_HandleTypeDef hspi1;
-extern SPI_HandleTypeDef hspi2;
-
 static sht30_t sht30;
 static stmdev_ctx_t imu;
 static stmdev_ctx_t lis2mdl_ctx;
