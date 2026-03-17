@@ -4,7 +4,7 @@
 #include "stm32h5xx_hal.h"
 
 /** Number of pulses per wheel rotation */
-#define PULSES_PER_ROTATION 4
+#define PULSES_PER_ROTATION 8
 
 /** HAL Effect timers speed */
 #define TIM_CLOCK_HZ        1000000
