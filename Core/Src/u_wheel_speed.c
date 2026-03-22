@@ -41,7 +41,7 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
                 diff = left_val2 - left_val1;
             }
             else {
-                diff = 0xFFFF - left_val1 + left_val2;
+                diff = (0xFFFF - left_val1) + left_val2;
             }
 
             if (diff == 0) {
@@ -71,7 +71,7 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
                 diff = right_val2 - right_val1;
             }
             else {
-                diff = 0xFFFF - right_val1 + right_val2;
+                diff = (0xFFFF - right_val1) + right_val2;
             }
 
             if (diff == 0) {
