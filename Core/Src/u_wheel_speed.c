@@ -41,11 +41,16 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
                 diff = left_val2 - left_val1;
             }
             else {
-                diff = 0xFFFFFFFF - left_val1 + left_val2;
+                diff = 0xFFFF - left_val1 + left_val2;
             }
 
-            float frequency = (float)TIM_CLOCK_HZ / diff;
-            left_rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
+            if (diff == 0) {
+                left_rpm = 0;
+            }
+            else {
+                float frequency = (float)TIM_CLOCK_HZ / diff;
+                left_rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
+            }
 
             __HAL_TIM_SET_COUNTER(htim, 0);
             left_captured = 0;
@@ -66,11 +71,16 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
                 diff = right_val2 - right_val1;
             }
             else {
-                diff = 0xFFFFFFFF - right_val1 + right_val2;
+                diff = 0xFFFF - right_val1 + right_val2;
             }
 
-            float frequency = (float)TIM_CLOCK_HZ / diff;
-            right_rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
+            if (diff == 0) {
+                right_rpm = 0;
+            }
+            else {
+                float frequency = (float)TIM_CLOCK_HZ / diff;
+                right_rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
+            }
 
             __HAL_TIM_SET_COUNTER(htim, 0);
             right_captured = 0;
