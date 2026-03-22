@@ -49,7 +49,7 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
             }
             else {
                 float frequency = (float)TIM_CLOCK_HZ / diff;
-                left_rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
+                calculate_wheel_rpm(frequency, &left_rpm);
             }
 
             __HAL_TIM_SET_COUNTER(htim, 0);
@@ -79,13 +79,17 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
             }
             else {
                 float frequency = (float)TIM_CLOCK_HZ / diff;
-                right_rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
+                calculate_wheel_rpm(frequency, &right_rpm);
             }
 
             __HAL_TIM_SET_COUNTER(htim, 0);
             right_captured = 0;
         }
     }
+}
+
+void calculate_wheel_rpm(int frequency, int *rpm) {
+    *rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
 }
 
 void send_wheel_speed() {

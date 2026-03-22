@@ -10,17 +10,24 @@
 #define TIM_CLOCK_HZ        1000000
 
 /**
- * Initializes the wheel speed timers
+ * @brief Initializes the wheel speed timers
  * @param htim_left handle for left side wheel HAL effect sensor
  * @param htim_right handle for right side wheel HAL effect sensor
  */
 void wheel_speed_init(TIM_HandleTypeDef *_htim_left, TIM_HandleTypeDef *_htim_right);
 
 /**
- * Call from HAL_TIM_IC_CaptureCallback
+ * @brief Call from HAL_TIM_IC_CaptureCallback
  * @param htim timer from HAL_TIM_IC_CaptureCallback call
  */ 
 void wheel_speed_capture_callback(TIM_HandleTypeDef *htim);
+
+/**
+ * @brief Calculates the wheel revolutions per minute based on the given frequency
+ * @param frequency Frequency of pulses
+ * @param rpm Pointer for storing calculated value
+ */
+void calculate_wheel_rpm(int frequency, int *rpm);
 
 /**
  * Sends wheel speed data over CAN
