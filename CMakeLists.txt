@@ -62,6 +62,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Drivers/Embedded-Base/middleware/src/c_utils.c"
 
     # Misc Embedded-Base Stuff (drivers, middleware, utils, etc.)
+    "../Drivers/Embedded-Base/general/src/hdc2021debr.c"
     "../Drivers/Embedded-Base/general/src/sht30.c"
     "../Drivers/Embedded-Base/general/include/lsm6dsv_reg.h"
     "../Drivers/Embedded-Base/general/src/lsm6dsv_reg.c"

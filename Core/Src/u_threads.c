@@ -54,7 +54,11 @@ void sensors_thread(ULONG thread_input) {
             start_timer(&data_send_timer, DATA_SEND_INTERVAL);
         }
 
-        tx_thread_sleep(_sensors_thread.sleep);
+        tx_thread_sleep(_sensors_thread.sleep / 2);
+
+        CATCH_ERROR(prepare_data_hdc2021(), U_SUCCESS);
+
+        tx_thread_sleep(_sensors_thread.sleep / 2);
     }
 }
 

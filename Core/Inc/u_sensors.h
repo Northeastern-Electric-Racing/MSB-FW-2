@@ -77,6 +77,12 @@ void send_sht30_data();
 uint16_t init_hdc2021();
 
 /**
+ * @brief tells the hdc2021 to read and prepare data in its registers
+ * @return whether there were errors
+ */
+uint16_t prepare_data_hdc2021();
+
+/**
  * @brief reads temp and humidity data from the hdc2021
  * @return whether there were errors in reading the data
  */

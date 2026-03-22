@@ -567,6 +567,17 @@ uint16_t init_hdc2021() {
     return hdc2021_init(&hdc2021, (Write_ptr_hdc) _hdc2021_i2c_write, (Read_ptr_hdc) _hdc2021_i2c_read, HDC2021_I2C_ADDR);
 }
 
+uint16_t prepare_data_hdc2021() {
+    int status = hdc2021_trigger_oneshot(&hdc2021);
+
+    if (status) {
+        PRINTLN_ERROR("ERROR: Failed to perform one-shot hdc2021 (Status: %d/%s).", status, hal_status_toString(status));
+        return U_ERROR;
+    }
+
+    return U_SUCCESS;
+}
+
 uint16_t read_hdc2021() {
     int status = hdc2021_get_temp_humid(&hdc2021);
 
