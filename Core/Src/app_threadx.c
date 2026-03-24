@@ -71,7 +71,6 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   CATCH_ERROR(mutexes_init(), U_SUCCESS);
   CATCH_ERROR(init_imu(), U_SUCCESS);
   CATCH_ERROR(init_magnetometer(), U_SUCCESS);
-  CATCH_ERROR(init_sht30(), U_SUCCESS);
   CATCH_ERROR(init_vl53l7cx(), U_SUCCESS);
   motion_fx_init();
   CATCH_ERROR(threads_init(byte_pool), U_SUCCESS);
