@@ -166,9 +166,11 @@ void adcs_thread(ULONG thread_input) {
         misc_adc_data_t misc_adc2_data = misc_adc2_get_data();
         send_misc_adc_data(misc_adc2_data, MISC_ADC2_CAN_ID);
 
+        tx_thread_sleep(_sensors_thread.sleep / 4);
+
         CATCH_ERROR(adc_switchMuxStates(LOW), U_SUCCESS);
 
-        tx_thread_sleep(_sensors_thread.sleep / 2);
+        tx_thread_sleep(_sensors_thread.sleep / 4);
 
         shock_pot_data_t shock_pot_data = shock_pot_get_data();
         send_shock_pot_data(shock_pot_data);
@@ -186,9 +188,11 @@ void adcs_thread(ULONG thread_input) {
         misc_adc_data_t misc_adc3_data = misc_adc3_get_data();
         send_misc_adc_data(misc_adc3_data, MISC_ADC3_CAN_ID);
 
+        tx_thread_sleep(_sensors_thread.sleep / 4);
+
         CATCH_ERROR(adc_switchMuxStates(HIGH), U_SUCCESS);
 
-        tx_thread_sleep(_sensors_thread.sleep / 2);
+        tx_thread_sleep(_sensors_thread.sleep / 4);
     }
 }
 
