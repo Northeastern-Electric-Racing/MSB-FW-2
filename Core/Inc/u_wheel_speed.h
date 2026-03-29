@@ -27,7 +27,7 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim);
  * @param frequency Frequency of pulses
  * @param rpm Pointer for storing calculated value
  */
-void calculate_wheel_rpm(int frequency, int *rpm);
+void calculate_wheel_rpm(float frequency, float *rpm);
 
 /**
  * Sends wheel speed data over CAN

@@ -37,6 +37,8 @@ void wheel_speed_init(TIM_HandleTypeDef *_htim_left, TIM_HandleTypeDef *_htim_ri
 
 void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == htim_left->Instance && htim->Channel  == HAL_TIM_ACTIVE_CHANNEL_1) {
+        start_timer(&pulse_timeout_left, PULSE_TIMEOUT_MS);
+
         if (left_captured == 0) {
             left_val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
             left_captured = 1;
@@ -56,7 +58,6 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
             if (diff > 0) {
                 float frequency = (float)TIM_CLOCK_HZ / diff;
                 calculate_wheel_rpm(frequency, &left_rpm);
-                start_timer(&pulse_timeout_left, PULSE_TIMEOUT_MS);
             }
 
             left_val1 = left_val2;
@@ -64,6 +65,8 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
         }
     }
     else if (htim->Instance == htim_right->Instance && htim->Channel  == HAL_TIM_ACTIVE_CHANNEL_1) {
+        start_timer(&pulse_timeout_right, PULSE_TIMEOUT_MS);
+
         if (right_captured == 0) {
             right_val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
             right_captured = 1;
@@ -83,7 +86,6 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
             if (diff > 0) {
                 float frequency = (float)TIM_CLOCK_HZ / diff;
                 calculate_wheel_rpm(frequency, &right_rpm);
-                start_timer(&pulse_timeout_right, PULSE_TIMEOUT_MS);
             }
 
             right_val1 = right_val2;
