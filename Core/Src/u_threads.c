@@ -116,16 +116,14 @@ void sensors_thread(ULONG thread_input) {
 
     while (1) {
         CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
+        send_wheel_speed();
 
         if (is_timer_expired(&data_send_timer)) {
             CATCH_ERROR(read_hdc2021(), U_SUCCESS);
             send_hdc2021_data();
             send_imu_and_magnometer_data();
 
-            if (device_loc == DEVICE_FRONT) {
-                send_wheel_speed();
-            }
-            else {
+            if (device_loc == DEVICE_BACK) {
                 CATCH_ERROR(read_vl53l7cx(), U_SUCCESS);
                 send_vl53l7cx_data();
             }
@@ -136,7 +134,7 @@ void sensors_thread(ULONG thread_input) {
         tx_thread_sleep(_sensors_thread.sleep / 2);
 
         CATCH_ERROR(prepare_data_hdc2021(), U_SUCCESS);
-        
+
         tx_thread_sleep(_sensors_thread.sleep / 2);
     }
 }
