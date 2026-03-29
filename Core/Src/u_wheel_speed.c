@@ -98,7 +98,8 @@ void calculate_wheel_rpm(float frequency, float *rpm) {
     *rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
 }
 
-void send_wheel_speed() {
+
+void wheel_pulse_check() {
     if (is_timer_expired(&pulse_timeout_left)) {
         left_rpm = 0;
     }
@@ -106,7 +107,9 @@ void send_wheel_speed() {
     if (is_timer_expired(&pulse_timeout_right)) {
         right_rpm = 0;
     }
+}
 
+void send_wheel_speed() {
     struct __attribute__((__packed__)) {
         uint16_t right_rpm;
 		uint16_t left_rpm;

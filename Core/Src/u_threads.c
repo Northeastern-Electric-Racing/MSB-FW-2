@@ -116,6 +116,7 @@ void sensors_thread(ULONG thread_input) {
 
     while (1) {
         CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
+        wheel_pulse_check();
         send_wheel_speed();
 
         if (is_timer_expired(&data_send_timer)) {

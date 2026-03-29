@@ -30,6 +30,12 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim);
 void calculate_wheel_rpm(float frequency, float *rpm);
 
 /**
+ * Function checks whether the wheel pulse timers have expired. If so, it sets the rpm
+ * for that wheel to 0.
+ */
+void wheel_pulse_check();
+
+/**
  * Sends wheel speed data over CAN
  */
 void send_wheel_speed();
