@@ -2,8 +2,10 @@
 #include "u_can.h"
 #include "u_queues.h"
 #include "timer.h"
+#include "main.h"
 
-static const int PULSE_TIMER_TIME = 400;
+/** Time in ms before setting rpm to 0 if no pulses are detected */
+static const int PULSE_TIMEOUT_MS = 400;
 
 /* Left Wheel */
 static TIM_HandleTypeDef *htim_left;
@@ -11,7 +13,7 @@ static uint32_t left_val1 = 0;
 static uint32_t left_val2 = 0;
 static uint8_t  left_captured = 0;
 static float left_rpm = 0;
-static nertimer_t pulse_detected_left;
+static nertimer_t pulse_timeout_left;
 
 /* Right Wheel */
 static TIM_HandleTypeDef *htim_right;
@@ -19,7 +21,8 @@ static uint32_t right_val1 = 0;
 static uint32_t right_val2 = 0;
 static uint8_t  right_captured = 0;
 static float right_rpm = 0;
-static nertimer_t pulse_detected_right;
+static nertimer_t pulse_timeout_right;
+
 
 void wheel_speed_init(TIM_HandleTypeDef *_htim_left, TIM_HandleTypeDef *_htim_right) {
     htim_left = _htim_left;
@@ -28,8 +31,8 @@ void wheel_speed_init(TIM_HandleTypeDef *_htim_left, TIM_HandleTypeDef *_htim_ri
     HAL_TIM_IC_Start_IT(htim_left, TIM_CHANNEL_1);
     HAL_TIM_IC_Start_IT(htim_right, TIM_CHANNEL_1);
 
-    start_timer(&pulse_detected_left, PULSE_TIMER_TIME);
-    start_timer(&pulse_detected_right, PULSE_TIMER_TIME);
+    start_timer(&pulse_timeout_left, PULSE_TIMEOUT_MS);
+    start_timer(&pulse_timeout_right, PULSE_TIMEOUT_MS);
 }
 
 void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
@@ -43,7 +46,6 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
             left_val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
 
             uint32_t diff;
-            
             if (left_val2 > left_val1) {
                 diff = left_val2 - left_val1;
             }
@@ -51,21 +53,17 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
                 diff = (0xFFFF - left_val1) + left_val2;
             }
 
-            if (diff == 0) {
-                left_rpm = 0;
-            }
-            else {
+            if (diff > 0) {
                 float frequency = (float)TIM_CLOCK_HZ / diff;
                 calculate_wheel_rpm(frequency, &left_rpm);
-                start_timer(&pulse_detected_left, PULSE_TIMER_TIME);
+                start_timer(&pulse_timeout_left, PULSE_TIMEOUT_MS);
             }
 
-            __HAL_TIM_SET_COUNTER(htim, 0);
+            left_val1 = left_val2;
             left_captured = 0;
         }
     }
-
-    if (htim->Instance == htim_right->Instance && htim->Channel  == HAL_TIM_ACTIVE_CHANNEL_1) {
+    else if (htim->Instance == htim_right->Instance && htim->Channel  == HAL_TIM_ACTIVE_CHANNEL_1) {
         if (right_captured == 0) {
             right_val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
             right_captured = 1;
@@ -82,31 +80,28 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
                 diff = (0xFFFF - right_val1) + right_val2;
             }
 
-            if (diff == 0) {
-                right_rpm = 0;
-            }
-            else {
+            if (diff > 0) {
                 float frequency = (float)TIM_CLOCK_HZ / diff;
                 calculate_wheel_rpm(frequency, &right_rpm);
-                start_timer(&pulse_detected_right, PULSE_TIMER_TIME);
+                start_timer(&pulse_timeout_right, PULSE_TIMEOUT_MS);
             }
 
-            __HAL_TIM_SET_COUNTER(htim, 0);
+            right_val1 = right_val2;
             right_captured = 0;
         }
     }
 }
 
-void calculate_wheel_rpm(int frequency, int *rpm) {
+void calculate_wheel_rpm(float frequency, float *rpm) {
     *rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
 }
 
 void send_wheel_speed() {
-    if (is_timer_expired(&pulse_detected_left)) {
+    if (is_timer_expired(&pulse_timeout_left)) {
         left_rpm = 0;
     }
 
-    if (is_timer_active(&pulse_detected_right)) {
+    if (is_timer_expired(&pulse_timeout_right)) {
         right_rpm = 0;
     }
 
