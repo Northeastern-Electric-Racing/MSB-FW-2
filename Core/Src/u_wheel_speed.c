@@ -1,23 +1,25 @@
 #include "u_wheel_speed.h"
 #include "u_can.h"
 #include "u_queues.h"
+#include "timer.h"
 
-static TIM_HandleTypeDef *htim_left;
-static TIM_HandleTypeDef *htim_right;
+static const int PULSE_TIMER_TIME = 400;
 
 /* Left Wheel */
+static TIM_HandleTypeDef *htim_left;
 static uint32_t left_val1 = 0;
 static uint32_t left_val2 = 0;
 static uint8_t  left_captured = 0;
 static float left_rpm = 0;
-static bool pulse_detected_left = false;
+static nertimer_t pulse_detected_left;
 
 /* Right Wheel */
+static TIM_HandleTypeDef *htim_right;
 static uint32_t right_val1 = 0;
 static uint32_t right_val2 = 0;
 static uint8_t  right_captured = 0;
 static float right_rpm = 0;
-static bool pulse_detected_right = false;
+static nertimer_t pulse_detected_right;
 
 void wheel_speed_init(TIM_HandleTypeDef *_htim_left, TIM_HandleTypeDef *_htim_right) {
     htim_left = _htim_left;
@@ -25,12 +27,13 @@ void wheel_speed_init(TIM_HandleTypeDef *_htim_left, TIM_HandleTypeDef *_htim_ri
 
     HAL_TIM_IC_Start_IT(htim_left, TIM_CHANNEL_1);
     HAL_TIM_IC_Start_IT(htim_right, TIM_CHANNEL_1);
+
+    start_timer(&pulse_detected_left, PULSE_TIMER_TIME);
+    start_timer(&pulse_detected_right, PULSE_TIMER_TIME);
 }
 
 void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == htim_left->Instance && htim->Channel  == HAL_TIM_ACTIVE_CHANNEL_1) {
-        pulse_detected_left = true;
-
         if (left_captured == 0) {
             left_val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
             left_captured = 1;
@@ -54,6 +57,7 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
             else {
                 float frequency = (float)TIM_CLOCK_HZ / diff;
                 calculate_wheel_rpm(frequency, &left_rpm);
+                start_timer(&pulse_detected_left, PULSE_TIMER_TIME);
             }
 
             __HAL_TIM_SET_COUNTER(htim, 0);
@@ -62,8 +66,6 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
     }
 
     if (htim->Instance == htim_right->Instance && htim->Channel  == HAL_TIM_ACTIVE_CHANNEL_1) {
-        pulse_detected_right = true;
-
         if (right_captured == 0) {
             right_val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
             right_captured = 1;
@@ -86,6 +88,7 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
             else {
                 float frequency = (float)TIM_CLOCK_HZ / diff;
                 calculate_wheel_rpm(frequency, &right_rpm);
+                start_timer(&pulse_detected_right, PULSE_TIMER_TIME);
             }
 
             __HAL_TIM_SET_COUNTER(htim, 0);
@@ -98,20 +101,15 @@ void calculate_wheel_rpm(int frequency, int *rpm) {
     *rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
 }
 
-void wheel_pulse_check() {
-    if (!pulse_detected_left) {
+void send_wheel_speed() {
+    if (is_timer_expired(&pulse_detected_left)) {
         left_rpm = 0;
     }
 
-    if (!pulse_detected_right) {
+    if (is_timer_active(&pulse_detected_right)) {
         right_rpm = 0;
     }
 
-    pulse_detected_left = false;
-    pulse_detected_right = false;
-}
-
-void send_wheel_speed() {
     struct __attribute__((__packed__)) {
         uint16_t right_rpm;
 		uint16_t left_rpm;

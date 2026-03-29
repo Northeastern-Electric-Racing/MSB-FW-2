@@ -30,12 +30,6 @@ void wheel_speed_capture_callback(TIM_HandleTypeDef *htim);
 void calculate_wheel_rpm(int frequency, int *rpm);
 
 /**
- * @brief Function called by wheel speed pulse timer. If we do not recieve a pulse 
- *        in the span of the timer, we set rpm to 0.
- */
-void wheel_pulse_check();
-
-/**
  * Sends wheel speed data over CAN
  */
 void send_wheel_speed();

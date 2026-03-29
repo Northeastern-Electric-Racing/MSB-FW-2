@@ -100,7 +100,6 @@ void can_outgoing_thread(ULONG thread_input) {
 
 /* Sensors Thread */
 static nertimer_t data_send_timer;
-static nertimer_t wheel_pulse_timer;
 static thread_t _sensors_thread = {
     .name       = "Sensors Thread",  /* Name */
     .size       = 2048,              /* Stack Size (in bytes) */
@@ -113,10 +112,8 @@ static thread_t _sensors_thread = {
 };
 void sensors_thread(ULONG thread_input) {
     const uint16_t DATA_SEND_INTERVAL = 25 * _sensors_thread.sleep;
-    const uint16_t WHEEL_PULSE_INTERVAL = 15 * _sensors_thread.sleep;
     
     start_timer(&data_send_timer, DATA_SEND_INTERVAL);
-    start_timer(&wheel_pulse_timer, WHEEL_PULSE_INTERVAL);
 
     while (1) {
         CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
@@ -124,15 +121,10 @@ void sensors_thread(ULONG thread_input) {
         if (is_timer_expired(&data_send_timer)) {
             send_vl53l7cx_data();
             send_imu_and_magnometer_data();
-            start_timer(&data_send_timer, DATA_SEND_INTERVAL);
 
             if (device_loc == DEVICE_FRONT) {
                 send_wheel_speed();
             }
-        }
-
-        if (is_timer_expired(&wheel_pulse_timer)) {
-            wheel_pulse_check();
         }
 
         tx_thread_sleep(_sensors_thread.sleep);
