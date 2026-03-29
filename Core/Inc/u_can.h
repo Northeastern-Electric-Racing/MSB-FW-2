@@ -14,6 +14,7 @@ uint8_t can2_init(FDCAN_HandleTypeDef *hcan);
 /* List of CAN interfaces */
 extern can_t can2;
 
+#define HDC2021_CAN_ID          0xBAF 
 #define IMU_ACCEL_CAN_ID        0xBAB // 0xBBF for rear
 #define IMU_GYRO_CAN_ID         0xBAC // 0xBC0 for rear
 #define MAGNOMETER_CAN_ID       0xBB0 // 0xBC4 for rear

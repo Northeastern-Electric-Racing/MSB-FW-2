@@ -112,22 +112,32 @@ static thread_t _sensors_thread = {
 };
 void sensors_thread(ULONG thread_input) {
     const uint16_t DATA_SEND_INTERVAL = 25 * _sensors_thread.sleep;
-    
     start_timer(&data_send_timer, DATA_SEND_INTERVAL);
 
     while (1) {
         CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
 
         if (is_timer_expired(&data_send_timer)) {
-            send_vl53l7cx_data();
+            CATCH_ERROR(read_hdc2021(), U_SUCCESS);
+            send_hdc2021_data();
             send_imu_and_magnometer_data();
 
             if (device_loc == DEVICE_FRONT) {
                 send_wheel_speed();
             }
+            else {
+                CATCH_ERROR(read_vl53l7cx(), U_SUCCESS);
+                send_vl53l7cx_data();
+            }
+
+            start_timer(&data_send_timer, DATA_SEND_INTERVAL);
         }
 
-        tx_thread_sleep(_sensors_thread.sleep);
+        tx_thread_sleep(_sensors_thread.sleep / 2);
+
+        CATCH_ERROR(prepare_data_hdc2021(), U_SUCCESS);
+        
+        tx_thread_sleep(_sensors_thread.sleep / 2);
     }
 }
 

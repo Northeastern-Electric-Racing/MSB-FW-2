@@ -57,6 +57,29 @@ void motion_fx_init();
 void calibrate();
 
 /**
+ * @brief initializes the hdc2021 for reading temp and humidity
+ * @return whether there were errors initializing the hdc2021
+ */
+uint16_t init_hdc2021();
+
+/**
+ * @brief tells the hdc2021 to read and prepare data in its registers
+ * @return whether there were errors
+ */
+uint16_t prepare_data_hdc2021();
+
+/**
+ * @brief reads temp and humidity data from the hdc2021
+ * @return whether there were errors in reading the data
+ */
+uint16_t read_hdc2021();
+
+/**
+ * @brief sends temp and humidity data from the hdc2021 over CAN
+ */
+void send_hdc2021_data();
+
+/**
  * @brief sets up vl53l7cx time of flight sensor
  * @return if there were errors initalizing the sensor
  */
