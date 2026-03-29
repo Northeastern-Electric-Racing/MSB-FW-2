@@ -58,7 +58,7 @@ void calibrate();
 
 /**
  * @brief initializes the hdc2021 for reading temp and humidity
- * @return whether there were errors initializing the sht30
+ * @return whether there were errors initializing the hdc2021
  */
 uint16_t init_hdc2021();
 

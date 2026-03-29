@@ -117,9 +117,7 @@ void sensors_thread(ULONG thread_input) {
         CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
 
         if (is_timer_expired(&data_send_timer)) {
-            CATCH_ERROR(read_sht30(), U_SUCCESS);
             CATCH_ERROR(read_vl53l7cx(), U_SUCCESS);
-            send_sht30_data();
             send_vl53l7cx_data();
             CATCH_ERROR(read_hdc2021(), U_SUCCESS);
             send_hdc2021_data();
