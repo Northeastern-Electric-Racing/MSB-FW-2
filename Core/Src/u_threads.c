@@ -5,11 +5,20 @@
 #include "u_queues.h"
 #include "main.h"
 #include "u_inbox.h"
+#include "u_thermocouple.h"
+#include "u_strain_gauge.h"
+#include "u_shock_pot.h"
+#include "u_steering_angle.h"
+#include "u_load_cell.h"
+#include "u_misc_adc.h"
+#include "u_utils.h"
+#include "u_sensors.h"
 
 #define PRIO_DEFAULT          0
 #define PRIO_CAN_INCOMING     0
 #define PRIO_CAN_OUTGOING     0
 #define PRIO_SENSORS          1
+#define PRIO_ADCS             1
 
 /* Default Thread */
 static thread_t _default_thread = {
@@ -24,13 +33,13 @@ static thread_t _default_thread = {
     };
 void default_thread(ULONG thread_input) {
     
-  while(1) {
-    /* Kick watch dog */
-    HAL_IWDG_Refresh(&hiwdg);
+    while(1) {
+        /* Kick watch dog */
+        HAL_IWDG_Refresh(&hiwdg);
 
-    /* Sleep Thread for specified number of ticks. */
-    tx_thread_sleep(_default_thread.sleep);
-  }
+        /* Sleep Thread for specified number of ticks. */
+        tx_thread_sleep(_default_thread.sleep);
+    }
 }
 
 /* CAN Incoming Thread. Processes incoming messages. */
@@ -126,17 +135,71 @@ void sensors_thread(ULONG thread_input) {
     }
 }
 
-/* Initializes all ThreadX threads.
- *  Calls to create_thread() should go in here
- */
+/* ADCs Thread */
+static thread_t _adcs_thread = {
+    .name       = "ADCs Thread",     /* Name */
+    .size       = 2048,              /* Stack Size (in bytes) */
+    .priority   = PRIO_ADCS,         /* Priority */
+    .threshold  = 0,                 /* Preemption Threshold */
+    .time_slice = TX_NO_TIME_SLICE,  /* Time Slice */
+    .auto_start = TX_AUTO_START,     /* Auto Start */
+    .sleep      = 100,               /* Sleep (in ticks) */
+    .function   = sensors_thread     /* Thread Function */
+};
+void adcs_thread(ULONG thread_input) {
+
+    while(1) {
+        if (device_loc == DEVICE_BACK) {
+            thermocouple_data_t thermo_data = thermocouple_get_data();
+            send_thermocouple_data(thermo_data);
+        }
+
+        strain_gauge_data_t strain_gauge_data = strain_gauge_get_data();
+        send_strain_gauge_data(strain_gauge_data);
+        
+        load_cell_data_t load_cell2_data = load_cell2_get_data();
+
+        misc_adc_data_t misc_adc2_data = misc_adc2_get_data();
+        send_misc_adc_data(misc_adc2_data, MISC_ADC2_CAN_ID);
+
+        CATCH_ERROR(adc_switchMuxStates(LOW), U_SUCCESS);
+
+        tx_thread_sleep(_sensors_thread.sleep / 2);
+
+        shock_pot_data_t shock_pot_data = shock_pot_get_data();
+        send_shock_pot_data(shock_pot_data);
+
+        if (device_loc == DEVICE_FRONT) {
+            steering_angle_data_t steering_angle_data = steering_angle_get_data();
+            send_steering_angle_data(steering_angle_data);
+        }
+
+        load_cell_data_t load_cell1_data = load_cell1_get_data();
+        send_load_cell_data(load_cell1_data, load_cell2_data);
+
+        misc_adc_data_t misc_adc1_data = misc_adc1_get_data();
+        send_misc_adc_data(misc_adc1_data, MISC_ADC1_CAN_ID);
+        misc_adc_data_t misc_adc3_data = misc_adc3_get_data();
+        send_misc_adc_data(misc_adc3_data, MISC_ADC3_CAN_ID);
+
+        CATCH_ERROR(adc_switchMuxStates(HIGH), U_SUCCESS);
+
+        tx_thread_sleep(_sensors_thread.sleep / 2);
+    }
+}
+
+/* Initializes all ThreadX threads. 
+*  Calls to create_thread() should go in here
+*/
 uint8_t threads_init(TX_BYTE_POOL *byte_pool) {
 
-  /* Create Threads */
-  CATCH_ERROR(create_thread(byte_pool, &_default_thread), U_SUCCESS);      // Create Default thread.
-  CATCH_ERROR(create_thread(byte_pool, &_sensors_thread), U_SUCCESS);      // Create Sensors thread.
-  CATCH_ERROR(create_thread(byte_pool, &_can_incoming_thread), U_SUCCESS); // Create CAN Incoming thread.
-  CATCH_ERROR(create_thread(byte_pool, &_can_outgoing_thread), U_SUCCESS); // Create CAN Outgoing thread.
+    /* Create Threads */
+    CATCH_ERROR(create_thread(byte_pool, &_default_thread), U_SUCCESS);      // Create Default thread.
+    CATCH_ERROR(create_thread(byte_pool, &_sensors_thread), U_SUCCESS);      // Create Sensors thread.
+    CATCH_ERROR(create_thread(byte_pool, &_can_incoming_thread), U_SUCCESS); // Create CAN Incoming thread.
+    CATCH_ERROR(create_thread(byte_pool, &_can_outgoing_thread), U_SUCCESS); // Create CAN Outgoing thread.
+    CATCH_ERROR(create_thread(byte_pool, &_adcs_thread), U_SUCCESS);         // Create ADCs thread.
 
-  PRINTLN_INFO("Ran threads_init().");
-  return U_SUCCESS;
+    PRINTLN_INFO("Ran threads_init().");
+    return U_SUCCESS;
 }

@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "fdcan.h"
 #include "u_queues.h"
+#include "u_utils.h"
 
 /* USER CODE END Includes */
 
@@ -73,6 +74,7 @@ TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim15;
 
 /* USER CODE BEGIN PV */
+device_loc_t device_loc = DEVICE_BACK;
 
 /* USER CODE END PV */
 
@@ -124,7 +126,7 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
     /* Get the message. */
     HAL_StatusTypeDef status = HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &rx_header, message.data);
     if (status != HAL_OK) {
-      PRINTLN_ERROR("Failed to call HAL_FDCAN_GetRxMessage() (Status: %ld/%s).", status, hal_status_toString(status));
+      PRINTLN_ERROR("Failed to call HAL_FDCAN_GetRxMessage() (Status: %d/%s).", status, hal_status_toString(status));
       return;
     }
 
@@ -196,6 +198,14 @@ int main(void)
   MX_TIM1_Init();
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
+  bool loc1 = HAL_GPIO_ReadPin(MSB_ADDR_GPIO_Port, MSB_ADDR_Pin);
+
+  if (loc1) {
+    device_loc = DEVICE_FRONT;
+  }
+  else {
+    device_loc = DEVICE_BACK;
+  }
 
   /* USER CODE END 2 */
 

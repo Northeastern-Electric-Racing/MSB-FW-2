@@ -63,7 +63,6 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 
     # Misc Embedded-Base Stuff (drivers, middleware, utils, etc.)
     "../Drivers/Embedded-Base/general/src/hdc2021debr.c"
-    "../Drivers/Embedded-Base/general/src/sht30.c"
     "../Drivers/Embedded-Base/general/include/lsm6dsv_reg.h"
     "../Drivers/Embedded-Base/general/src/lsm6dsv_reg.c"
     "../Drivers/Embedded-Base/general/src/lis2mdl_reg.c"
@@ -77,6 +76,13 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Core/Src/u_utils.c"
     "./Core/Src/u_inbox.c"
     "./Core/Src/u_can.c"
+    "./Core/Src/u_load_cell.c"
+    "./Core/Src/u_misc_adc.c"
+    "./Core/Src/u_shock_pot.c"
+    "./Core/Src/u_steering_angle.c"
+    "./Core/Src/u_strain_gauge.c"
+    "./Core/Src/u_thermocouple.c"
+    "./Core/Src/u_adcs.c"
     "./Core/Src/u_mutexes.c"
     "./Core/Src/u_queues.c"
     "./Core/Src/u_sensors.c"
