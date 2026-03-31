@@ -518,10 +518,14 @@ void motion_fx_init() {
     MotionFX_enable_9X(mFXState, MFX_ENGINE_ENABLE);
 }
 
-void calibrate() {
-    calibration_x = fx_rotation_x;
-    calibration_y = fx_rotation_y;
-    calibration_z = fx_rotation_z;
+void calibrate(float angle) {
+    const float TOLERANCE = 1;
+
+    if (fabsf(angle) <= TOLERANCE) {
+        calibration_x = fx_rotation_x;
+        calibration_y = fx_rotation_y;
+        calibration_z = fx_rotation_z;
+    }
 }
 
 /**

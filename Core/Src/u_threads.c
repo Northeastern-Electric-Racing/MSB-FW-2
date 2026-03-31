@@ -179,6 +179,7 @@ void adcs_thread(ULONG thread_input) {
         if (device_loc == DEVICE_FRONT) {
             steering_angle_data_t steering_angle_data = steering_angle_get_data();
             send_steering_angle_data(steering_angle_data);
+            calibrate(steering_angle_data.angle);
         }
 
         load_cell_data_t load_cell1_data = load_cell1_get_data();
