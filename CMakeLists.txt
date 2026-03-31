@@ -76,6 +76,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Core/Src/u_utils.c"
     "./Core/Src/u_inbox.c"
     "./Core/Src/u_can.c"
+    "./Core/Src/u_wheel_speed.c"
     "./Core/Src/u_load_cell.c"
     "./Core/Src/u_misc_adc.c"
     "./Core/Src/u_shock_pot.c"

@@ -25,6 +25,7 @@
 #include "fdcan.h"
 #include "u_queues.h"
 #include "u_utils.h"
+#include "u_wheel_speed.h"
 
 /* USER CODE END Includes */
 
@@ -205,6 +206,10 @@ int main(void)
   }
   else {
     device_loc = DEVICE_BACK;
+  }
+
+  if (device_loc = DEVICE_FRONT) {
+    wheel_speed_init(&htim1, &htim15);
   }
 
   /* USER CODE END 2 */
@@ -958,7 +963,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = 174;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -1066,7 +1071,7 @@ static void MX_TIM15_Init(void)
 
   /* USER CODE END TIM15_Init 1 */
   htim15.Instance = TIM15;
-  htim15.Init.Prescaler = 0;
+  htim15.Init.Prescaler = 174;
   htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim15.Init.Period = 65535;
   htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
