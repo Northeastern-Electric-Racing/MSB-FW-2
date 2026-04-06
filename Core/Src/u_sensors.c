@@ -337,7 +337,7 @@ uint16_t init_magnetometer() {
 
     status = lis2mdl_device_id_get(&lis2mdl_ctx, &id);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to get LIS2MDL device ID (Status %d/%s)", status,
+        PRINTLN_ERROR("Failed to get LIS2MDL device ID (Status %ld/%s)", status,
                   hal_status_toString(status));
         return U_ERROR;
     }
@@ -358,28 +358,28 @@ uint16_t init_magnetometer() {
 
     status = lis2mdl_operating_mode_set(&lis2mdl_ctx, LIS2MDL_CONTINUOUS_MODE);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to set LIS2MDL operating mode (Status %d/%s)", status,
+        PRINTLN_ERROR("Failed to set LIS2MDL operating mode (Status %ld/%s)", status,
                 hal_status_toString(status));
         return U_ERROR;
     }
 
     status = lis2mdl_data_rate_set(&lis2mdl_ctx, LIS2MDL_ODR_50Hz);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to set LIS2MDL data rate (Status %d/%s)", status,
+        PRINTLN_ERROR("Failed to set LIS2MDL data rate (Status %ld/%s)", status,
                 hal_status_toString(status));
         return U_ERROR;
     }
 
     status = lis2mdl_offset_temp_comp_set(&lis2mdl_ctx, 1);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to enable LIS2MDL temp compensation (Status %d/%s)",
+        PRINTLN_ERROR("Failed to enable LIS2MDL temp compensation (Status %ld/%s)",
                     status, hal_status_toString(status));
         return U_ERROR;
     }
 
     status = lis2mdl_block_data_update_set(&lis2mdl_ctx, 1);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to enable LIS2MDL block data update (Status %d/%s)",
+        PRINTLN_ERROR("Failed to enable LIS2MDL block data update (Status %ld/%s)",
                     status, hal_status_toString(status));
         return U_ERROR;
     }
@@ -588,29 +588,29 @@ void send_hdc2021_data() {
  * SSCMANN060PG2A3
  */
 
-static int32_t _ssc_i2c_read(uint16_t dev_addr, uint8_t *buf, uint8_t len) {
+static int32_t _ssc_i2c_read(uint16_t dev_addr, uint8_t *buf, uint16_t len) {
     return HAL_I2C_Master_Receive(&hi2c1, dev_addr, buf, len, 10);
 }
 
 uint16_t init_ssc() {
-    int status = honeywellSSC_init(&ssc, _ssc_i2c_read, SSC_I2C_ADDR, 0, 60);
-
-    if (status) {
-        PRINTLN_ERROR("ERROR: Failed to get init SSCMANN060PG2A3 (Status: %d/%s).", status, hal_status_toString(status));
-        return U_ERROR;
-    }
-
-    return U_SUCCESS;
+    honeywellSSC_init(&ssc, _ssc_i2c_read, (SSC_I2C_ADDR << 1), 0, 60);
 }
 
 uint16_t read_ssc() {
     float pressure;
     float temp;
 
-    int status = hhoneywellSSC_read_pressure_and_temp(&ssc, &pressure, &temp);
+    int status = honeywellSSC_read_pressure(&ssc, &pressure);
 
     if (status) {
-        PRINTLN_ERROR("ERROR: Failed to get SSCMANN060PG2A3 data (Status: %d/%s).", status, hal_status_toString(status));
+        PRINTLN_ERROR("ERROR: Failed to get SSCMANN060PG2A3 pressure (Status: %d/%s).", status, hal_status_toString(status));
+        return U_ERROR;
+    }
+
+    status = honeywellSSC_read_temp(&ssc, &temp);
+
+    if (status) {
+        PRINTLN_ERROR("ERROR: Failed to get SSCMANN060PG2A3 temperature (Status: %d/%s).", status, hal_status_toString(status));
         return U_ERROR;
     }
 
@@ -640,7 +640,7 @@ int32_t init_vl53l7cx() {
     VL53L7CX_RegisterBusIO(&vl53l7cx_obj, &vl53l7cx_io);
     int32_t init_retval = VL53L7CX_Init(&vl53l7cx_obj);
     if (init_retval) {
-        PRINTLN_ERROR("ERROR: Cannot initalize VL53L7CX sensor (status %d)",
+        PRINTLN_ERROR("ERROR: Cannot initalize VL53L7CX sensor (status %ld)",
                     init_retval);
         return init_retval;
     }
@@ -674,7 +674,7 @@ int32_t read_vl53l7cx() {
     status = VL53L7CX_GetDistance(&vl53l7cx_obj, &full_data);
     if (status) {
         PRINTLN_ERROR(
-            "ERROR: Could not retrive value from vl53l7cx sensor (status %d)",
+            "ERROR: Could not retrive value from vl53l7cx sensor (status %ld)",
             status);
         return status;
     }

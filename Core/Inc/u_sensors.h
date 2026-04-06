@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-// Shift by 1 for read/write bit
-#define SSC_I2C_ADDR (0x28 << 1)
-
 #define MOTION_FX_STATE_SIZE (size_t)(2432)
 
 /*
