@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __U_QUEUES_H
+#define __U_QUEUES_H
 
 #include "u_tx_queues.h"
 #include "u_nx_ethernet.h"
@@ -11,4 +12,12 @@ extern queue_t eth_outgoing; // Outgoing Ethernet Queue
 // add more as necessary
 
 /* API */
+
+/**
+ * @brief initializes system queues
+ * 
+ * @returns returns 0 on success, 1 on fail
+ */
 uint8_t queues_init(TX_BYTE_POOL *byte_pool); // Initializes all queues. Called from app_threadx.c
+
+#endif /* u_queues.h */
