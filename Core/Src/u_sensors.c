@@ -518,7 +518,7 @@ void motion_fx_init() {
     MotionFX_enable_9X(mFXState, MFX_ENGINE_ENABLE);
 }
 
-void calibrate(float angle) {
+void calibrate() {
     const float TOLERANCE = 1;
 
     if (fabsf(angle) <= TOLERANCE) {
@@ -623,7 +623,7 @@ int32_t read_vl53l7cx() {
     status = VL53L7CX_GetDistance(&vl53l7cx_obj, &full_data);
     if (status) {
         PRINTLN_ERROR(
-            "ERROR: Could not retrive value from vl53l7cx sensor (status %d)",
+            "ERROR: Could not retrive value from vl53l7cx sensor (status %ld)",
             status);
         return status;
     }
