@@ -208,7 +208,7 @@ int main(void)
     device_loc = DEVICE_BACK;
   }
 
-  if (device_loc = DEVICE_FRONT) {
+  if (device_loc == DEVICE_FRONT) {
     wheel_speed_init(&htim1, &htim15);
   }
 
