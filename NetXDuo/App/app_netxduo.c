@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "u_ethernet.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,7 +65,6 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   (void)byte_pool;
   /* USER CODE END App_NetXDuo_MEM_POOL */
   /* USER CODE BEGIN 0 */
-
   /* USER CODE END 0 */
 
   /* USER CODE BEGIN MX_NetXDuo_Init */

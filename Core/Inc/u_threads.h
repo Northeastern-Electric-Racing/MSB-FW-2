@@ -17,5 +17,8 @@ void default_thread(ULONG thread_input);
 void can_incoming_thread(ULONG thread_input);
 void can_outgoing_thread(ULONG thread_input);
 void sensors_thread(ULONG thread_input);
+void adcs_thread(ULONG thread_input);
+void vEthernetIncoming(ULONG thread_input);
+void vEthernetOutgoing(ULONG thread_input);
 
 #endif /* u_threads.h */
