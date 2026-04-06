@@ -762,9 +762,7 @@ set(MX_LINK_LIBS
 	:MotionFX_CM33F_wc32_ot_hard.a
     STM32_Drivers
     ${TOOLCHAIN_LINK_LIBRARIES}
-    ThreadX
-	NetXDuo
-	
+    ThreadX	NetXDuo	
 )
 # Interface library for includes and symbols
 add_library(stm32cubemx INTERFACE)

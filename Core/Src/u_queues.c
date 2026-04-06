@@ -34,11 +34,11 @@ queue_t eth_outgoing = {
  */
 uint8_t queues_init(TX_BYTE_POOL *byte_pool) {
 
-  /* Create Queues */
-  CATCH_ERROR(create_queue(byte_pool, &can_incoming),
-              U_SUCCESS); // Create Incoming CAN Queue
-  CATCH_ERROR(create_queue(byte_pool, &can_outgoing),
-              U_SUCCESS); // Create Outgoing CAN Queue
+    /* Create Queues */
+    CATCH_ERROR(create_queue(byte_pool, &eth_incoming), U_SUCCESS); // Create Incoming Ethernet Queue
+    CATCH_ERROR(create_queue(byte_pool, &eth_outgoing), U_SUCCESS); // Create Outgoing Ethernet Queue
+    CATCH_ERROR(create_queue(byte_pool, &can_incoming), U_SUCCESS); // Create Incoming CAN Queue
+    CATCH_ERROR(create_queue(byte_pool, &can_outgoing), U_SUCCESS); // Create Outgoing CAN Queue
 
   PRINTLN_INFO("Ran queues_init().");
   return U_SUCCESS;

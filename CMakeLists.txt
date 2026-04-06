@@ -22,7 +22,6 @@ endif()
 set(CMAKE_PROJECT_NAME MSB-FW-2)
 
 # NER Include toolchain file
-include("cmake/gcc-arm-none-eabi.cmake")
 
 # Enable compile command to ease indexing with e.g. clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
@@ -54,19 +53,24 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Embedded-Base ThreadX Utils
+    "./Drivers/Embedded-Base/threadX/src/u_tx_can.c"
     "./Drivers/Embedded-Base/threadX/src/u_tx_debug.c"
     "./Drivers/Embedded-Base/threadX/src/u_tx_mutex.c"
     "./Drivers/Embedded-Base/threadX/src/u_tx_queues.c"
     "./Drivers/Embedded-Base/threadX/src/u_tx_threads.c"
-    "./Drivers/Embedded-Base/middleware/src/bitstream.c"
-    "./Drivers/Embedded-Base/middleware/src/c_utils.c"
+    "./Drivers/Embedded-Base/threadX/src/u_tx_timers.c"
+
+    # Embedded-Base NetX Utils
+    "./Drivers/Embedded-Base/NetX/src/u_nx_debug.c"
+    "./Drivers/Embedded-Base/NetX/src/u_nx_ethernet.c"
+    "./Drivers/Embedded-Base/NetX/src/nxd_ptp_client.c"
 
     # Misc Embedded-Base Stuff (drivers, middleware, utils, etc.)
-    "../Drivers/Embedded-Base/general/src/hdc2021debr.c"
-    "../Drivers/Embedded-Base/general/include/lsm6dsv_reg.h"
-    "../Drivers/Embedded-Base/general/src/lsm6dsv_reg.c"
-    "../Drivers/Embedded-Base/general/src/lis2mdl_reg.c"
-    "../Drivers/Embedded-Base/platforms/stm32h563/src/fdcan.c"
+    "./Drivers/Embedded-Base/general/src/hdc2021debr.c"
+    "./Drivers/Embedded-Base/general/include/lsm6dsv_reg.h"
+    "./Drivers/Embedded-Base/general/src/lsm6dsv_reg.c"
+    "./Drivers/Embedded-Base/general/src/lis2mdl_reg.c"
+    "./Drivers/Embedded-Base/platforms/stm32h563/src/fdcan.c"
     "./Drivers/Embedded-Base/middleware/src/bitstream.c"
     "./Drivers/Embedded-Base/middleware/src/debounce.c"
     "./Drivers/Embedded-Base/middleware/src/timer.c"
@@ -87,13 +91,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Core/Src/u_mutexes.c"
     "./Core/Src/u_queues.c"
     "./Core/Src/u_sensors.c"
-    "./Core/Src/u_threads.c"
-
-    # Ethernet Implementations
     "./Core/Src/u_ethernet.c"
-    "./Drivers/Embedded-Base/NetX/src/u_nx_debug.c"
-    "./Drivers/Embedded-Base/NetX/src/u_nx_ethernet.c"
-    "../Drivers/Embedded-Base/NetX/src/nxd_ptp_client.c"
+    "./Core/Src/u_threads.c"
 )
 
 # Add include paths

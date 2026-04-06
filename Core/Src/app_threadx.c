@@ -27,6 +27,7 @@
 #include "u_queues.h"
 #include "u_sensors.h"
 #include "u_threads.h"
+#include "u_ethernet.h"
 
 /* USER CODE END Includes */
 

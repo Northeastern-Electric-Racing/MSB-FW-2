@@ -17,11 +17,13 @@
 #include "u_sensors.h"
 #include "u_wheel_speed.h"
 
-#define PRIO_DEFAULT          0
-#define PRIO_CAN_INCOMING     0
-#define PRIO_CAN_OUTGOING     0
-#define PRIO_SENSORS          1
-#define PRIO_ADCS             1
+#define PRIO_DEFAULT           0
+#define PRIO_CAN_INCOMING      0
+#define PRIO_CAN_OUTGOING      0
+#define PRIO_vEthernetIncoming 0
+#define PRIO_vEthernetOutgoing 0
+#define PRIO_SENSORS           1
+#define PRIO_ADCS              1
 
 /* Default Thread */
 static thread_t _default_thread = {
@@ -35,7 +37,6 @@ static thread_t _default_thread = {
         .function   = default_thread     /* Thread Function */
     };
 void default_thread(ULONG thread_input) {
-    
     while(1) {
         /* Kick watch dog */
         HAL_IWDG_Refresh(&hiwdg);
@@ -202,8 +203,8 @@ void adcs_thread(ULONG thread_input) {
 /* Incoming Ethernet Thread. Processes incoming messages. */
 static thread_t ethernet_incoming_thread = {
         .name       = "Incoming Ethernet Thread",  /* Name */
-        .size       = 512,                         /* Stack Size (in bytes) */
-        .priority   = 2,      /* Priority */
+        .size       = 2048,                        /* Stack Size (in bytes) */
+        .priority   = PRIO_vEthernetIncoming,      /* Priority */
         .threshold  = 0,                           /* Preemption Threshold */
         .time_slice = TX_NO_TIME_SLICE,            /* Time Slice */
         .auto_start = TX_AUTO_START,               /* Auto Start */
@@ -211,6 +212,11 @@ static thread_t ethernet_incoming_thread = {
         .function   = vEthernetIncoming            /* Thread Function */
     };
 void vEthernetIncoming(ULONG thread_input) {
+    /* Initialize ethernet (you have to do this in a thread for some reason). */
+    int status = ethernet1_init();
+    if(status != NX_SUCCESS) {
+        PRINTLN_ERROR("Failed to call ethernet1_init() (Status: %d/%s).", status, nx_status_toString(status));
+    }
 
     while(1) {
 
@@ -228,12 +234,12 @@ void vEthernetIncoming(ULONG thread_input) {
 /* Outgoing Ethernet Thread. Sends outgoing messages. */
 static thread_t ethernet_outgoing_thread = {
         .name       = "Outgoing Ethernet Thread",  /* Name */
-        .size       = 512,                         /* Stack Size (in bytes) */
-        .priority   = 2,      /* Priority */
+        .size       = 2048,                        /* Stack Size (in bytes) */
+        .priority   = PRIO_vEthernetOutgoing,      /* Priority */
         .threshold  = 0,                           /* Preemption Threshold */
         .time_slice = TX_NO_TIME_SLICE,            /* Time Slice */
         .auto_start = TX_AUTO_START,               /* Auto Start */
-        .sleep      =  0,                          /* Sleep (in ticks) */
+        .sleep      = 0,                          /* Sleep (in ticks) */
         .function   = vEthernetOutgoing            /* Thread Function */
     };
 void vEthernetOutgoing(ULONG thread_input) {
@@ -249,7 +255,9 @@ void vEthernetOutgoing(ULONG thread_input) {
             if(status != U_SUCCESS) {
                 PRINTLN_WARNING("Failed to send Ethernet message after removing from outgoing queue (Message ID: %d).", message.message_id);
                 // u_TODO - maybe add the message back into the queue if it fails to send? not sure if this is a good idea tho
-                }
+            } else {
+                PRINTLN_INFO("Sent ethernet message!");
+            }
         }
 
         /* No sleep. Thread timing is controlled completely by the queue timeout. */
