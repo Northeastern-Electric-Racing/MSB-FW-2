@@ -17,7 +17,7 @@
 #include "hdc2021debr.h"
 #include "lsm6dsv_reg.h"
 #include "vl53l7cx.h"
-#include "honeywellSSC.c"
+#include "honeywellSSC.h"
 
 extern I2C_HandleTypeDef hi2c1;
 extern SPI_HandleTypeDef hspi1;
