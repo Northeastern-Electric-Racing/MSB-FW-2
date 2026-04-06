@@ -65,6 +65,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "../Drivers/Embedded-Base/general/src/hdc2021debr.c"
     "../Drivers/Embedded-Base/general/include/lsm6dsv_reg.h"
     "../Drivers/Embedded-Base/general/src/lsm6dsv_reg.c"
+    "../Drivers/Embedded-Base/general/src/honeywellSSC.c"
     "../Drivers/Embedded-Base/general/src/lis2mdl_reg.c"
     "../Drivers/Embedded-Base/platforms/stm32h563/src/fdcan.c"
     "./Drivers/Embedded-Base/middleware/src/bitstream.c"

@@ -121,7 +121,9 @@ void sensors_thread(ULONG thread_input) {
 
         if (is_timer_expired(&data_send_timer)) {
             CATCH_ERROR(read_hdc2021(), U_SUCCESS);
+            CATCH_ERROR(read_ssc(), U_SUCCESS);
             send_hdc2021_data();
+            send_ssc_data();
             send_imu_and_magnometer_data();
 
             if (device_loc == DEVICE_BACK) {

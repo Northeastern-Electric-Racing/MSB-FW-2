@@ -17,12 +17,14 @@
 #include "hdc2021debr.h"
 #include "lsm6dsv_reg.h"
 #include "vl53l7cx.h"
+#include "honeywellSSC.c"
 
 extern I2C_HandleTypeDef hi2c1;
 extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi2;
 
 static hdc2021debr_t hdc2021;
+static honeywellSSC_t ssc;
 
 static stmdev_ctx_t imu;
 static stmdev_ctx_t lis2mdl_ctx;
@@ -69,6 +71,11 @@ static struct __attribute__((__packed__)) {
 	float temp;
 	float humidity;
 } hdc2021_data;
+
+static struct __attribute__((__packed__)) {
+	float pressure;
+	float temp;
+} ssc_data;
 
 /**
  * IMU
@@ -573,6 +580,54 @@ void send_hdc2021_data() {
     };                
 
     memcpy(can_message.data, &hdc2021_data, can_message.len);
+
+    queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
+}
+
+/**
+ * SSCMANN060PG2A3
+ */
+
+static int32_t _ssc_i2c_read(uint16_t dev_addr, uint8_t *buf, uint8_t len) {
+    return HAL_I2C_Master_Receive(&hi2c1, dev_addr, buf, len, 10);
+}
+
+uint16_t init_ssc() {
+    int status = honeywellSSC_init(&ssc, _ssc_i2c_read, SSC_I2C_ADDR, 0, 60);
+
+    if (status) {
+        PRINTLN_ERROR("ERROR: Failed to get init SSCMANN060PG2A3 (Status: %d/%s).", status, hal_status_toString(status));
+        return U_ERROR;
+    }
+
+    return U_SUCCESS;
+}
+
+uint16_t read_ssc() {
+    float pressure;
+    float temp;
+
+    int status = hhoneywellSSC_read_pressure_and_temp(&ssc, &pressure, &temp);
+
+    if (status) {
+        PRINTLN_ERROR("ERROR: Failed to get SSCMANN060PG2A3 data (Status: %d/%s).", status, hal_status_toString(status));
+        return U_ERROR;
+    }
+
+    ssc_data.pressure = pressure;
+    ssc_data.temp = temp;
+
+    return U_SUCCESS;
+}
+
+void send_ssc_data() {
+    can_msg_t can_message = { 
+        .id = convert_can_id(SSC_CAN_ID), 
+        .len = 8,
+        .data = { 0 } 
+    };                
+
+    memcpy(can_message.data, &ssc_data, can_message.len);
 
     queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
 }

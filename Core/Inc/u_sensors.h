@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+// Shift by 1 for read/write bit
+#define SSC_I2C_ADDR (0x28 << 1)
+
 #define MOTION_FX_STATE_SIZE (size_t)(2432)
 
 /*
@@ -78,6 +81,23 @@ uint16_t read_hdc2021();
  * @brief sends temp and humidity data from the hdc2021 over CAN
  */
 void send_hdc2021_data();
+
+/**
+ * @brief initializes the SSCMANN060PG2A3 for reading pressure and temperature
+ * @return if there were errors initalizing the sensor
+ */
+uint16_t init_ssc();
+
+/**
+ * @brief reads pressure and temperature data from the SSCMANN060PG2A3
+ * @return whether there were errors in reading the data
+ */
+uint16_t read_ssc();
+
+/**
+ * @brief sends pressure and temperature data from the SSCMANN060PG2A3 over CAN
+ */
+void send_ssc_data();
 
 /**
  * @brief sets up vl53l7cx time of flight sensor
