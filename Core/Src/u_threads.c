@@ -120,12 +120,8 @@ void sensors_thread(ULONG thread_input) {
         send_wheel_speed();
 
         if (is_timer_expired(&data_send_timer)) {
-<<<<<<< Updated upstream
-            CATCH_ERROR(read_hdc2021(), U_SUCCESS);
-            CATCH_ERROR(read_ssc(), U_SUCCESS);
-=======
             read_hdc2021();
->>>>>>> Stashed changes
+            read_ssc();
             send_hdc2021_data();
             send_ssc_data();
             send_imu_and_magnometer_data();

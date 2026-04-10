@@ -588,7 +588,7 @@ void send_hdc2021_data() {
  * SSCMANN060PG2A3
  */
 
-static int32_t _ssc_i2c_read(uint16_t dev_addr, uint8_t *buf, uint16_t len) {
+static int _ssc_i2c_read(uint16_t dev_addr, uint8_t *buf, uint16_t len) {
     return HAL_I2C_Master_Receive(&hi2c1, dev_addr, buf, len, 10);
 }
 
