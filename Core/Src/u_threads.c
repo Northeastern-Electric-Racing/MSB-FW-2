@@ -29,14 +29,24 @@ static thread_t _default_thread = {
         .threshold  = 0,                 /* Preemption Threshold */
         .time_slice = TX_NO_TIME_SLICE,  /* Time Slice */
         .auto_start = TX_AUTO_START,     /* Auto Start */
-        .sleep      = 50,                /* Sleep (in ticks) */
+        .sleep      = 200,                /* Sleep (in ticks) */
         .function   = default_thread     /* Thread Function */
     };
 void default_thread(ULONG thread_input) {
     
+    bool alt = true;
+
     while(1) {
         /* Kick watch dog */
         HAL_IWDG_Refresh(&hiwdg);
+
+        if (alt) {
+			printf(".\n");
+		} else {
+			printf("..\n");
+		}
+
+        alt = !alt;
 
         /* Sleep Thread for specified number of ticks. */
         tx_thread_sleep(_default_thread.sleep);
@@ -115,20 +125,20 @@ void sensors_thread(ULONG thread_input) {
     start_timer(&data_send_timer, DATA_SEND_INTERVAL);
 
     while (1) {
-        read_imu_and_magnometer();
-        wheel_pulse_check();
-        send_wheel_speed();
+        // read_imu_and_magnometer();
+        // wheel_pulse_check();
+        // send_wheel_speed();
 
         if (is_timer_expired(&data_send_timer)) {
             read_hdc2021();
-            read_ssc();
-            send_hdc2021_data();
-            send_ssc_data();
-            send_imu_and_magnometer_data();
+            // read_ssc();
+            // send_hdc2021_data();
+            // send_ssc_data();
+            // send_imu_and_magnometer_data();
 
             if (device_loc == DEVICE_BACK) {
-                read_vl53l7cx();
-                send_vl53l7cx_data();
+                // read_vl53l7cx();
+                // send_vl53l7cx_data();
             }
 
             start_timer(&data_send_timer, DATA_SEND_INTERVAL);
@@ -209,7 +219,7 @@ uint8_t threads_init(TX_BYTE_POOL *byte_pool) {
     CATCH_ERROR(create_thread(byte_pool, &_sensors_thread), U_SUCCESS);      // Create Sensors thread.
     CATCH_ERROR(create_thread(byte_pool, &_can_incoming_thread), U_SUCCESS); // Create CAN Incoming thread.
     CATCH_ERROR(create_thread(byte_pool, &_can_outgoing_thread), U_SUCCESS); // Create CAN Outgoing thread.
-    CATCH_ERROR(create_thread(byte_pool, &_adcs_thread), U_SUCCESS);         // Create ADCs thread.
+    // CATCH_ERROR(create_thread(byte_pool, &_adcs_thread), U_SUCCESS);         // Create ADCs thread.
 
     PRINTLN_INFO("Ran threads_init().");
     return U_SUCCESS;

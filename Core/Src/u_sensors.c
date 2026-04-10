@@ -19,6 +19,12 @@
 #include "vl53l7cx.h"
 #include "honeywellSSC.h"
 
+#define IMU_CS_GPIO_PORT SPI_1_NSS_GPIO_Port
+#define IMU_CS_PIN SPI_1_NSS_Pin
+
+#define MAG_CS_GPIO_PORT SPI_2_NSS_GPIO_Port
+#define MAG_CS_PIN SPI_2_NSS_Pin
+
 extern I2C_HandleTypeDef hi2c1;
 extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi2;
@@ -97,9 +103,12 @@ int32_t _lsm6dsv_read(void *handle, uint8_t register_address, uint8_t *data,
     HAL_StatusTypeDef status;
     SPI_HandleTypeDef *spi_handle = (SPI_HandleTypeDef *)handle;
 
+    HAL_GPIO_WritePin(IMU_CS_GPIO_PORT, IMU_CS_PIN, GPIO_PIN_RESET);
+
     status =
         HAL_SPI_Transmit(spi_handle, &spi_reg, sizeof(spi_reg), HAL_MAX_DELAY);
     if (status != HAL_OK) {
+        HAL_GPIO_WritePin(IMU_CS_GPIO_PORT, IMU_CS_PIN, GPIO_PIN_SET);
         PRINTLN_INFO("ERROR: Failed to send register address to lsm6dso over SPI "
                  "(Status: %d/%s).",
                  status, hal_status_toString(status));
@@ -108,13 +117,16 @@ int32_t _lsm6dsv_read(void *handle, uint8_t register_address, uint8_t *data,
 
     status = HAL_SPI_Receive(spi_handle, data, length, HAL_MAX_DELAY);
     if (status != HAL_OK) {
+        HAL_GPIO_WritePin(IMU_CS_GPIO_PORT, IMU_CS_PIN, GPIO_PIN_SET);
         PRINTLN_INFO(
             "ERROR: Failed to read from the lsm6dso over SPI (Status: %d/%s).",
             status, hal_status_toString(status));
         return -1;
     }
 
-  return 0;
+    HAL_GPIO_WritePin(IMU_CS_GPIO_PORT, IMU_CS_PIN, GPIO_PIN_SET);
+
+    return 0;
 }
 
 int32_t _lsm6dsv_write(void *handle, uint8_t register_address, const uint8_t *data,
@@ -123,9 +135,12 @@ int32_t _lsm6dsv_write(void *handle, uint8_t register_address, const uint8_t *da
     HAL_StatusTypeDef status;
     SPI_HandleTypeDef *spi_handle = (SPI_HandleTypeDef *)handle;
 
+    HAL_GPIO_WritePin(IMU_CS_GPIO_PORT, IMU_CS_PIN, GPIO_PIN_RESET);
+
     status =
         HAL_SPI_Transmit(spi_handle, &spi_reg, sizeof(spi_reg), HAL_MAX_DELAY);
     if (status != HAL_OK) {
+        HAL_GPIO_WritePin(IMU_CS_GPIO_PORT, IMU_CS_PIN, GPIO_PIN_SET);
         PRINTLN_INFO("ERROR: Failed to send register address to lsm6dso over SPI "
                 "(Status: %d/%s).",
                 status, hal_status_toString(status));
@@ -134,11 +149,14 @@ int32_t _lsm6dsv_write(void *handle, uint8_t register_address, const uint8_t *da
 
     status = HAL_SPI_Transmit(spi_handle, data, length, HAL_MAX_DELAY);
     if (status != HAL_OK) {
+        HAL_GPIO_WritePin(IMU_CS_GPIO_PORT, IMU_CS_PIN, GPIO_PIN_SET);
         PRINTLN_INFO(
             "ERROR: Failed to write to the lsm6dso over SPI (Status: %d/%s).",
             status, hal_status_toString(status));
         return -1;
     }
+
+    HAL_GPIO_WritePin(IMU_CS_GPIO_PORT, IMU_CS_PIN, GPIO_PIN_SET);
 
     return 0;
 }
@@ -305,6 +323,8 @@ int32_t _lis2mdl_read(void *handle, uint8_t register_address, uint8_t *data,
 int32_t _lis2mdl_write(void *handle, uint8_t register_address,
                        const uint8_t *data, uint16_t length) {
     HAL_StatusTypeDef status;
+
+
 
     status = HAL_SPI_Transmit((SPI_HandleTypeDef *)handle, &register_address,
                             sizeof(register_address), HAL_MAX_DELAY);
