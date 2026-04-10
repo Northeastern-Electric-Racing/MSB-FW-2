@@ -54,13 +54,13 @@ int adc_switchMuxStates(mux_state_t state) {
 }
 
 int adc_init() {
-    uint16_t status = HAL_ADC_Start_DMA(&hadc1, _adc1_buffer, ADC1_SIZE);
+    uint16_t status = HAL_ADC_Start_DMA(&hadc1, (uint32_t *) _adc1_buffer, ADC1_SIZE);
     if(status != HAL_OK) {
         PRINTLN_ERROR("Failed to start ADC DMA for ADC1 (Status: %d/%s).", status, hal_status_toString(status));
         return U_ERROR;
     }
 
-    status = HAL_ADC_Start_DMA(&hadc2, _adc2_buffer, ADC2_SIZE);
+    status = HAL_ADC_Start_DMA(&hadc2, (uint32_t *) _adc2_buffer, ADC2_SIZE);
     if(status != HAL_OK) {
         PRINTLN_ERROR("Failed to start ADC DMA for ADC2 (Status: %d/%s).", status, hal_status_toString(status));
         return U_ERROR;

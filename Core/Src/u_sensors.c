@@ -117,7 +117,7 @@ int32_t _lsm6dsv_read(void *handle, uint8_t register_address, uint8_t *data,
   return 0;
 }
 
-int32_t _lsm6dsv_write(void *handle, uint8_t register_address, uint8_t *data,
+int32_t _lsm6dsv_write(void *handle, uint8_t register_address, const uint8_t *data,
                        uint16_t length) {
     uint8_t spi_reg = (uint8_t)(register_address & 0x7F);
     HAL_StatusTypeDef status;
