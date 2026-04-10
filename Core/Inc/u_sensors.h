@@ -80,6 +80,23 @@ uint16_t read_hdc2021();
 void send_hdc2021_data();
 
 /**
+ * @brief initializes the SSCMANN060PG2A3 for reading pressure and temperature
+ * @return if there were errors initalizing the sensor
+ */
+uint16_t init_ssc();
+
+/**
+ * @brief reads pressure and temperature data from the SSCMANN060PG2A3
+ * @return whether there were errors in reading the data
+ */
+uint16_t read_ssc();
+
+/**
+ * @brief sends pressure and temperature data from the SSCMANN060PG2A3 over CAN
+ */
+void send_ssc_data();
+
+/**
  * @brief sets up vl53l7cx time of flight sensor
  * @return if there were errors initalizing the sensor
  */

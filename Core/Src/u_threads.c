@@ -115,17 +115,19 @@ void sensors_thread(ULONG thread_input) {
     start_timer(&data_send_timer, DATA_SEND_INTERVAL);
 
     while (1) {
-        CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
+        read_imu_and_magnometer();
         wheel_pulse_check();
         send_wheel_speed();
 
         if (is_timer_expired(&data_send_timer)) {
-            CATCH_ERROR(read_hdc2021(), U_SUCCESS);
+            read_hdc2021();
+            read_ssc();
             send_hdc2021_data();
+            send_ssc_data();
             send_imu_and_magnometer_data();
 
             if (device_loc == DEVICE_BACK) {
-                CATCH_ERROR(read_vl53l7cx(), U_SUCCESS);
+                read_vl53l7cx();
                 send_vl53l7cx_data();
             }
 
@@ -134,7 +136,7 @@ void sensors_thread(ULONG thread_input) {
 
         tx_thread_sleep(_sensors_thread.sleep / 2);
 
-        CATCH_ERROR(prepare_data_hdc2021(), U_SUCCESS);
+        prepare_data_hdc2021();
 
         tx_thread_sleep(_sensors_thread.sleep / 2);
     }
@@ -169,7 +171,7 @@ void adcs_thread(ULONG thread_input) {
 
         tx_thread_sleep(_sensors_thread.sleep / 4);
 
-        CATCH_ERROR(adc_switchMuxStates(LOW), U_SUCCESS);
+        adc_switchMuxStates(LOW);
 
         tx_thread_sleep(_sensors_thread.sleep / 4);
 
@@ -191,7 +193,7 @@ void adcs_thread(ULONG thread_input) {
 
         tx_thread_sleep(_sensors_thread.sleep / 4);
 
-        CATCH_ERROR(adc_switchMuxStates(HIGH), U_SUCCESS);
+        adc_switchMuxStates(HIGH);
 
         tx_thread_sleep(_sensors_thread.sleep / 4);
     }

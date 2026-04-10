@@ -20,6 +20,7 @@ extern can_t can2;
 #define MAGNOMETER_CAN_ID       0xBB0 // 0xBC4 for rear
 #define ORIENTATION_CAN_ID      0xBAE // 0xBC2 for rear
 #define VL53L7CX_CAN_ID         0xBAF 
+#define SSC_CAN_ID              0xBB1 // 0xBC5 for rear
 #define STRAIN_GAUGE_1_2_CAN_ID 0xDAA // 0xDBE for rear
 #define STRAIN_GAUGE_3_4_CAN_ID 0xDAB // 0xDBF for rear
 #define THERMOCOUPLE_CAN_ID     0xDAC
