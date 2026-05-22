@@ -84,54 +84,63 @@ static struct __attribute__((__packed__)) {
     uint16_t distance[4];
 } vl53l7cx_data;
 
+const uint32_t SENSOR_ERROR_TIMEOUT = 500;
+
 int32_t _lsm6dsv_read(void *handle, uint8_t register_address, uint8_t *data,
                       uint16_t length) {
-    uint8_t spi_reg = (uint8_t)(register_address | 0x80);
     HAL_StatusTypeDef status;
-    SPI_HandleTypeDef *spi_handle = (SPI_HandleTypeDef *)handle;
 
-    status =
-        HAL_SPI_Transmit(spi_handle, &spi_reg, sizeof(spi_reg), HAL_MAX_DELAY);
-    if (status != HAL_OK) {
-        PRINTLN_INFO("ERROR: Failed to send register address to lsm6dso over SPI "
-                 "(Status: %d/%s).",
-                 status, hal_status_toString(status));
+    /* Select the IMU by setting its CS pin LOW. */
+    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_RESET);
+    
+    /* Tell the IMU you want to read from 'reg'. */
+    uint8_t spi_reg = (uint8_t)(register_address | 0b10000000); // Bits 0 through 6 store 'reg' (the register address), while Bit 7 lets you chose if it's a read or write operation (1=read, 0=write).
+    status = HAL_SPI_Transmit(handle, &spi_reg, sizeof(spi_reg), SENSOR_ERROR_TIMEOUT);
+    if(status != HAL_OK) {
+        PRINTLN_ERROR("Failed to call HAL_SPI_Transmit() to write the first SPI command (Status: %d/%s).", status, hal_status_toString(status));
+        HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU since error.
         return -1;
     }
 
-    status = HAL_SPI_Receive(spi_handle, data, length, HAL_MAX_DELAY);
-    if (status != HAL_OK) {
-        PRINTLN_INFO(
-            "ERROR: Failed to read from the lsm6dso over SPI (Status: %d/%s).",
-            status, hal_status_toString(status));
+    /* Read from 'reg'. */
+    status = HAL_SPI_Receive(handle, data, length, SENSOR_ERROR_TIMEOUT);
+    if(status != HAL_OK) {
+        PRINTLN_ERROR("Failed to call HAL_SPI_Receive() to read from 'reg' (Status: %d/%s).", status, hal_status_toString(status));
+        HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU since error.
         return -1;
     }
+
+    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU after successful read.
 
   return 0;
 }
 
-int32_t _lsm6dsv_write(void *handle, uint8_t register_address, uint8_t *data,
+int32_t _lsm6dsv_write(void *handle, uint8_t register_address, const uint8_t *data,
                        uint16_t length) {
-    uint8_t spi_reg = (uint8_t)(register_address & 0x7F);
     HAL_StatusTypeDef status;
-    SPI_HandleTypeDef *spi_handle = (SPI_HandleTypeDef *)handle;
 
-    status =
-        HAL_SPI_Transmit(spi_handle, &spi_reg, sizeof(spi_reg), HAL_MAX_DELAY);
-    if (status != HAL_OK) {
-        PRINTLN_INFO("ERROR: Failed to send register address to lsm6dso over SPI "
-                "(Status: %d/%s).",
-                status, hal_status_toString(status));
+    /* Select the IMU by setting its CS pin LOW. */
+    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_RESET);
+    
+    /* Tell the IMU you want to write to 'reg'. */
+    uint8_t spi_reg = (uint8_t)(register_address & 0b01111111); // Bits 0 through 6 store 'reg' (the register address), while Bit 7 lets you chose if it's a read or write operation (1=read, 0=write).
+    status = HAL_SPI_Transmit(handle, &spi_reg, sizeof(spi_reg), SENSOR_ERROR_TIMEOUT);
+    if(status != HAL_OK) {
+        PRINTLN_ERROR("Failed to call HAL_SPI_Transmit() to write the first SPI command (Status: %d/%s).", status, hal_status_toString(status));
+        HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU since error.
         return -1;
     }
 
-    status = HAL_SPI_Transmit(spi_handle, data, length, HAL_MAX_DELAY);
-    if (status != HAL_OK) {
-        PRINTLN_INFO(
-            "ERROR: Failed to write to the lsm6dso over SPI (Status: %d/%s).",
-            status, hal_status_toString(status));
+    /* Write to 'reg'. */
+    status = HAL_SPI_Transmit(handle, data, length, SENSOR_ERROR_TIMEOUT);
+    if(status != HAL_OK) {
+        PRINTLN_ERROR("Failed to call HAL_SPI_Transmit() to write to 'reg' (Status: %d/%s).", status, hal_status_toString(status));
+        HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU since error.
         return -1;
     }
+
+    /* Deselect the IMU by setting its CS pin HIGH. */
+    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET);
 
     return 0;
 }
@@ -274,7 +283,7 @@ int32_t _lis2mdl_read(void *handle, uint8_t register_address, uint8_t *data,
 
     /* Send the register address we're trying to read from. */
     status = HAL_SPI_Transmit((SPI_HandleTypeDef *)handle, &spi_reg,
-                            sizeof(spi_reg), HAL_MAX_DELAY);
+                            sizeof(spi_reg), SENSOR_ERROR_TIMEOUT);
     if (status != HAL_OK) {
         PRINTLN_ERROR("ERROR: Failed to send register address to lis2mdl over SPI "
                   "(Status: %d/%s).",
@@ -284,7 +293,7 @@ int32_t _lis2mdl_read(void *handle, uint8_t register_address, uint8_t *data,
 
     /* Receive the data. */
     status =
-        HAL_SPI_Receive((SPI_HandleTypeDef *)handle, data, length, HAL_MAX_DELAY);
+        HAL_SPI_Receive((SPI_HandleTypeDef *)handle, data, length, SENSOR_ERROR_TIMEOUT);
     if (status != HAL_OK) {
         PRINTLN_ERROR(
         "ERROR: Failed to read from the lis2mdl over SPI (Status: %d/%s).",
@@ -300,7 +309,7 @@ int32_t _lis2mdl_write(void *handle, uint8_t register_address,
     HAL_StatusTypeDef status;
 
     status = HAL_SPI_Transmit((SPI_HandleTypeDef *)handle, &register_address,
-                            sizeof(register_address), HAL_MAX_DELAY);
+                            sizeof(register_address), SENSOR_ERROR_TIMEOUT);
     if (status != HAL_OK) {
         PRINTLN_ERROR("ERROR: Failed to send register address to lis2mdl over SPI "
                   "(Status: %d/%s).",
@@ -309,7 +318,7 @@ int32_t _lis2mdl_write(void *handle, uint8_t register_address,
     }
 
     status = HAL_SPI_Transmit((SPI_HandleTypeDef *)handle, data, length,
-                            HAL_MAX_DELAY);
+                            SENSOR_ERROR_TIMEOUT);
     if (status != HAL_OK) {
         PRINTLN_ERROR(
             "ERROR: Failed to write to the lis2mdl over SPI (Status: %d/%s).",
@@ -330,7 +339,7 @@ uint16_t init_magnetometer() {
 
     status = lis2mdl_device_id_get(&lis2mdl_ctx, &id);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to get LIS2MDL device ID (Status %d/%s)", status,
+        PRINTLN_ERROR("Failed to get LIS2MDL device ID (Status %ld/%s)", status,
                   hal_status_toString(status));
         return U_ERROR;
     }
@@ -342,7 +351,7 @@ uint16_t init_magnetometer() {
 
     status = lis2mdl_reset_set(&lis2mdl_ctx, 1);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to reset LIS2MDL (Status %d/%s)", status,
+        PRINTLN_ERROR("Failed to reset LIS2MDL (Status %ld/%s)", status,
                 hal_status_toString(status));
         return U_ERROR;
     }
@@ -351,28 +360,28 @@ uint16_t init_magnetometer() {
 
     status = lis2mdl_operating_mode_set(&lis2mdl_ctx, LIS2MDL_CONTINUOUS_MODE);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to set LIS2MDL operating mode (Status %d/%s)", status,
+        PRINTLN_ERROR("Failed to set LIS2MDL operating mode (Status %ld/%s)", status,
                 hal_status_toString(status));
         return U_ERROR;
     }
 
     status = lis2mdl_data_rate_set(&lis2mdl_ctx, LIS2MDL_ODR_50Hz);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to set LIS2MDL data rate (Status %d/%s)", status,
+        PRINTLN_ERROR("Failed to set LIS2MDL data rate (Status %ld/%s)", status,
                 hal_status_toString(status));
         return U_ERROR;
     }
 
     status = lis2mdl_offset_temp_comp_set(&lis2mdl_ctx, 1);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to enable LIS2MDL temp compensation (Status %d/%s)",
+        PRINTLN_ERROR("Failed to enable LIS2MDL temp compensation (Status %ld/%s)",
                     status, hal_status_toString(status));
         return U_ERROR;
     }
 
     status = lis2mdl_block_data_update_set(&lis2mdl_ctx, 1);
     if (status != 0) {
-        PRINTLN_ERROR("Failed to enable LIS2MDL block data update (Status %d/%s)",
+        PRINTLN_ERROR("Failed to enable LIS2MDL block data update (Status %ld/%s)",
                     status, hal_status_toString(status));
         return U_ERROR;
     }
@@ -529,11 +538,11 @@ void calibrate() {
  */
 
 uint8_t _hdc2021_i2c_write(uint8_t *data, uint8_t dev_address, uint8_t length){
-    return HAL_I2C_Master_Transmit(&hi2c1, dev_address, data, length, HAL_MAX_DELAY);
+    return HAL_I2C_Master_Transmit(&hi2c1, dev_address, data, length, SENSOR_ERROR_TIMEOUT);
 }
 
 uint8_t _hdc2021_i2c_read(uint8_t *data, uint8_t reg, uint8_t dev_address, uint8_t length) {
-    return HAL_I2C_Mem_Read(&hi2c1, dev_address, reg, sizeof(reg), data, length, HAL_MAX_DELAY);
+    return HAL_I2C_Mem_Read(&hi2c1, dev_address, reg, sizeof(reg), data, length, SENSOR_ERROR_TIMEOUT);
 }
 
 uint16_t init_hdc2021() {
@@ -585,7 +594,7 @@ int32_t init_vl53l7cx() {
     VL53L7CX_RegisterBusIO(&vl53l7cx_obj, &vl53l7cx_io);
     int32_t init_retval = VL53L7CX_Init(&vl53l7cx_obj);
     if (init_retval) {
-        PRINTLN_ERROR("ERROR: Cannot initalize VL53L7CX sensor (status %d)",
+        PRINTLN_ERROR("ERROR: Cannot initalize VL53L7CX sensor (status %ld)",
                     init_retval);
         return init_retval;
     }
@@ -619,7 +628,7 @@ int32_t read_vl53l7cx() {
     status = VL53L7CX_GetDistance(&vl53l7cx_obj, &full_data);
     if (status) {
         PRINTLN_ERROR(
-            "ERROR: Could not retrive value from vl53l7cx sensor (status %d)",
+            "ERROR: Could not retrive value from vl53l7cx sensor (status %ld)",
             status);
         return status;
     }

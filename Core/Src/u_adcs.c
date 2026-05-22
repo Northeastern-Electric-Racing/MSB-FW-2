@@ -11,7 +11,7 @@ typedef enum {
 
     ADC1_SIZE,
 } _adc1_t;
-static volatile uint16_t _adc1_buffer[ADC1_SIZE];
+static volatile uint32_t _adc1_buffer[ADC1_SIZE];
 
 typedef enum {
     ADC2_CHANNEL15 = 0,
@@ -20,7 +20,7 @@ typedef enum {
 
     ADC2_SIZE,
 } _adc2_t;
-static volatile uint16_t _adc2_buffer[ADC2_SIZE];
+static volatile uint32_t _adc2_buffer[ADC2_SIZE];
 
 int adc_switchMuxStates(mux_state_t state) {
     if (state == HIGH) {

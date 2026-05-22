@@ -29,12 +29,24 @@ static thread_t _default_thread = {
         .threshold  = 0,                 /* Preemption Threshold */
         .time_slice = TX_NO_TIME_SLICE,  /* Time Slice */
         .auto_start = TX_AUTO_START,     /* Auto Start */
-        .sleep      = 50,                /* Sleep (in ticks) */
+        .sleep      = 100,                /* Sleep (in ticks) */
         .function   = default_thread     /* Thread Function */
     };
+
 void default_thread(ULONG thread_input) {
+
+    bool alt = true;
     
     while(1) {
+
+        if (alt) {
+			printf(".\n");
+		} else {
+			printf("..\n");
+		}
+
+		alt = !alt;
+
         /* Kick watch dog */
         HAL_IWDG_Refresh(&hiwdg);
 
@@ -112,20 +124,35 @@ static thread_t _sensors_thread = {
 };
 void sensors_thread(ULONG thread_input) {
     const uint16_t DATA_SEND_INTERVAL = 25 * _sensors_thread.sleep;
+
+    bool initialized = false;
+    int count = 0;
+
+    while (!initialized) {
+        if (init_imu() == U_SUCCESS) {
+            initialized = true;
+        } else {
+            PRINTLN_ERROR("Failed to initialize IMU. Retrying...");
+            tx_thread_sleep(100);
+            count++;
+            printf("Attempt #%d\n", count);
+        }   
+    }
+
     start_timer(&data_send_timer, DATA_SEND_INTERVAL);
 
     while (1) {
-        CATCH_ERROR(read_imu_and_magnometer(), U_SUCCESS);
+        read_imu_and_magnometer();
         wheel_pulse_check();
         send_wheel_speed();
 
         if (is_timer_expired(&data_send_timer)) {
-            CATCH_ERROR(read_hdc2021(), U_SUCCESS);
+            read_hdc2021();
             send_hdc2021_data();
             send_imu_and_magnometer_data();
 
             if (device_loc == DEVICE_BACK) {
-                CATCH_ERROR(read_vl53l7cx(), U_SUCCESS);
+                read_vl53l7cx();
                 send_vl53l7cx_data();
             }
 
@@ -134,7 +161,7 @@ void sensors_thread(ULONG thread_input) {
 
         tx_thread_sleep(_sensors_thread.sleep / 2);
 
-        CATCH_ERROR(prepare_data_hdc2021(), U_SUCCESS);
+        prepare_data_hdc2021();
 
         tx_thread_sleep(_sensors_thread.sleep / 2);
     }
@@ -169,7 +196,7 @@ void adcs_thread(ULONG thread_input) {
 
         tx_thread_sleep(_sensors_thread.sleep / 4);
 
-        CATCH_ERROR(adc_switchMuxStates(LOW), U_SUCCESS);
+        adc_switchMuxStates(LOW);
 
         tx_thread_sleep(_sensors_thread.sleep / 4);
 
@@ -191,7 +218,7 @@ void adcs_thread(ULONG thread_input) {
 
         tx_thread_sleep(_sensors_thread.sleep / 4);
 
-        CATCH_ERROR(adc_switchMuxStates(HIGH), U_SUCCESS);
+        adc_switchMuxStates(HIGH);
 
         tx_thread_sleep(_sensors_thread.sleep / 4);
     }
@@ -205,9 +232,9 @@ uint8_t threads_init(TX_BYTE_POOL *byte_pool) {
     /* Create Threads */
     CATCH_ERROR(create_thread(byte_pool, &_default_thread), U_SUCCESS);      // Create Default thread.
     CATCH_ERROR(create_thread(byte_pool, &_sensors_thread), U_SUCCESS);      // Create Sensors thread.
-    CATCH_ERROR(create_thread(byte_pool, &_can_incoming_thread), U_SUCCESS); // Create CAN Incoming thread.
-    CATCH_ERROR(create_thread(byte_pool, &_can_outgoing_thread), U_SUCCESS); // Create CAN Outgoing thread.
-    CATCH_ERROR(create_thread(byte_pool, &_adcs_thread), U_SUCCESS);         // Create ADCs thread.
+    // CATCH_ERROR(create_thread(byte_pool, &_can_incoming_thread), U_SUCCESS); // Create CAN Incoming thread.
+    // CATCH_ERROR(create_thread(byte_pool, &_can_outgoing_thread), U_SUCCESS); // Create CAN Outgoing thread.
+    // CATCH_ERROR(create_thread(byte_pool, &_adcs_thread), U_SUCCESS);         // Create ADCs thread.
 
     PRINTLN_INFO("Ran threads_init().");
     return U_SUCCESS;
