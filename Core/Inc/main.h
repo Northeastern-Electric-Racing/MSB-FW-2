@@ -104,6 +104,8 @@ void Error_Handler(void);
 #define MUX2_SEL3_GPIO_Port GPIOC
 #define MUX2_SEL4_Pin GPIO_PIN_9
 #define MUX2_SEL4_GPIO_Port GPIOC
+#define SPI2_CS_Pin GPIO_PIN_11
+#define SPI2_CS_GPIO_Port GPIOA
 #define MSB_ADDR_Pin GPIO_PIN_10
 #define MSB_ADDR_GPIO_Port GPIOC
 

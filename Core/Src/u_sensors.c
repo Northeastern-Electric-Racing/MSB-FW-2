@@ -281,6 +281,9 @@ int32_t _lis2mdl_read(void *handle, uint8_t register_address, uint8_t *data,
     uint8_t spi_reg = (uint8_t)(register_address | 0x80);
     HAL_StatusTypeDef status;
 
+    /* Select the compass by setting its CS pin LOW. */
+    HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_RESET);
+
     /* Send the register address we're trying to read from. */
     status = HAL_SPI_Transmit((SPI_HandleTypeDef *)handle, &spi_reg,
                             sizeof(spi_reg), SENSOR_ERROR_TIMEOUT);
@@ -288,6 +291,7 @@ int32_t _lis2mdl_read(void *handle, uint8_t register_address, uint8_t *data,
         PRINTLN_ERROR("ERROR: Failed to send register address to lis2mdl over SPI "
                   "(Status: %d/%s).",
                   status, hal_status_toString(status));
+        HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_SET); // Deselect compass since error.
         return -1;
     }
 
@@ -298,8 +302,11 @@ int32_t _lis2mdl_read(void *handle, uint8_t register_address, uint8_t *data,
         PRINTLN_ERROR(
         "ERROR: Failed to read from the lis2mdl over SPI (Status: %d/%s).",
         status, hal_status_toString(status));
+        HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_SET); // Deselect compass since error.
         return -1;
     }
+
+    HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_SET); // Deselect compass after successful read.
 
     return 0;
 }
@@ -308,12 +315,16 @@ int32_t _lis2mdl_write(void *handle, uint8_t register_address,
                        const uint8_t *data, uint16_t length) {
     HAL_StatusTypeDef status;
 
+    /* Select the compass by setting its CS pin LOW. */
+    HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_RESET);
+
     status = HAL_SPI_Transmit((SPI_HandleTypeDef *)handle, &register_address,
                             sizeof(register_address), SENSOR_ERROR_TIMEOUT);
     if (status != HAL_OK) {
         PRINTLN_ERROR("ERROR: Failed to send register address to lis2mdl over SPI "
                   "(Status: %d/%s).",
                   status, hal_status_toString(status));
+        HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_SET); // Deselect compass since error.
         return -1;
     }
 
@@ -323,8 +334,12 @@ int32_t _lis2mdl_write(void *handle, uint8_t register_address,
         PRINTLN_ERROR(
             "ERROR: Failed to write to the lis2mdl over SPI (Status: %d/%s).",
             status, hal_status_toString(status));
+        HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_SET); // Deselect compass since error.
         return -1;
     }
+
+    /* Deselect the compass by setting its CS pin HIGH. */
+    HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_SET);
 
     return 0;
 }
@@ -337,12 +352,40 @@ uint16_t init_magnetometer() {
     lis2mdl_ctx.read_reg = _lis2mdl_read;
     lis2mdl_ctx.write_reg = _lis2mdl_write;
 
-    status = lis2mdl_device_id_get(&lis2mdl_ctx, &id);
-    if (status != 0) {
-        PRINTLN_ERROR("Failed to get LIS2MDL device ID (Status %ld/%s)", status,
-                  hal_status_toString(status));
+    HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_SET); 
+
+    // --- Step 1: Switch SPI2 to half-duplex (3-wire) to write CFG_REG_C ---
+    hspi2.Init.Direction = SPI_DIRECTION_1LINE;
+    if (HAL_SPI_Init(&hspi2) != HAL_OK) {
+        PRINTLN_ERROR("Failed to init SPI2 in half-duplex mode");
         return U_ERROR;
     }
+
+    // Write CFG_REG_C (0x62): set 4WSPI bit (bit 2) to enable 4-wire SPI
+    // Also set BDU (bit 4) while we're here
+    uint8_t cfg_reg_c = (1 << 2) | (1 << 4); // 0x14
+    HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_RESET);
+    uint8_t reg_addr = 0x62; // CFG_REG_C, write mode (bit7=0)
+    HAL_SPI_Transmit(&hspi2, &reg_addr, 1, SENSOR_ERROR_TIMEOUT);
+    HAL_SPI_Transmit(&hspi2, &cfg_reg_c, 1, SENSOR_ERROR_TIMEOUT);
+    HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_SET);
+
+    _delay(5);
+
+    // --- Step 2: Switch SPI2 back to full-duplex (4-wire) ---
+    hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+    if (HAL_SPI_Init(&hspi2) != HAL_OK) {
+        PRINTLN_ERROR("Failed to reinit SPI2 in full-duplex mode");
+        return U_ERROR;
+    }
+
+    _delay(5);
+
+    PRINTLN_INFO("Successfully switched LIS2MDL to 4-wire SPI mode.");
+
+    status = 1;
+    
+    status = lis2mdl_device_id_get(&lis2mdl_ctx, &id);
 
     if (id != LIS2MDL_ID) {
         PRINTLN_ERROR("Device ID is not for LIS2MDL (ID: %d)", id);
@@ -385,6 +428,8 @@ uint16_t init_magnetometer() {
                     status, hal_status_toString(status));
         return U_ERROR;
     }
+
+    PRINTLN_INFO("Successfully initialized LIS2MDL magnetometer.");
 
     return U_SUCCESS;
 }

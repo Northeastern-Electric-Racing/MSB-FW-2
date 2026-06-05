@@ -128,17 +128,6 @@ void sensors_thread(ULONG thread_input) {
     bool initialized = false;
     int count = 0;
 
-    while (!initialized) {
-        if (init_imu() == U_SUCCESS) {
-            initialized = true;
-        } else {
-            PRINTLN_ERROR("Failed to initialize IMU. Retrying...");
-            tx_thread_sleep(100);
-            count++;
-            printf("Attempt #%d\n", count);
-        }   
-    }
-
     start_timer(&data_send_timer, DATA_SEND_INTERVAL);
 
     while (1) {
