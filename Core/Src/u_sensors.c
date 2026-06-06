@@ -91,14 +91,12 @@ int32_t _lsm6dsv_read(void *handle, uint8_t register_address, uint8_t *data,
     HAL_StatusTypeDef status;
 
     /* Select the IMU by setting its CS pin LOW. */
-    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_RESET);
     
     /* Tell the IMU you want to read from 'reg'. */
     uint8_t spi_reg = (uint8_t)(register_address | 0b10000000); // Bits 0 through 6 store 'reg' (the register address), while Bit 7 lets you chose if it's a read or write operation (1=read, 0=write).
     status = HAL_SPI_Transmit(handle, &spi_reg, sizeof(spi_reg), SENSOR_ERROR_TIMEOUT);
     if(status != HAL_OK) {
         PRINTLN_ERROR("Failed to call HAL_SPI_Transmit() to write the first SPI command (Status: %d/%s).", status, hal_status_toString(status));
-        HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU since error.
         return -1;
     }
 
@@ -106,11 +104,8 @@ int32_t _lsm6dsv_read(void *handle, uint8_t register_address, uint8_t *data,
     status = HAL_SPI_Receive(handle, data, length, SENSOR_ERROR_TIMEOUT);
     if(status != HAL_OK) {
         PRINTLN_ERROR("Failed to call HAL_SPI_Receive() to read from 'reg' (Status: %d/%s).", status, hal_status_toString(status));
-        HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU since error.
         return -1;
     }
-
-    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU after successful read.
 
   return 0;
 }
@@ -120,14 +115,12 @@ int32_t _lsm6dsv_write(void *handle, uint8_t register_address, const uint8_t *da
     HAL_StatusTypeDef status;
 
     /* Select the IMU by setting its CS pin LOW. */
-    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_RESET);
     
     /* Tell the IMU you want to write to 'reg'. */
     uint8_t spi_reg = (uint8_t)(register_address & 0b01111111); // Bits 0 through 6 store 'reg' (the register address), while Bit 7 lets you chose if it's a read or write operation (1=read, 0=write).
     status = HAL_SPI_Transmit(handle, &spi_reg, sizeof(spi_reg), SENSOR_ERROR_TIMEOUT);
     if(status != HAL_OK) {
         PRINTLN_ERROR("Failed to call HAL_SPI_Transmit() to write the first SPI command (Status: %d/%s).", status, hal_status_toString(status));
-        HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU since error.
         return -1;
     }
 
@@ -135,12 +128,10 @@ int32_t _lsm6dsv_write(void *handle, uint8_t register_address, const uint8_t *da
     status = HAL_SPI_Transmit(handle, data, length, SENSOR_ERROR_TIMEOUT);
     if(status != HAL_OK) {
         PRINTLN_ERROR("Failed to call HAL_SPI_Transmit() to write to 'reg' (Status: %d/%s).", status, hal_status_toString(status));
-        HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET); // Deselect IMU since error.
         return -1;
     }
 
     /* Deselect the IMU by setting its CS pin HIGH. */
-    HAL_GPIO_WritePin(SPI1_CS_GPIO_Port, SPI1_CS_Pin, GPIO_PIN_SET);
 
     return 0;
 }
@@ -428,8 +419,6 @@ uint16_t init_magnetometer() {
                     status, hal_status_toString(status));
         return U_ERROR;
     }
-
-    PRINTLN_INFO("Successfully initialized LIS2MDL magnetometer.");
 
     return U_SUCCESS;
 }

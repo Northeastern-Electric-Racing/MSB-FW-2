@@ -51,7 +51,11 @@ ETH_DMADescTypeDef  DMATxDscrTab[ETH_TX_DESC_CNT]; /* Ethernet Tx DMA Descriptor
 
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_NodeTypeDef Node_GPDMA1_Channel0;
+DMA_QListTypeDef List_GPDMA1_Channel0;
 DMA_HandleTypeDef handle_GPDMA1_Channel0;
+DMA_NodeTypeDef Node_GPDMA1_Channel1;
+DMA_QListTypeDef List_GPDMA1_Channel1;
 DMA_HandleTypeDef handle_GPDMA1_Channel1;
 
 DCACHE_HandleTypeDef hdcache1;
@@ -199,6 +203,20 @@ int main(void)
   MX_TIM1_Init();
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
+  /* Start TIM3 so its TRGO update event triggers ADC1/ADC2 conversions.
+   * Without this the externally-triggered ADCs never convert and the DMA
+   * buffers stay at zero. */
+  if (HAL_TIM_Base_Start(&htim3) != HAL_OK) {
+    Error_Handler();
+  }
+
+  /* TEST: disable the D-cache to confirm DMA/cache coherency is why the muxed
+   * ADC readings (e.g. misc adc2 vs misc adc3 on the same channel) come out
+   * identical. If the HIGH/LOW reads now diverge, the cache was the cause and
+   * we'll replace this with a targeted fix (invalidate-before-read or a
+   * non-cacheable buffer region). */
+  HAL_DCACHE_Disable(&hdcache1);
+
   bool loc1 = HAL_GPIO_ReadPin(MSB_ADDR_GPIO_Port, MSB_ADDR_Pin);
 
   if (loc1) {
@@ -864,13 +882,13 @@ static void MX_SPI1_Init(void)
   hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
+  hspi1.Init.NSS = SPI_NSS_HARD_OUTPUT;
   hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi1.Init.CRCPolynomial = 0x7;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
+  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
   hspi1.Init.NSSPolarity = SPI_NSS_POLARITY_LOW;
   hspi1.Init.FifoThreshold = SPI_FIFO_THRESHOLD_01DATA;
   hspi1.Init.MasterSSIdleness = SPI_MASTER_SS_IDLENESS_00CYCLE;
@@ -1125,9 +1143,6 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOF, MUX1_SEL1_Pin|MUX1_SEL2_Pin|MUX1_SEL3_Pin|MUX1_SEL4_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, SPI1_CS_Pin|SPI2_CS_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(PHY_RESET_GPIO_Port, PHY_RESET_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
@@ -1135,6 +1150,9 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, MUX2_SEL1_Pin|MUX2_SEL2_Pin|MUX2_SEL3_Pin|MUX2_SEL4_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(SPI2_CS_GPIO_Port, SPI2_CS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : IMU_INT1_Pin IMU_INT2_Pin PHY_RX_ER_Pin */
   GPIO_InitStruct.Pin = IMU_INT1_Pin|IMU_INT2_Pin|PHY_RX_ER_Pin;
@@ -1155,13 +1173,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : SPI1_CS_Pin */
-  GPIO_InitStruct.Pin = SPI1_CS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(SPI1_CS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PHY_IRQ_Pin */
   GPIO_InitStruct.Pin = PHY_IRQ_Pin;

@@ -84,11 +84,11 @@ typedef enum {
 } mux_state_t;
 
 /**
- * @brief Switches the two multiplexer states to the given parameter
- * @param state The state to switch the multiplexers to
+ * @brief Latches the current mux readings into the mux buffer, then toggles the multiplexers to the
+ *        other state and lets them settle. The state toggles internally on each call (HIGH <-> LOW).
  * @return Returns U_SUCCESS on success
  */
-int adc_switchMuxStates(mux_state_t state);
+int adc_switchMuxState(void);
 
 /**
  * @brief Reads raw ADC reading from Thermocouple

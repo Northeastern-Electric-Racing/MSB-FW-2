@@ -19,7 +19,7 @@
 #define PRIO_CAN_INCOMING     0
 #define PRIO_CAN_OUTGOING     0
 #define PRIO_SENSORS          1
-#define PRIO_ADCS             1
+#define PRIO_ADCS             0
 
 /* Default Thread */
 static thread_t _default_thread = {
@@ -159,57 +159,59 @@ void sensors_thread(ULONG thread_input) {
 /* ADCs Thread */
 static thread_t _adcs_thread = {
     .name       = "ADCs Thread",     /* Name */
-    .size       = 2048,              /* Stack Size (in bytes) */
+    .size       = 4096,              /* Stack Size (in bytes) */
     .priority   = PRIO_ADCS,         /* Priority */
     .threshold  = 0,                 /* Preemption Threshold */
     .time_slice = TX_NO_TIME_SLICE,  /* Time Slice */
     .auto_start = TX_AUTO_START,     /* Auto Start */
     .sleep      = 100,               /* Sleep (in ticks) */
-    .function   = sensors_thread     /* Thread Function */
+    .function   = adcs_thread     /* Thread Function */
 };
 void adcs_thread(ULONG thread_input) {
 
+    adc_init(); // TODO: add retries 
+
     while(1) {
-        if (device_loc == DEVICE_BACK) {
-            thermocouple_data_t thermo_data = thermocouple_get_data();
-            send_thermocouple_data(thermo_data);
-        }
 
-        strain_gauge_data_t strain_gauge_data = strain_gauge_get_data();
-        send_strain_gauge_data(strain_gauge_data);
-        
-        load_cell_data_t load_cell2_data = load_cell2_get_data();
-
-        misc_adc_data_t misc_adc2_data = misc_adc2_get_data();
-        send_misc_adc_data(misc_adc2_data, MISC_ADC2_CAN_ID);
-
-        tx_thread_sleep(_sensors_thread.sleep / 4);
-
-        adc_switchMuxStates(LOW);
-
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        /* Latch the LOW-state readings into the mux buffer and settle into HIGH. */
+        adc_switchMuxState();
 
         shock_pot_data_t shock_pot_data = shock_pot_get_data();
-        send_shock_pot_data(shock_pot_data);
+        // send_shock_pot_data(shock_pot_data);
 
         if (device_loc == DEVICE_FRONT) {
             steering_angle_data_t steering_angle_data = steering_angle_get_data();
-            send_steering_angle_data(steering_angle_data);
+            // send_steering_angle_data(steering_angle_data);
         }
 
         load_cell_data_t load_cell1_data = load_cell1_get_data();
-        send_load_cell_data(load_cell1_data, load_cell2_data);
 
         misc_adc_data_t misc_adc1_data = misc_adc1_get_data();
-        send_misc_adc_data(misc_adc1_data, MISC_ADC1_CAN_ID);
+        PRINTLN_INFO("Misc ADC 1 Data: %.2f", misc_adc1_data.data);
+        // send_misc_adc_data(misc_adc1_data, MISC_ADC1_CAN_ID);
         misc_adc_data_t misc_adc3_data = misc_adc3_get_data();
-        send_misc_adc_data(misc_adc3_data, MISC_ADC3_CAN_ID);
+        PRINTLN_INFO("Misc ADC 3 Data: %.2f", misc_adc3_data.data);
+        // send_misc_adc_data(misc_adc3_data, MISC_ADC3_CAN_ID);
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        /* Latch the HIGH-state readings into the mux buffer and settle into LOW. */
+        adc_switchMuxState();
 
-        adc_switchMuxStates(HIGH);
+        if (device_loc == DEVICE_BACK) {
+            thermocouple_data_t thermo_data = thermocouple_get_data();
+            // send_thermocouple_data(thermo_data);
+        }
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        strain_gauge_data_t strain_gauge_data = strain_gauge_get_data();
+        // send_strain_gauge_data(strain_gauge_data);
+
+        load_cell_data_t load_cell2_data = load_cell2_get_data();
+        // send_load_cell_data(load_cell1_data, load_cell2_data);
+
+        misc_adc_data_t misc_adc2_data = misc_adc2_get_data();
+        PRINTLN_INFO("Misc ADC 2 Data: %.2f", misc_adc2_data.data);
+        // send_misc_adc_data(misc_adc2_data, MISC_ADC2_CAN_ID);
+
+        tx_thread_sleep(_sensors_thread.sleep / 2);
     }
 }
 
@@ -220,10 +222,10 @@ uint8_t threads_init(TX_BYTE_POOL *byte_pool) {
 
     /* Create Threads */
     CATCH_ERROR(create_thread(byte_pool, &_default_thread), U_SUCCESS);      // Create Default thread.
-    CATCH_ERROR(create_thread(byte_pool, &_sensors_thread), U_SUCCESS);      // Create Sensors thread.
+    // CATCH_ERROR(create_thread(byte_pool, &_sensors_thread), U_SUCCESS);      // Create Sensors thread.
     // CATCH_ERROR(create_thread(byte_pool, &_can_incoming_thread), U_SUCCESS); // Create CAN Incoming thread.
     // CATCH_ERROR(create_thread(byte_pool, &_can_outgoing_thread), U_SUCCESS); // Create CAN Outgoing thread.
-    // CATCH_ERROR(create_thread(byte_pool, &_adcs_thread), U_SUCCESS);         // Create ADCs thread.
+    CATCH_ERROR(create_thread(byte_pool, &_adcs_thread), U_SUCCESS);         // Create ADCs thread.
 
     PRINTLN_INFO("Ran threads_init().");
     return U_SUCCESS;
