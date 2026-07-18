@@ -86,6 +86,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Core/Src/u_queues.c"
     "./Core/Src/u_sensors.c"
     "./Core/Src/u_threads.c"
+    "./Core/Src/can_messages_tx.c"
+    "./Core/Src/can_messages_rx.c"
 )
 
 # Add include paths

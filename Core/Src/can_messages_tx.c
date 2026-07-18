@@ -16,12 +16,38 @@
 static void handle_bitstream_overflow(bitstream_t *bitstream_res,
 					    uint32_t can_id);
 
+uint8_t send_front_msb_env
+(float temp,float humidity)
+{
+    can_msg_t msg;
+    msg.id = 0x602;
+    msg.id_is_extended = false;
+    
+            uint32_t data = 0;
+            msg.len = 4;
+                        uint32_t temp_i = (uint32_t)(temp*10);
+                        if(temp_i > 65535ULL) {temp_i = 65535;
+                        }
+                        data |= ((temp_i) & 0xFFFFULL) << 16;
+            
+                        uint32_t humidity_i = (uint32_t)(humidity*10);
+                        if(humidity_i > 65535ULL) {humidity_i = 65535;
+                        }
+                        data |= ((humidity_i) & 0xFFFFULL) << 0;
+            
+            uint32_t data_bigendian = __builtin_bswap32(data);
+            memcpy(msg.data, &data_bigendian, 4);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
 uint8_t send_front_msb_accel
 (float x_force,float y_force,float z_force)
 {
     can_msg_t msg;
-    msg.id = 0xBAB;
-    msg.id_is_extended = true;
+    msg.id = 0x603;
+    msg.id_is_extended = false;
+    
             uint64_t data = 0;
             msg.len = 8;
                         int32_t x_force_i = (int32_t)(x_force);
@@ -52,8 +78,9 @@ uint8_t send_front_msb_gyro
 (float x_deg,float y_deg,float z_deg)
 {
     can_msg_t msg;
-    msg.id = 0xBAC;
-    msg.id_is_extended = true;
+    msg.id = 0x604;
+    msg.id_is_extended = false;
+    
             uint64_t data = 0;
             msg.len = 8;
                         int32_t x_deg_i = (int32_t)(x_deg);
@@ -80,34 +107,89 @@ uint8_t send_front_msb_gyro
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }
 
-uint8_t send_front_msb_mag
-(float x_mag,float y_mag,float z_mag)
+uint8_t send_front_msb_strain
+(uint32_t strain1,uint32_t strain2)
 {
     can_msg_t msg;
-    msg.id = 0xBB0;
-    msg.id_is_extended = true;
+    msg.id = 0x605;
+    msg.id_is_extended = false;
+    
             uint64_t data = 0;
             msg.len = 8;
-                        int32_t x_mag_i = (int32_t)(x_mag);
-                        if(x_mag_i > 32767) {x_mag_i = 32767;
-                        } else if(x_mag_i < -32768) {x_mag_i = -32768;
+                        uint32_t strain1_i = (uint32_t)(strain1);
+                        if(strain1_i > 4294967295ULL) {strain1_i = 4294967295;
                         }
-                        data |= ((uint32_t)(x_mag_i) & 0xFFFFULL) << 48;
+                        data |= ((strain1_i) & 0xFFFFFFFFULL) << 32;
             
-                        int32_t y_mag_i = (int32_t)(y_mag);
-                        if(y_mag_i > 32767) {y_mag_i = 32767;
-                        } else if(y_mag_i < -32768) {y_mag_i = -32768;
+                        uint32_t strain2_i = (uint32_t)(strain2);
+                        if(strain2_i > 4294967295ULL) {strain2_i = 4294967295;
                         }
-                        data |= ((uint32_t)(y_mag_i) & 0xFFFFULL) << 32;
-            
-                        int32_t z_mag_i = (int32_t)(z_mag);
-                        if(z_mag_i > 32767) {z_mag_i = 32767;
-                        } else if(z_mag_i < -32768) {z_mag_i = -32768;
-                        }
-                        data |= ((uint32_t)(z_mag_i) & 0xFFFFULL) << 16;
+                        data |= ((strain2_i) & 0xFFFFFFFFULL) << 0;
             
             uint64_t data_bigendian = __builtin_bswap64(data);
             memcpy(msg.data, &data_bigendian, 8);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_front_shockpot
+(float shock1,uint16_t shock1_raw)
+{
+    can_msg_t msg;
+    msg.id = 0x606;
+    msg.id_is_extended = false;
+    struct __attribute__((__packed__)) {
+        uint32_t shock1;
+        uint16_t shock1_raw;
+        
+    } bitstream_data;
+    
+    bitstream_data.shock1 = (uint32_t)(shock1);
+        
+    bitstream_data.shock1_raw = (uint16_t)(shock1_raw);
+        
+    memcpy(msg.data, &bitstream_data, sizeof(bitstream_data));
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_front_ride_height
+(float rh)
+{
+    can_msg_t msg;
+    msg.id = 0x607;
+    msg.id_is_extended = false;
+    
+            uint16_t data = 0;
+            msg.len = 2;
+                        int32_t rh_i = (int32_t)(rh);
+                        if(rh_i > 32767) {rh_i = 32767;
+                        } else if(rh_i < -32768) {rh_i = -32768;
+                        }
+                        data |= ((uint32_t)(rh_i) & 0xFFFFULL) << 0;
+            
+            uint16_t data_bigendian = __builtin_bswap16(data);
+            memcpy(msg.data, &data_bigendian, 2);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_front_wheel_temp
+(float wheel_temp)
+{
+    can_msg_t msg;
+    msg.id = 0x608;
+    msg.id_is_extended = false;
+    
+            uint16_t data = 0;
+            msg.len = 2;
+                        uint32_t wheel_temp_i = (uint32_t)(wheel_temp);
+                        if(wheel_temp_i > 65535ULL) {wheel_temp_i = 65535;
+                        }
+                        data |= ((wheel_temp_i) & 0xFFFFULL) << 0;
+            
+            uint16_t data_bigendian = __builtin_bswap16(data);
+            memcpy(msg.data, &data_bigendian, 2);
 
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }
@@ -116,8 +198,9 @@ uint8_t send_front_msb_orientation
 (float x_fdeg,float y_fdeg,float z_fdeg)
 {
     can_msg_t msg;
-    msg.id = 0xBAE;
-    msg.id_is_extended = true;
+    msg.id = 0x609;
+    msg.id_is_extended = false;
+    
             uint64_t data = 0;
             msg.len = 8;
                         int32_t x_fdeg_i = (int32_t)(x_fdeg);
@@ -144,186 +227,24 @@ uint8_t send_front_msb_orientation
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }
 
-uint8_t send_front_msb_pressure_sensor
-(float pressure,float temperature)
+uint8_t send_back_msb_env
+(float temp,float humidity)
 {
     can_msg_t msg;
-    msg.id = 0xBB1;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t pressure_i = (uint32_t)(pressure);
-                        if(pressure_i > 4294967295ULL) {pressure_i = 4294967295;
-                        }
-                        data |= ((pressure_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t temperature_i = (uint32_t)(temperature);
-                        if(temperature_i > 4294967295ULL) {temperature_i = 4294967295;
-                        }
-                        data |= ((temperature_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_front_temperature_sensor
-(float temperature,float humidity)
-{
-    can_msg_t msg;
-    msg.id = 0xBAF;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t temperature_i = (uint32_t)(temperature);
-                        if(temperature_i > 4294967295ULL) {temperature_i = 4294967295;
-                        }
-                        data |= ((temperature_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t humidity_i = (uint32_t)(humidity);
-                        if(humidity_i > 4294967295ULL) {humidity_i = 4294967295;
-                        }
-                        data |= ((humidity_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_front_msb_strain_one_and_two
-(uint32_t strain1,uint32_t strain2)
-{
-    can_msg_t msg;
-    msg.id = 0xDAA;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t strain1_i = (uint32_t)(strain1);
-                        if(strain1_i > 4294967295ULL) {strain1_i = 4294967295;
-                        }
-                        data |= ((strain1_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t strain2_i = (uint32_t)(strain2);
-                        if(strain2_i > 4294967295ULL) {strain2_i = 4294967295;
-                        }
-                        data |= ((strain2_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_front_msb_strain_three_and_four
-(uint32_t strain3,uint32_t strain4)
-{
-    can_msg_t msg;
-    msg.id = 0xDAB;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t strain3_i = (uint32_t)(strain3);
-                        if(strain3_i > 4294967295ULL) {strain3_i = 4294967295;
-                        }
-                        data |= ((strain3_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t strain4_i = (uint32_t)(strain4);
-                        if(strain4_i > 4294967295ULL) {strain4_i = 4294967295;
-                        }
-                        data |= ((strain4_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_front_shockpot
-(uint32_t shock1,uint32_t shock2)
-{
-    can_msg_t msg;
-    msg.id = 0xDAE;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t shock1_i = (uint32_t)(shock1);
-                        if(shock1_i > 4294967295ULL) {shock1_i = 4294967295;
-                        }
-                        data |= ((shock1_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t shock2_i = (uint32_t)(shock2);
-                        if(shock2_i > 4294967295ULL) {shock2_i = 4294967295;
-                        }
-                        data |= ((shock2_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_front_msb_load_cells
-(uint32_t cell1,uint32_t cell2)
-{
-    can_msg_t msg;
-    msg.id = 0xDAF;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t cell1_i = (uint32_t)(cell1);
-                        if(cell1_i > 4294967295ULL) {cell1_i = 4294967295;
-                        }
-                        data |= ((cell1_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t cell2_i = (uint32_t)(cell2);
-                        if(cell2_i > 4294967295ULL) {cell2_i = 4294967295;
-                        }
-                        data |= ((cell2_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_front_wheel_rpm
-(uint16_t right_rpm,uint16_t left_rpm)
-{
-    can_msg_t msg;
-    msg.id = 0xDB0;
-    msg.id_is_extended = true;
+    msg.id = 0x622;
+    msg.id_is_extended = false;
+    
             uint32_t data = 0;
             msg.len = 4;
-                        uint32_t right_rpm_i = (uint32_t)(right_rpm);
-                        if(right_rpm_i > 65535ULL) {right_rpm_i = 65535;
+                        uint32_t temp_i = (uint32_t)(temp*10);
+                        if(temp_i > 65535ULL) {temp_i = 65535;
                         }
-                        data |= ((right_rpm_i) & 0xFFFFULL) << 16;
+                        data |= ((temp_i) & 0xFFFFULL) << 16;
             
-                        uint32_t left_rpm_i = (uint32_t)(left_rpm);
-                        if(left_rpm_i > 65535ULL) {left_rpm_i = 65535;
+                        uint32_t humidity_i = (uint32_t)(humidity*10);
+                        if(humidity_i > 65535ULL) {humidity_i = 65535;
                         }
-                        data |= ((left_rpm_i) & 0xFFFFULL) << 0;
-            
-            uint32_t data_bigendian = __builtin_bswap32(data);
-            memcpy(msg.data, &data_bigendian, 4);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_front_msb_wheel_angle
-(uint32_t angle)
-{
-    can_msg_t msg;
-    msg.id = 0xDAD;
-    msg.id_is_extended = true;
-            uint32_t data = 0;
-            msg.len = 4;
-                        uint32_t angle_i = (uint32_t)(angle);
-                        if(angle_i > 4294967295ULL) {angle_i = 4294967295;
-                        }
-                        data |= ((angle_i) & 0xFFFFFFFFULL) << 0;
+                        data |= ((humidity_i) & 0xFFFFULL) << 0;
             
             uint32_t data_bigendian = __builtin_bswap32(data);
             memcpy(msg.data, &data_bigendian, 4);
@@ -335,8 +256,9 @@ uint8_t send_back_msb_accel
 (float x_force,float y_force,float z_force)
 {
     can_msg_t msg;
-    msg.id = 0xBBF;
-    msg.id_is_extended = true;
+    msg.id = 0x623;
+    msg.id_is_extended = false;
+    
             uint64_t data = 0;
             msg.len = 8;
                         int32_t x_force_i = (int32_t)(x_force);
@@ -367,8 +289,9 @@ uint8_t send_back_msb_gyro
 (float x_deg,float y_deg,float z_deg)
 {
     can_msg_t msg;
-    msg.id = 0xBC0;
-    msg.id_is_extended = true;
+    msg.id = 0x624;
+    msg.id_is_extended = false;
+    
             uint64_t data = 0;
             msg.len = 8;
                         int32_t x_deg_i = (int32_t)(x_deg);
@@ -395,34 +318,89 @@ uint8_t send_back_msb_gyro
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }
 
-uint8_t send_back_msb_mag
-(float x_mag,float y_mag,float z_mag)
+uint8_t send_back_msb_strain
+(uint32_t strain1,uint32_t strain2)
 {
     can_msg_t msg;
-    msg.id = 0xBC4;
-    msg.id_is_extended = true;
+    msg.id = 0x625;
+    msg.id_is_extended = false;
+    
             uint64_t data = 0;
             msg.len = 8;
-                        int32_t x_mag_i = (int32_t)(x_mag);
-                        if(x_mag_i > 32767) {x_mag_i = 32767;
-                        } else if(x_mag_i < -32768) {x_mag_i = -32768;
+                        uint32_t strain1_i = (uint32_t)(strain1);
+                        if(strain1_i > 4294967295ULL) {strain1_i = 4294967295;
                         }
-                        data |= ((uint32_t)(x_mag_i) & 0xFFFFULL) << 48;
+                        data |= ((strain1_i) & 0xFFFFFFFFULL) << 32;
             
-                        int32_t y_mag_i = (int32_t)(y_mag);
-                        if(y_mag_i > 32767) {y_mag_i = 32767;
-                        } else if(y_mag_i < -32768) {y_mag_i = -32768;
+                        uint32_t strain2_i = (uint32_t)(strain2);
+                        if(strain2_i > 4294967295ULL) {strain2_i = 4294967295;
                         }
-                        data |= ((uint32_t)(y_mag_i) & 0xFFFFULL) << 32;
-            
-                        int32_t z_mag_i = (int32_t)(z_mag);
-                        if(z_mag_i > 32767) {z_mag_i = 32767;
-                        } else if(z_mag_i < -32768) {z_mag_i = -32768;
-                        }
-                        data |= ((uint32_t)(z_mag_i) & 0xFFFFULL) << 16;
+                        data |= ((strain2_i) & 0xFFFFFFFFULL) << 0;
             
             uint64_t data_bigendian = __builtin_bswap64(data);
             memcpy(msg.data, &data_bigendian, 8);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_back_shockpot
+(float shock1,uint16_t shock1_raw)
+{
+    can_msg_t msg;
+    msg.id = 0x626;
+    msg.id_is_extended = false;
+    struct __attribute__((__packed__)) {
+        uint32_t shock1;
+        uint16_t shock1_raw;
+        
+    } bitstream_data;
+    
+    bitstream_data.shock1 = (uint32_t)(shock1);
+        
+    bitstream_data.shock1_raw = (uint16_t)(shock1_raw);
+        
+    memcpy(msg.data, &bitstream_data, sizeof(bitstream_data));
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_back_ride_height
+(float rh)
+{
+    can_msg_t msg;
+    msg.id = 0x627;
+    msg.id_is_extended = false;
+    
+            uint16_t data = 0;
+            msg.len = 2;
+                        int32_t rh_i = (int32_t)(rh);
+                        if(rh_i > 32767) {rh_i = 32767;
+                        } else if(rh_i < -32768) {rh_i = -32768;
+                        }
+                        data |= ((uint32_t)(rh_i) & 0xFFFFULL) << 0;
+            
+            uint16_t data_bigendian = __builtin_bswap16(data);
+            memcpy(msg.data, &data_bigendian, 2);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_back_wheel_temp
+(float wheel_temp)
+{
+    can_msg_t msg;
+    msg.id = 0x628;
+    msg.id_is_extended = false;
+    
+            uint16_t data = 0;
+            msg.len = 2;
+                        uint32_t wheel_temp_i = (uint32_t)(wheel_temp);
+                        if(wheel_temp_i > 65535ULL) {wheel_temp_i = 65535;
+                        }
+                        data |= ((wheel_temp_i) & 0xFFFFULL) << 0;
+            
+            uint16_t data_bigendian = __builtin_bswap16(data);
+            memcpy(msg.data, &data_bigendian, 2);
 
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }
@@ -431,8 +409,9 @@ uint8_t send_back_msb_orientation
 (float x_fdeg,float y_fdeg,float z_fdeg)
 {
     can_msg_t msg;
-    msg.id = 0xBC2;
-    msg.id_is_extended = true;
+    msg.id = 0x629;
+    msg.id_is_extended = false;
+    
             uint64_t data = 0;
             msg.len = 8;
                         int32_t x_fdeg_i = (int32_t)(x_fdeg);
@@ -452,227 +431,6 @@ uint8_t send_back_msb_orientation
                         } else if(z_fdeg_i < -32768) {z_fdeg_i = -32768;
                         }
                         data |= ((uint32_t)(z_fdeg_i) & 0xFFFFULL) << 16;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_back_msb_pressure_sensor
-(float pressure,float temperature)
-{
-    can_msg_t msg;
-    msg.id = 0xBC5;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t pressure_i = (uint32_t)(pressure);
-                        if(pressure_i > 4294967295ULL) {pressure_i = 4294967295;
-                        }
-                        data |= ((pressure_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t temperature_i = (uint32_t)(temperature);
-                        if(temperature_i > 4294967295ULL) {temperature_i = 4294967295;
-                        }
-                        data |= ((temperature_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_back_temperature_sensor
-(float temperature,float humidity)
-{
-    can_msg_t msg;
-    msg.id = 0xBC3;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t temperature_i = (uint32_t)(temperature);
-                        if(temperature_i > 4294967295ULL) {temperature_i = 4294967295;
-                        }
-                        data |= ((temperature_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t humidity_i = (uint32_t)(humidity);
-                        if(humidity_i > 4294967295ULL) {humidity_i = 4294967295;
-                        }
-                        data |= ((humidity_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_back_msb_strain_one_and_two
-(uint32_t strain1,uint32_t strain2)
-{
-    can_msg_t msg;
-    msg.id = 0xDBE;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t strain1_i = (uint32_t)(strain1);
-                        if(strain1_i > 4294967295ULL) {strain1_i = 4294967295;
-                        }
-                        data |= ((strain1_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t strain2_i = (uint32_t)(strain2);
-                        if(strain2_i > 4294967295ULL) {strain2_i = 4294967295;
-                        }
-                        data |= ((strain2_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_back_msb_strain_three_and_four
-(uint32_t strain3,uint32_t strain4)
-{
-    can_msg_t msg;
-    msg.id = 0xDBF;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t strain3_i = (uint32_t)(strain3);
-                        if(strain3_i > 4294967295ULL) {strain3_i = 4294967295;
-                        }
-                        data |= ((strain3_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t strain4_i = (uint32_t)(strain4);
-                        if(strain4_i > 4294967295ULL) {strain4_i = 4294967295;
-                        }
-                        data |= ((strain4_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_back_shockpot
-(uint32_t shock1,uint32_t shock2)
-{
-    can_msg_t msg;
-    msg.id = 0xDC2;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t shock1_i = (uint32_t)(shock1);
-                        if(shock1_i > 4294967295ULL) {shock1_i = 4294967295;
-                        }
-                        data |= ((shock1_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t shock2_i = (uint32_t)(shock2);
-                        if(shock2_i > 4294967295ULL) {shock2_i = 4294967295;
-                        }
-                        data |= ((shock2_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_back_msb_load_cells
-(uint32_t cell1,uint32_t cell2)
-{
-    can_msg_t msg;
-    msg.id = 0xDC3;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t cell1_i = (uint32_t)(cell1);
-                        if(cell1_i > 4294967295ULL) {cell1_i = 4294967295;
-                        }
-                        data |= ((cell1_i) & 0xFFFFFFFFULL) << 32;
-            
-                        uint32_t cell2_i = (uint32_t)(cell2);
-                        if(cell2_i > 4294967295ULL) {cell2_i = 4294967295;
-                        }
-                        data |= ((cell2_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_rear_wheel_rpm
-(uint16_t right_rpm,uint16_t left_rpm)
-{
-    can_msg_t msg;
-    msg.id = 0xDB1;
-    msg.id_is_extended = true;
-            uint32_t data = 0;
-            msg.len = 4;
-                        uint32_t right_rpm_i = (uint32_t)(right_rpm);
-                        if(right_rpm_i > 65535ULL) {right_rpm_i = 65535;
-                        }
-                        data |= ((right_rpm_i) & 0xFFFFULL) << 16;
-            
-                        uint32_t left_rpm_i = (uint32_t)(left_rpm);
-                        if(left_rpm_i > 65535ULL) {left_rpm_i = 65535;
-                        }
-                        data |= ((left_rpm_i) & 0xFFFFULL) << 0;
-            
-            uint32_t data_bigendian = __builtin_bswap32(data);
-            memcpy(msg.data, &data_bigendian, 4);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_back_msb_thermocouple
-(uint32_t thermo1)
-{
-    can_msg_t msg;
-    msg.id = 0xDAC;
-    msg.id_is_extended = true;
-            uint32_t data = 0;
-            msg.len = 4;
-                        uint32_t thermo1_i = (uint32_t)(thermo1);
-                        if(thermo1_i > 4294967295ULL) {thermo1_i = 4294967295;
-                        }
-                        data |= ((thermo1_i) & 0xFFFFFFFFULL) << 0;
-            
-            uint32_t data_bigendian = __builtin_bswap32(data);
-            memcpy(msg.data, &data_bigendian, 4);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
-uint8_t send_back_msb_tof
-(uint16_t quadrant1,uint16_t quadrant2,uint16_t quadrant3,uint16_t quadrant4)
-{
-    can_msg_t msg;
-    msg.id = 0xBA0;
-    msg.id_is_extended = true;
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t quadrant1_i = (uint32_t)(quadrant1);
-                        if(quadrant1_i > 65535ULL) {quadrant1_i = 65535;
-                        }
-                        data |= ((quadrant1_i) & 0xFFFFULL) << 48;
-            
-                        uint32_t quadrant2_i = (uint32_t)(quadrant2);
-                        if(quadrant2_i > 65535ULL) {quadrant2_i = 65535;
-                        }
-                        data |= ((quadrant2_i) & 0xFFFFULL) << 32;
-            
-                        uint32_t quadrant3_i = (uint32_t)(quadrant3);
-                        if(quadrant3_i > 65535ULL) {quadrant3_i = 65535;
-                        }
-                        data |= ((quadrant3_i) & 0xFFFFULL) << 16;
-            
-                        uint32_t quadrant4_i = (uint32_t)(quadrant4);
-                        if(quadrant4_i > 65535ULL) {quadrant4_i = 65535;
-                        }
-                        data |= ((quadrant4_i) & 0xFFFFULL) << 0;
             
             uint64_t data_bigendian = __builtin_bswap64(data);
             memcpy(msg.data, &data_bigendian, 8);

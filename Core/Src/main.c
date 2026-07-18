@@ -26,6 +26,7 @@
 #include "u_queues.h"
 #include "u_utils.h"
 #include "u_wheel_speed.h"
+#include "u_can.h"
 
 /* USER CODE END Includes */
 
@@ -151,6 +152,18 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 	}
 }
 
+/* BusOff Error Handling. */
+void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorStatusITs)
+{
+    FDCAN_ProtocolStatusTypeDef protocol_status;
+    HAL_FDCAN_GetProtocolStatus(hfdcan, &protocol_status);
+
+    if (protocol_status.BusOff != 0)  // If Bus-Off error occurred
+    {
+        CLEAR_BIT(hfdcan->Instance->CCCR, FDCAN_CCCR_INIT);  // Clear INIT bit to recover from Bus-Off
+    }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -216,30 +229,7 @@ int main(void)
     wheel_speed_init(&htim1, &htim15);
   }
 
-  uint8_t devices = 0u;
-
-  printf("Searching for I2C devices on the bus...\n");
-  /* Values outside 0x03 and 0x77 are invalid. */
-  for (uint8_t i = 0x03u; i < 0x78u; i++)
-  {
-    HAL_IWDG_Refresh(&hiwdg);
-    uint8_t address = i << 1u ;
-    /* In case there is a positive feedback, print it out. */
-    if (HAL_OK == HAL_I2C_IsDeviceReady(&hi2c1, address, 3u, 10u))
-    {
-      printf("Device found: 0x%02X\n", address);
-      devices++;
-    }
-  }
-  /* Feedback of the total number of devices. */
-  if (0u == devices)
-  {
-    printf("No device found.\n");
-  }
-  else
-  {
-    printf("Total found devices: %d\n", devices);
-  }
+  can2_init(&hfdcan2);
 
   /* USER CODE END 2 */
 
@@ -335,8 +325,8 @@ void PeriphCommonClock_Config(void)
 
   /** Initializes the peripherals clock
   */
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADCDAC|RCC_PERIPHCLK_SPI1
-                              |RCC_PERIPHCLK_SPI2;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADCDAC|RCC_PERIPHCLK_FDCAN
+                              |RCC_PERIPHCLK_SPI1|RCC_PERIPHCLK_SPI2;
   PeriphClkInitStruct.PLL2.PLL2Source = RCC_PLL2_SOURCE_HSE;
   PeriphClkInitStruct.PLL2.PLL2M = 5;
   PeriphClkInitStruct.PLL2.PLL2N = 64;
@@ -346,7 +336,8 @@ void PeriphCommonClock_Config(void)
   PeriphClkInitStruct.PLL2.PLL2RGE = RCC_PLL2_VCIRANGE_2;
   PeriphClkInitStruct.PLL2.PLL2VCOSEL = RCC_PLL2_VCORANGE_WIDE;
   PeriphClkInitStruct.PLL2.PLL2FRACN = 0;
-  PeriphClkInitStruct.PLL2.PLL2ClockOut = RCC_PLL2_DIVP;
+  PeriphClkInitStruct.PLL2.PLL2ClockOut = RCC_PLL2_DIVP|RCC_PLL2_DIVQ;
+  PeriphClkInitStruct.FdcanClockSelection = RCC_FDCANCLKSOURCE_PLL2Q;
   PeriphClkInitStruct.Spi1ClockSelection = RCC_SPI1CLKSOURCE_PLL2P;
   PeriphClkInitStruct.Spi2ClockSelection = RCC_SPI2CLKSOURCE_PLL2P;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
@@ -625,10 +616,10 @@ static void MX_FDCAN2_Init(void)
   hfdcan2.Init.AutoRetransmission = DISABLE;
   hfdcan2.Init.TransmitPause = DISABLE;
   hfdcan2.Init.ProtocolException = DISABLE;
-  hfdcan2.Init.NominalPrescaler = 5;
+  hfdcan2.Init.NominalPrescaler = 8;
   hfdcan2.Init.NominalSyncJumpWidth = 1;
-  hfdcan2.Init.NominalTimeSeg1 = 8;
-  hfdcan2.Init.NominalTimeSeg2 = 1;
+  hfdcan2.Init.NominalTimeSeg1 = 11;
+  hfdcan2.Init.NominalTimeSeg2 = 4;
   hfdcan2.Init.DataPrescaler = 1;
   hfdcan2.Init.DataSyncJumpWidth = 1;
   hfdcan2.Init.DataTimeSeg1 = 1;

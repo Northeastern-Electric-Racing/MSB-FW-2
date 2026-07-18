@@ -10,6 +10,14 @@
 
 /**
 * Contents of this message:
+* MSB/F/Temp - Temperature of board
+* MSB/F/Humidity - Humidity of board
+*/
+uint8_t send_front_msb_env
+(float temp,float humidity);
+
+/**
+* Contents of this message:
 * MSB/F/Accel - IMU readings from the board
 */
 uint8_t send_front_msb_accel
@@ -24,10 +32,32 @@ uint8_t send_front_msb_gyro
 
 /**
 * Contents of this message:
-* MSB/F/Mag - Magnetometer readings from the board
+* MSB/F/Strain - Strain readings
 */
-uint8_t send_front_msb_mag
-(float x_mag,float y_mag,float z_mag);
+uint8_t send_front_msb_strain
+(uint32_t strain1,uint32_t strain2);
+
+/**
+* Contents of this message:
+* MSB/F/Shock - Shuck deflection
+* MSB/F/ShockRaw - Raw shock value
+*/
+uint8_t send_front_shockpot
+(float shock1,uint16_t shock1_raw);
+
+/**
+* Contents of this message:
+* MSB/F/RideHeight - Ride height to sensor
+*/
+uint8_t send_front_ride_height
+(float rh);
+
+/**
+* Contents of this message:
+* MSB/F/WheelTemp - As-measured wheel temperature
+*/
+uint8_t send_front_wheel_temp
+(float wheel_temp);
 
 /**
 * Contents of this message:
@@ -38,61 +68,11 @@ uint8_t send_front_msb_orientation
 
 /**
 * Contents of this message:
-* MSB/F/Pressure - Pressure Sensor readings
+* MSB/B/Temp - Temperature of board
+* MSB/B/Humidity - Humidity of board
 */
-uint8_t send_front_msb_pressure_sensor
-(float pressure,float temperature);
-
-/**
-* Contents of this message:
-* MSB/F/FR_RPM - RPM value of front right wheel
-* MSB/F/FL_RPM - RPM value of front left wheel
-*/
-uint8_t send_front_temperature_sensor
-(float temperature,float humidity);
-
-/**
-* Contents of this message:
-* MSB/F/Strain1 - Strain 1 and 2 readings
-*/
-uint8_t send_front_msb_strain_one_and_two
-(uint32_t strain1,uint32_t strain2);
-
-/**
-* Contents of this message:
-* MSB/F/Strain2 - Strain 3 and 4 readings
-*/
-uint8_t send_front_msb_strain_three_and_four
-(uint32_t strain3,uint32_t strain4);
-
-/**
-* Contents of this message:
-* MSB/F/Shock - Shock Pot readings
-*/
-uint8_t send_front_shockpot
-(uint32_t shock1,uint32_t shock2);
-
-/**
-* Contents of this message:
-* MSB/F/Cells - Load Cell readings
-*/
-uint8_t send_front_msb_load_cells
-(uint32_t cell1,uint32_t cell2);
-
-/**
-* Contents of this message:
-* MSB/F/FR_RPM - RPM value of front right wheel
-* MSB/F/FL_RPM - RPM value of front left wheel
-*/
-uint8_t send_front_wheel_rpm
-(uint16_t right_rpm,uint16_t left_rpm);
-
-/**
-* Contents of this message:
-* MSB/F/Angle - Wheel Angle readings
-*/
-uint8_t send_front_msb_wheel_angle
-(uint32_t angle);
+uint8_t send_back_msb_env
+(float temp,float humidity);
 
 /**
 * Contents of this message:
@@ -110,10 +90,32 @@ uint8_t send_back_msb_gyro
 
 /**
 * Contents of this message:
-* MSB/B/Mag - Magnetometer readings from the board
+* MSB/B/Strain - Strain readings
 */
-uint8_t send_back_msb_mag
-(float x_mag,float y_mag,float z_mag);
+uint8_t send_back_msb_strain
+(uint32_t strain1,uint32_t strain2);
+
+/**
+* Contents of this message:
+* MSB/B/Shock - Shuck deflection
+* MSB/B/ShockRaw - Raw shock value
+*/
+uint8_t send_back_shockpot
+(float shock1,uint16_t shock1_raw);
+
+/**
+* Contents of this message:
+* MSB/B/RideHeight - Ride height to sensor
+*/
+uint8_t send_back_ride_height
+(float rh);
+
+/**
+* Contents of this message:
+* MSB/B/WheelTemp - As-measured wheel temperature
+*/
+uint8_t send_back_wheel_temp
+(float wheel_temp);
 
 /**
 * Contents of this message:
@@ -121,69 +123,4 @@ uint8_t send_back_msb_mag
 */
 uint8_t send_back_msb_orientation
 (float x_fdeg,float y_fdeg,float z_fdeg);
-
-/**
-* Contents of this message:
-* MSB/F/Pressure - Pressure Sensor readings
-*/
-uint8_t send_back_msb_pressure_sensor
-(float pressure,float temperature);
-
-/**
-* Contents of this message:
-* MSB/F/FR_RPM - RPM value of front right wheel
-* MSB/F/FL_RPM - RPM value of front left wheel
-*/
-uint8_t send_back_temperature_sensor
-(float temperature,float humidity);
-
-/**
-* Contents of this message:
-* MSB/B/Strain1 - Strain 1 and 2 readings
-*/
-uint8_t send_back_msb_strain_one_and_two
-(uint32_t strain1,uint32_t strain2);
-
-/**
-* Contents of this message:
-* MSB/B/Strain2 - Strain 3 and 4 readings
-*/
-uint8_t send_back_msb_strain_three_and_four
-(uint32_t strain3,uint32_t strain4);
-
-/**
-* Contents of this message:
-* MSB/B/Shock - Shock Pot readings
-*/
-uint8_t send_back_shockpot
-(uint32_t shock1,uint32_t shock2);
-
-/**
-* Contents of this message:
-* MSB/B/Cells - Load Cell readings
-*/
-uint8_t send_back_msb_load_cells
-(uint32_t cell1,uint32_t cell2);
-
-/**
-* Contents of this message:
-* MSB/F/RR_RPM - RPM value of rear right wheel
-* MSB/F/RL_RPM - RPM value of rear left wheel
-*/
-uint8_t send_rear_wheel_rpm
-(uint16_t right_rpm,uint16_t left_rpm);
-
-/**
-* Contents of this message:
-* MSB/B/Thermo - Thermocouple readings
-*/
-uint8_t send_back_msb_thermocouple
-(uint32_t thermo1);
-
-/**
-* Contents of this message:
-* MSB/B/TOF - Time of flight readings
-*/
-uint8_t send_back_msb_tof
-(uint16_t quadrant1,uint16_t quadrant2,uint16_t quadrant3,uint16_t quadrant4);
 #endif
