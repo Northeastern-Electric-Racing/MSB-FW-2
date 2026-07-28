@@ -6,7 +6,7 @@ typedef enum {
     ADC1_CHANNEL0 = 0,
     ADC1_CHANNEL6,
     ADC1_CHANNEL10,
-    ADC1_CHANNEL12,
+    ADC1_CHANNEL12, 
     ADC1_CHANNEL13,
 
     ADC1_SIZE,
@@ -93,7 +93,7 @@ raw_shock_pot_adc_t adc_get_shock_pot_data() {
 
     sp.data[SHOCK_POT1] = _adc1_buffer[ADC1_CHANNEL10];
     sp.data[SHOCK_POT2] = _adc1_buffer[ADC1_CHANNEL12];
-
+    
     return sp;
 }
 

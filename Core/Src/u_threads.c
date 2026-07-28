@@ -166,6 +166,8 @@ static thread_t _adcs_thread = {
 };
 void adcs_thread(ULONG thread_input) {
 
+    adc_init();
+
     while(1) {
         // if (device_loc == DEVICE_BACK) {
         //     thermocouple_data_t thermo_data = thermocouple_get_data();
@@ -180,16 +182,18 @@ void adcs_thread(ULONG thread_input) {
         // misc_adc_data_t misc_adc2_data = misc_adc2_get_data();
         // send_misc_adc_data(misc_adc2_data, MISC_ADC2_CAN_ID);
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        // tx_thread_sleep(_sensors_thread.sleep / 4);
 
         adc_switchMuxStates(LOW);
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        // tx_thread_sleep(_sensors_thread.sleep / 4);
 
         shock_pot_data_t shock_pot_data = shock_pot_get_data();
 
         PRINTLN_INFO("SENDING SHOCK POT DATA: %f, %f", shock_pot_data.position[SHOCK_POT1], shock_pot_data.position[SHOCK_POT2]);
         send_front_shockpot(shock_pot_data.position[SHOCK_POT1], shock_pot_data.position[SHOCK_POT2]);
+
+        send_front_wheel_temp(10.0f);
 
         // if (device_loc == DEVICE_FRONT) {
         //     steering_angle_data_t steering_angle_data = steering_angle_get_data();
@@ -204,11 +208,11 @@ void adcs_thread(ULONG thread_input) {
         // misc_adc_data_t misc_adc3_data = misc_adc3_get_data();
         // send_misc_adc_data(misc_adc3_data, MISC_ADC3_CAN_ID);
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        // tx_thread_sleep(_sensors_thread.sleep / 4);
 
-        adc_switchMuxStates(HIGH);
+        // adc_switchMuxStates(HIGH);
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        tx_thread_sleep(_sensors_thread.sleep);
     }
 }
 
