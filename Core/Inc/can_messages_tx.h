@@ -123,12 +123,4 @@ uint8_t send_back_wheel_temp
 */
 uint8_t send_back_msb_orientation
 (float x_fdeg,float y_fdeg,float z_fdeg);
-
-/**
-* Contents of this message:
-* MSB/LoadCell1 - Load Cell 1 Data
-* MSB/LoadCell2 - Load Cell 2 Data
-*/
-uint8_t send_load_cell_can_message
-(uint16_t load_cell_1,uint16_t load_cell_2);
 #endif

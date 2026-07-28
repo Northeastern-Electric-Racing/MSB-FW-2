@@ -438,33 +438,6 @@ uint8_t send_back_msb_orientation
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }
 
-uint8_t send_load_cell_can_message
-(uint16_t load_cell_1,uint16_t load_cell_2)
-{
-    can_msg_t msg;
-    msg.id = 0x630;
-    msg.id_is_extended = false;
-    
-            uint32_t data = 0;
-            msg.len = 4;
-                        uint32_t load_cell_1_i = (uint32_t)(load_cell_1/
-        100);
-                        if(load_cell_1_i > 65535ULL) {load_cell_1_i = 65535;
-                        }
-                        data |= ((load_cell_1_i) & 0xFFFFULL) << 16;
-            
-                        uint32_t load_cell_2_i = (uint32_t)(load_cell_2/
-        100);
-                        if(load_cell_2_i > 65535ULL) {load_cell_2_i = 65535;
-                        }
-                        data |= ((load_cell_2_i) & 0xFFFFULL) << 0;
-            
-            uint32_t data_bigendian = __builtin_bswap32(data);
-            memcpy(msg.data, &data_bigendian, 4);
-
-    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
-}
-
 
 
 /// @brief A helper which sends appropriate error to stdout and CAN if a bistream overflows

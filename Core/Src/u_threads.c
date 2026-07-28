@@ -189,11 +189,8 @@ void adcs_thread(ULONG thread_input) {
         // tx_thread_sleep(_sensors_thread.sleep / 4);
 
         shock_pot_data_t shock_pot_data = shock_pot_get_data();
-
-        PRINTLN_INFO("SENDING SHOCK POT DATA: %f, %f", shock_pot_data.position[SHOCK_POT1], shock_pot_data.position[SHOCK_POT2]);
-        send_front_shockpot(shock_pot_data.position[SHOCK_POT1], shock_pot_data.position[SHOCK_POT2]);
-
-        send_front_wheel_temp(10.0f);
+        send_front_shockpot(shock_pot_data.inch_travel[SHOCK_POT1], shock_pot_data.position[SHOCK_POT1]);
+        send_back_shockpot(shock_pot_data.inch_travel[SHOCK_POT2], shock_pot_data.position[SHOCK_POT2]);
 
         // if (device_loc == DEVICE_FRONT) {
         //     steering_angle_data_t steering_angle_data = steering_angle_get_data();
