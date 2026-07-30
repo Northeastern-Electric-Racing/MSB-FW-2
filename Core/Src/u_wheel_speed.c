@@ -12,7 +12,7 @@
 #define WHEEL_RADIUS_M         0.2032f /* 8-inch wheel radius */
 #define WHEEL_CIRCUMFERENCE_M  (2.0f * (float)M_PI * WHEEL_RADIUS_M)
 
-/* mph = RPM x circumference(m) x 60 / 1609.344 */
+/* MPH = RPM × (2 × pi × WHEEL_RADIUS_M) × 60 / 1609.344 (meters per mile) */
 #define RPM_TO_MPH (60.0f / 1609.344f)
 
 static TIM_HandleTypeDef *htim_left;
