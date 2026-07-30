@@ -9,7 +9,7 @@
 #define WHEEL_ZERO_TIMEOUT_MS  500U
 #define WHEEL_FILTER_ALPHA     0.25f
 #define PULSES_PER_ROTATION    24.0f
-#define WHEEL_RADIUS_M         0.2032f
+#define WHEEL_RADIUS_M         0.2032f /* 8-inch wheel radius */
 #define WHEEL_CIRCUMFERENCE_M  (2.0f * (float)M_PI * WHEEL_RADIUS_M)
 
 /* mph = RPM x circumference(m) x 60 / 1609.344 */
