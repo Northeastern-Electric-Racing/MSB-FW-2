@@ -163,7 +163,7 @@ static thread_t _wheel_speed_thread = {
     .threshold  = 0,
     .time_slice = TX_NO_TIME_SLICE,
     .auto_start = TX_AUTO_START,
-    .sleep      = MS_TO_TICKS(100U),
+    .sleep      = MS_TO_TICKS(200U),
     .function   = wheel_speed_thread
 };
 void wheel_speed_thread(ULONG thread_input) {
