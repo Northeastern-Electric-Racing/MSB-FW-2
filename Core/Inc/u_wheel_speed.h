@@ -3,11 +3,13 @@
 
 #include "stm32h5xx_hal.h"
 
-/** Number of pulses per wheel rotation */
-#define PULSES_PER_ROTATION 4
-
-/** HAL Effect timers speed */
-#define TIM_CLOCK_HZ        1000000
+/** Latest calculated wheel-speed measurements. */
+typedef struct {
+    float left_rpm;
+    float right_rpm;
+    float left_mph;
+    float right_mph;
+} wheel_speed_data_t;
 
 /**
  * @brief Initializes the wheel speed timers
@@ -17,27 +19,13 @@
 void wheel_speed_init(TIM_HandleTypeDef *_htim_left, TIM_HandleTypeDef *_htim_right);
 
 /**
- * @brief Call from HAL_TIM_IC_CaptureCallback
- * @param htim timer from HAL_TIM_IC_CaptureCallback call
- */ 
-void wheel_speed_capture_callback(TIM_HandleTypeDef *htim);
+ * @brief Samples both pulse counters and updates the wheel-speed measurements
+ */
+void wheel_pulse_check(void);
 
 /**
- * @brief Calculates the wheel revolutions per minute based on the given frequency
- * @param frequency Frequency of pulses
- * @param rpm Pointer for storing calculated value
+ * @brief Returns the latest calculated wheel-speed measurements
  */
-void calculate_wheel_rpm(float frequency, float *rpm);
-
-/**
- * Function checks whether the wheel pulse timers have expired. If so, it sets the rpm
- * for that wheel to 0.
- */
-void wheel_pulse_check();
-
-/**
- * Sends wheel speed data over CAN
- */
-void send_wheel_speed();
+wheel_speed_data_t wheel_speed_get_data(void);
 
 #endif /* u_wheel_speed.h */

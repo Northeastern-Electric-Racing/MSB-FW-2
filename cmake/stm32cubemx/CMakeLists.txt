@@ -257,8 +257,10 @@ set(MX_LINK_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/ST/STM32_MotionFX_Library/Lib
 )
 # Project static libraries
-set(MX_LINK_LIBS  
+set(MX_LINK_LIBS 
+ "-Wl,--start-group" 
 	:MotionFX_CM33F_wc32_ot_hard.a
+ "-Wl,--end-group"
     STM32_Drivers
     ${TOOLCHAIN_LINK_LIBRARIES}
     ThreadX	

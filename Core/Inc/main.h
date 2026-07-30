@@ -49,6 +49,8 @@ extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi2;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim15;
 
 /* USER CODE END EC */
 

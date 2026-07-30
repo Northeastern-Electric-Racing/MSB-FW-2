@@ -1,126 +1,123 @@
 #include "u_wheel_speed.h"
-#include "u_can.h"
-#include "u_queues.h"
-#include "timer.h"
+#include "u_tx_general.h"
 #include "main.h"
+#include "tx_api.h"
+#include <stdint.h>
 
-/** Time in ms before setting rpm to 0 if no pulses are detected */
-static const int PULSE_TIMEOUT_MS = 400;
+#define WHEEL_SAMPLE_PERIOD_MS 100U
+#define WHEEL_ZERO_TIMEOUT_MS  500U
+#define PULSES_PER_ROTATION    24.0f
+#define WHEEL_CIRCUMFERENCE_M  2.00f
 
-/* Left Wheel */
+/* mph = RPM x circumference(m) x 60 / 1609.344 */
+#define RPM_TO_MPH (60.0f / 1609.344f)
+
 static TIM_HandleTypeDef *htim_left;
-static uint32_t left_val1 = 0;
-static uint32_t left_val2 = 0;
-static uint8_t  left_captured = 0;
-static float left_rpm = 0;
-static nertimer_t pulse_timeout_left;
-
-/* Right Wheel */
 static TIM_HandleTypeDef *htim_right;
-static uint32_t right_val1 = 0;
-static uint32_t right_val2 = 0;
-static uint8_t  right_captured = 0;
-static float right_rpm = 0;
-static nertimer_t pulse_timeout_right;
 
+static uint16_t left_previous_count;
+static uint16_t right_previous_count;
 
-void wheel_speed_init(TIM_HandleTypeDef *_htim_left, TIM_HandleTypeDef *_htim_right) {
-    htim_left = _htim_left;
-    htim_right = _htim_right;
+static uint32_t previous_sample_tick;
+static uint32_t left_last_pulse_tick;
+static uint32_t right_last_pulse_tick;
 
-    HAL_TIM_IC_Start_IT(htim_left, TIM_CHANNEL_1);
-    HAL_TIM_IC_Start_IT(htim_right, TIM_CHANNEL_1);
+static wheel_speed_data_t wheel_speed_data;
 
-    start_timer(&pulse_timeout_left, PULSE_TIMEOUT_MS);
-    start_timer(&pulse_timeout_right, PULSE_TIMEOUT_MS);
+static uint16_t get_pulse_count(uint16_t current_count, uint16_t previous_count)
+{
+	uint16_t pulse_count;
+
+	if (current_count >= previous_count) {
+		pulse_count = current_count - previous_count;
+	} else {
+		pulse_count = (uint16_t)((UINT16_MAX - previous_count) +
+					 current_count + 1U);
+	}
+
+	return pulse_count;
 }
 
-void wheel_speed_capture_callback(TIM_HandleTypeDef *htim) {
-    if (htim->Instance == htim_left->Instance && htim->Channel  == HAL_TIM_ACTIVE_CHANNEL_1) {
-        start_timer(&pulse_timeout_left, PULSE_TIMEOUT_MS);
+static void calculate_wheel_speed(uint16_t pulse_count, uint32_t elapsed_ms,
+				  float *rpm, float *mph)
+{
+	float frequency_hz;
 
-        if (left_captured == 0) {
-            left_val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-            left_captured = 1;
-        }
-        else
-        {
-            left_val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
+	if (elapsed_ms == 0U) {
+		return;
+	}
 
-            uint32_t diff;
-            if (left_val2 > left_val1) {
-                diff = left_val2 - left_val1;
-            }
-            else {
-                diff = (0xFFFF - left_val1) + left_val2;
-            }
-
-            if (diff > 0) {
-                float frequency = (float)TIM_CLOCK_HZ / diff;
-                calculate_wheel_rpm(frequency, &left_rpm);
-            }
-
-            left_val1 = left_val2;
-            left_captured = 0;
-        }
-    }
-    else if (htim->Instance == htim_right->Instance && htim->Channel  == HAL_TIM_ACTIVE_CHANNEL_1) {
-        start_timer(&pulse_timeout_right, PULSE_TIMEOUT_MS);
-
-        if (right_captured == 0) {
-            right_val1 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-            right_captured = 1;
-        }
-        else {
-            right_val2 = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-
-            uint32_t diff;
-
-            if (right_val2 > right_val1) {
-                diff = right_val2 - right_val1;
-            }
-            else {
-                diff = (0xFFFF - right_val1) + right_val2;
-            }
-
-            if (diff > 0) {
-                float frequency = (float)TIM_CLOCK_HZ / diff;
-                calculate_wheel_rpm(frequency, &right_rpm);
-            }
-
-            right_val1 = right_val2;
-            right_captured = 0;
-        }
-    }
+	frequency_hz = ((float)pulse_count * 1000.0f) / (float)elapsed_ms;
+	*rpm = (frequency_hz * 60.0f) / PULSES_PER_ROTATION;
+	*mph = *rpm * WHEEL_CIRCUMFERENCE_M * RPM_TO_MPH;
 }
 
-void calculate_wheel_rpm(float frequency, float *rpm) {
-    *rpm = (frequency * 60.0f) / PULSES_PER_ROTATION;
+void wheel_speed_init(TIM_HandleTypeDef *_htim_left,
+		      TIM_HandleTypeDef *_htim_right)
+{
+	htim_left = _htim_left;
+	htim_right = _htim_right;
+
+	left_previous_count = (uint16_t)__HAL_TIM_GET_COUNTER(htim_left);
+	right_previous_count = (uint16_t)__HAL_TIM_GET_COUNTER(htim_right);
+
+	previous_sample_tick = (uint32_t)tx_time_get();
+	left_last_pulse_tick = previous_sample_tick;
+	right_last_pulse_tick = previous_sample_tick;
+
+	wheel_speed_data.left_rpm = 0.0f;
+	wheel_speed_data.left_mph = 0.0f;
+	wheel_speed_data.right_rpm = 0.0f;
+	wheel_speed_data.right_mph = 0.0f;
 }
 
+void wheel_pulse_check(void)
+{
+	uint32_t current_tick = (uint32_t)tx_time_get();
+	uint32_t elapsed_ms = TICKS_TO_MS(current_tick - previous_sample_tick);
 
-void wheel_pulse_check() {
-    if (is_timer_expired(&pulse_timeout_left)) {
-        left_rpm = 0;
-    }
+	if (elapsed_ms < WHEEL_SAMPLE_PERIOD_MS) {
+		return;
+	}
 
-    if (is_timer_expired(&pulse_timeout_right)) {
-        right_rpm = 0;
-    }
+	uint16_t left_current_count =
+		(uint16_t)__HAL_TIM_GET_COUNTER(htim_left);
+	uint16_t right_current_count =
+		(uint16_t)__HAL_TIM_GET_COUNTER(htim_right);
+
+	uint16_t left_pulse_count =
+		get_pulse_count(left_current_count, left_previous_count);
+	uint16_t right_pulse_count =
+		get_pulse_count(right_current_count, right_previous_count);
+
+	left_previous_count = left_current_count;
+	right_previous_count = right_current_count;
+	previous_sample_tick = current_tick;
+
+	if (left_pulse_count > 0U) {
+		calculate_wheel_speed(left_pulse_count, elapsed_ms,
+				      &wheel_speed_data.left_rpm,
+				      &wheel_speed_data.left_mph);
+		left_last_pulse_tick = current_tick;
+	} else if (TICKS_TO_MS(current_tick - left_last_pulse_tick) >=
+		   WHEEL_ZERO_TIMEOUT_MS) {
+		wheel_speed_data.left_rpm = 0.0f;
+		wheel_speed_data.left_mph = 0.0f;
+	}
+
+	if (right_pulse_count > 0U) {
+		calculate_wheel_speed(right_pulse_count, elapsed_ms,
+				      &wheel_speed_data.right_rpm,
+				      &wheel_speed_data.right_mph);
+		right_last_pulse_tick = current_tick;
+	} else if (TICKS_TO_MS(current_tick - right_last_pulse_tick) >=
+		   WHEEL_ZERO_TIMEOUT_MS) {
+		wheel_speed_data.right_rpm = 0.0f;
+		wheel_speed_data.right_mph = 0.0f;
+	}
 }
 
-void send_wheel_speed() {
-    struct __attribute__((__packed__)) {
-        uint16_t right_rpm;
-		uint16_t left_rpm;
-	} wheel_speed_data;
-
-    wheel_speed_data.right_rpm = (uint16_t)(right_rpm);
-    wheel_speed_data.left_rpm = (uint16_t)(left_rpm);
-
-    can_msg_t can_message = {.id = WHEEL_SPEED_CAN_ID, .len = 4, .data = {0}};
-
-    memcpy(can_message.data, &wheel_speed_data, can_message.len);
-
-    queue_send(&can_outgoing, &can_message, TX_NO_WAIT);
+wheel_speed_data_t wheel_speed_get_data(void)
+{
+	return wheel_speed_data;
 }

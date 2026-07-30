@@ -15,12 +15,14 @@
 #include "u_sensors.h"
 #include "u_wheel_speed.h"
 #include "can_messages_tx.h"
+#include "u_tx_general.h"
 
 #define PRIO_DEFAULT          0
 #define PRIO_CAN_INCOMING     0
 #define PRIO_CAN_OUTGOING     0
 #define PRIO_SENSORS          1
 #define PRIO_ADCS             1
+#define PRIO_WHEEL_SPEED      1
 
 /* Default Thread */
 static thread_t _default_thread = {
@@ -153,6 +155,37 @@ void sensors_thread(ULONG thread_input) {
     }
 }
 
+/* Wheel Speed Thread */
+static thread_t _wheel_speed_thread = {
+    .name       = "Wheel Speed Thread",
+    .size       = 2048,
+    .priority   = PRIO_WHEEL_SPEED,
+    .threshold  = 0,
+    .time_slice = TX_NO_TIME_SLICE,
+    .auto_start = TX_AUTO_START,
+    .sleep      = MS_TO_TICKS(100U),
+    .function   = wheel_speed_thread
+};
+void wheel_speed_thread(ULONG thread_input) {
+
+    wheel_speed_init(&htim1, &htim15);
+    tx_thread_sleep(_wheel_speed_thread.sleep);
+
+    while (1) {
+        wheel_pulse_check();
+        wheel_speed_data_t data = wheel_speed_get_data();
+
+        printf("Wheel speed: left=%.2f RPM (%.2f MPH), "
+               "right=%.2f RPM (%.2f MPH)\r\n",
+               (double)data.left_rpm,
+               (double)data.left_mph,
+               (double)data.right_rpm,
+               (double)data.right_mph);
+
+        tx_thread_sleep(_wheel_speed_thread.sleep);
+    }
+}
+
 /* ADCs Thread */
 static thread_t _adcs_thread = {
     .name       = "ADCs Thread",     /* Name */
@@ -224,6 +257,7 @@ uint8_t threads_init(TX_BYTE_POOL *byte_pool) {
     CATCH_ERROR(create_thread(byte_pool, &_can_incoming_thread), U_SUCCESS); // Create CAN Incoming thread.
     CATCH_ERROR(create_thread(byte_pool, &_can_outgoing_thread), U_SUCCESS); // Create CAN Outgoing thread.
     CATCH_ERROR(create_thread(byte_pool, &_adcs_thread), U_SUCCESS);         // Create ADCs thread.
+    CATCH_ERROR(create_thread(byte_pool, &_wheel_speed_thread), U_SUCCESS);  // Create Wheel Speed thread.
 
     PRINTLN_INFO("Ran threads_init().");
     return U_SUCCESS;

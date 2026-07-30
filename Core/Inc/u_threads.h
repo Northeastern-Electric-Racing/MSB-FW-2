@@ -18,5 +18,6 @@ void can_incoming_thread(ULONG thread_input);
 void can_outgoing_thread(ULONG thread_input);
 void sensors_thread(ULONG thread_input);
 void adcs_thread(ULONG thread_input);
+void wheel_speed_thread(ULONG thread_input);
 
 #endif /* u_threads.h */

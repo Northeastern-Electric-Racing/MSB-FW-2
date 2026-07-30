@@ -551,9 +551,9 @@ void HAL_FDCAN_MspInit(FDCAN_HandleTypeDef* hfdcan)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* FDCAN2 interrupt Init */
-    HAL_NVIC_SetPriority(FDCAN2_IT0_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(FDCAN2_IT0_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(FDCAN2_IT0_IRQn);
-    HAL_NVIC_SetPriority(FDCAN2_IT1_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(FDCAN2_IT1_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(FDCAN2_IT1_IRQn);
     /* USER CODE BEGIN FDCAN2_MspInit 1 */
 
@@ -1024,18 +1024,14 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     __HAL_RCC_GPIOE_CLK_ENABLE();
     /**TIM1 GPIO Configuration
     PE9     ------> TIM1_CH1
-    PE14     ------> TIM1_CH4
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_9|GPIO_PIN_14;
+    GPIO_InitStruct.Pin = GPIO_PIN_9;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-    /* TIM1 interrupt Init */
-    HAL_NVIC_SetPriority(TIM1_CC_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
     /* USER CODE BEGIN TIM1_MspInit 1 */
 
     /* USER CODE END TIM1_MspInit 1 */
@@ -1051,19 +1047,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
 
     /* USER CODE END TIM3_MspInit 1 */
   }
-
-}
-
-/**
-  * @brief TIM_IC MSP Initialization
-  * This function configures the hardware resources used in this example
-  * @param htim_ic: TIM_IC handle pointer
-  * @retval None
-  */
-void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* htim_ic)
-{
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-  if(htim_ic->Instance==TIM15)
+  else if(htim_base->Instance==TIM15)
   {
     /* USER CODE BEGIN TIM15_MspInit 0 */
 
@@ -1082,13 +1066,9 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* htim_ic)
     GPIO_InitStruct.Alternate = GPIO_AF2_TIM15;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /* TIM15 interrupt Init */
-    HAL_NVIC_SetPriority(TIM15_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(TIM15_IRQn);
     /* USER CODE BEGIN TIM15_MspInit 1 */
 
     /* USER CODE END TIM15_MspInit 1 */
-
   }
 
 }
@@ -1111,12 +1091,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 
     /**TIM1 GPIO Configuration
     PE9     ------> TIM1_CH1
-    PE14     ------> TIM1_CH4
     */
-    HAL_GPIO_DeInit(GPIOE, GPIO_PIN_9|GPIO_PIN_14);
+    HAL_GPIO_DeInit(GPIOE, GPIO_PIN_9);
 
-    /* TIM1 interrupt DeInit */
-    HAL_NVIC_DisableIRQ(TIM1_CC_IRQn);
     /* USER CODE BEGIN TIM1_MspDeInit 1 */
 
     /* USER CODE END TIM1_MspDeInit 1 */
@@ -1132,18 +1109,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 
     /* USER CODE END TIM3_MspDeInit 1 */
   }
-
-}
-
-/**
-  * @brief TIM_IC MSP De-Initialization
-  * This function freeze the hardware resources used in this example
-  * @param htim_ic: TIM_IC handle pointer
-  * @retval None
-  */
-void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* htim_ic)
-{
-  if(htim_ic->Instance==TIM15)
+  else if(htim_base->Instance==TIM15)
   {
     /* USER CODE BEGIN TIM15_MspDeInit 0 */
 
@@ -1156,8 +1122,6 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* htim_ic)
     */
     HAL_GPIO_DeInit(GPIOC, GPIO_PIN_12);
 
-    /* TIM15 interrupt DeInit */
-    HAL_NVIC_DisableIRQ(TIM15_IRQn);
     /* USER CODE BEGIN TIM15_MspDeInit 1 */
 
     /* USER CODE END TIM15_MspDeInit 1 */
