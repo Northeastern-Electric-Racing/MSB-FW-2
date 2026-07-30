@@ -3,12 +3,14 @@
 #include "main.h"
 #include "tx_api.h"
 #include <stdint.h>
+#include <math.h>
 
 #define WHEEL_SAMPLE_PERIOD_MS 200U
 #define WHEEL_ZERO_TIMEOUT_MS  500U
 #define WHEEL_FILTER_ALPHA     0.25f
 #define PULSES_PER_ROTATION    24.0f
-#define WHEEL_CIRCUMFERENCE_M  2.00f
+#define WHEEL_RADIUS_M         0.2032f
+#define WHEEL_CIRCUMFERENCE_M  (2.0f * (float)M_PI * WHEEL_RADIUS_M)
 
 /* mph = RPM x circumference(m) x 60 / 1609.344 */
 #define RPM_TO_MPH (60.0f / 1609.344f)
