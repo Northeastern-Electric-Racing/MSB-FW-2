@@ -163,7 +163,7 @@ static thread_t _wheel_speed_thread = {
     .threshold  = 0,
     .time_slice = TX_NO_TIME_SLICE,
     .auto_start = TX_AUTO_START,
-    .sleep      = MS_TO_TICKS(200U),
+    .sleep      = MS_TO_TICKS(25U),
     .function   = wheel_speed_thread
 };
 void wheel_speed_thread(ULONG thread_input) {
@@ -174,6 +174,8 @@ void wheel_speed_thread(ULONG thread_input) {
     while (1) {
         wheel_pulse_check();
         wheel_speed_data_t data = wheel_speed_get_data();
+        send_wheel_speed((uint32_t)data.right_mph,
+                         (uint32_t)data.right_rpm);
 
         printf("Wheel speed: left=%.2f RPM (%.2f MPH), "
                "right=%.2f RPM (%.2f MPH)\r\n",

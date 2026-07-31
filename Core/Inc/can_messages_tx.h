@@ -123,4 +123,12 @@ uint8_t send_back_wheel_temp
 */
 uint8_t send_back_msb_orientation
 (float x_fdeg,float y_fdeg,float z_fdeg);
+
+/**
+* Contents of this message:
+* MSB/F/WheelSpeedMPH - MPH Calculated from Wheel Speed
+* MSB/F/WheelSpeedRPM - RPM Calculated from Wheel Speed
+*/
+uint8_t send_wheel_speed
+(uint32_t wheel_speed_mph,uint32_t wheel_speed_rpm);
 #endif

@@ -438,6 +438,31 @@ uint8_t send_back_msb_orientation
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }
 
+uint8_t send_wheel_speed
+(uint32_t wheel_speed_mph,uint32_t wheel_speed_rpm)
+{
+    can_msg_t msg;
+    msg.id = 0x630;
+    msg.id_is_extended = false;
+    
+            uint64_t data = 0;
+            msg.len = 8;
+                        uint32_t wheel_speed_mph_i = (uint32_t)(wheel_speed_mph*10);
+                        if(wheel_speed_mph_i > 4294967295ULL) {wheel_speed_mph_i = 4294967295;
+                        }
+                        data |= ((wheel_speed_mph_i) & 0xFFFFFFFFULL) << 32;
+            
+                        uint32_t wheel_speed_rpm_i = (uint32_t)(wheel_speed_rpm*10);
+                        if(wheel_speed_rpm_i > 4294967295ULL) {wheel_speed_rpm_i = 4294967295;
+                        }
+                        data |= ((wheel_speed_rpm_i) & 0xFFFFFFFFULL) << 0;
+            
+            uint64_t data_bigendian = __builtin_bswap64(data);
+            memcpy(msg.data, &data_bigendian, 8);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
 
 
 /// @brief A helper which sends appropriate error to stdout and CAN if a bistream overflows

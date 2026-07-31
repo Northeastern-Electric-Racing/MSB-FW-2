@@ -5,9 +5,8 @@
 #include <stdint.h>
 #include <math.h>
 
-#define WHEEL_SAMPLE_PERIOD_MS 200U
+#define WHEEL_SAMPLE_PERIOD_MS 25U
 #define WHEEL_ZERO_TIMEOUT_MS  500U
-#define WHEEL_FILTER_ALPHA     0.25f
 #define PULSES_PER_ROTATION    60.0f
 #define WHEEL_RADIUS_M         0.2032f /* 8-inch wheel radius */
 #define WHEEL_CIRCUMFERENCE_M  (2.0f * (float)M_PI * WHEEL_RADIUS_M)
@@ -55,14 +54,6 @@ static void calculate_wheel_speed(uint16_t pulse_count, uint32_t elapsed_ms,
 	*mph = *rpm * WHEEL_CIRCUMFERENCE_M * RPM_TO_MPH;
 }
 
-static void filter_wheel_speed(float measured_rpm, float measured_mph,
-			       float *filtered_rpm, float *filtered_mph)
-{
-	*filtered_rpm += WHEEL_FILTER_ALPHA * (measured_rpm - *filtered_rpm);
-
-	*filtered_mph += WHEEL_FILTER_ALPHA * (measured_mph - *filtered_mph);
-}
-
 void wheel_speed_init(TIM_HandleTypeDef *_htim_left,
 		      TIM_HandleTypeDef *_htim_right)
 {
@@ -87,9 +78,6 @@ void wheel_pulse_check(void)
 	uint32_t current_tick = (uint32_t)tx_time_get();
 	uint32_t elapsed_ms = TICKS_TO_MS(current_tick - previous_sample_tick);
 
-	float measured_rpm;
-	float measured_mph;
-
 	if (elapsed_ms < WHEEL_SAMPLE_PERIOD_MS) {
 		return;
 	}
@@ -110,11 +98,8 @@ void wheel_pulse_check(void)
 
 	if (left_pulse_count > 0U) {
 		calculate_wheel_speed(left_pulse_count, elapsed_ms,
-				      &measured_rpm, &measured_mph);
-
-		filter_wheel_speed(measured_rpm, measured_mph,
-				   &wheel_speed_data.left_rpm,
-				   &wheel_speed_data.left_mph);
+				      &wheel_speed_data.left_rpm,
+				      &wheel_speed_data.left_mph);
 
 		left_last_pulse_tick = current_tick;
 	} else if (TICKS_TO_MS(current_tick - left_last_pulse_tick) >=
@@ -125,11 +110,8 @@ void wheel_pulse_check(void)
 
 	if (right_pulse_count > 0U) {
 		calculate_wheel_speed(right_pulse_count, elapsed_ms,
-				      &measured_rpm, &measured_mph);
-
-		filter_wheel_speed(measured_rpm, measured_mph,
-				   &wheel_speed_data.right_rpm,
-				   &wheel_speed_data.right_mph);
+				      &wheel_speed_data.right_rpm,
+				      &wheel_speed_data.right_mph);
 
 		right_last_pulse_tick = current_tick;
 	} else if (TICKS_TO_MS(current_tick - right_last_pulse_tick) >=
