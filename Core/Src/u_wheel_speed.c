@@ -6,7 +6,7 @@
 #include <math.h>
 
 #define WHEEL_SAMPLE_PERIOD_MS 25U
-#define WHEEL_ZERO_TIMEOUT_MS  500U
+#define WHEEL_ZERO_TIMEOUT_MS  150U
 #define PULSES_PER_ROTATION    60.0f
 #define WHEEL_RADIUS_M         0.2032f /* 8-inch wheel radius */
 #define WHEEL_CIRCUMFERENCE_M  (2.0f * (float)M_PI * WHEEL_RADIUS_M)
@@ -60,8 +60,11 @@ void wheel_speed_init(TIM_HandleTypeDef *_htim_left,
 	htim_left = _htim_left;
 	htim_right = _htim_right;
 
-	left_previous_count = (uint16_t)__HAL_TIM_GET_COUNTER(htim_left);
-	right_previous_count = (uint16_t)__HAL_TIM_GET_COUNTER(htim_right);
+	__HAL_TIM_SET_COUNTER(htim_left, 0U);
+	__HAL_TIM_SET_COUNTER(htim_right, 0U);
+
+	left_previous_count = 0U;
+	right_previous_count = 0U;
 
 	previous_sample_tick = (uint32_t)tx_time_get();
 	left_last_pulse_tick = previous_sample_tick;
