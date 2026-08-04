@@ -878,6 +878,12 @@ typedef struct {
 void receive_pack_current_and_shunt_temp_adbms(const can_msg_t *message, pack_current_and_shunt_temp_adbms_t *pack_current_and_shunt_temp_adbms);
 
 typedef struct {
+ float balancing_pwm_duty_cycle;
+} current_cell_balancing_pwm_duty_cycle_t;
+
+void receive_current_cell_balancing_pwm_duty_cycle(const can_msg_t *message, current_cell_balancing_pwm_duty_cycle_t *current_cell_balancing_pwm_duty_cycle);
+
+typedef struct {
  float current_target_ac;
 } ac_current_command_t;
 

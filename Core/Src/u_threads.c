@@ -14,6 +14,7 @@
 #include "u_utils.h"
 #include "u_sensors.h"
 #include "u_wheel_speed.h"
+#include "can_messages_tx.h"
 
 #define PRIO_DEFAULT          0
 #define PRIO_CAN_INCOMING     0
@@ -146,7 +147,7 @@ void sensors_thread(ULONG thread_input) {
 
         tx_thread_sleep(_sensors_thread.sleep / 2);
 
-        prepare_data_hdc2021();
+        // prepare_data_hdc2021();
 
         tx_thread_sleep(_sensors_thread.sleep / 2);
     }
@@ -161,51 +162,54 @@ static thread_t _adcs_thread = {
     .time_slice = TX_NO_TIME_SLICE,  /* Time Slice */
     .auto_start = TX_AUTO_START,     /* Auto Start */
     .sleep      = 100,               /* Sleep (in ticks) */
-    .function   = sensors_thread     /* Thread Function */
+    .function   = adcs_thread     /* Thread Function */
 };
 void adcs_thread(ULONG thread_input) {
 
+    adc_init();
+
     while(1) {
-        if (device_loc == DEVICE_BACK) {
-            thermocouple_data_t thermo_data = thermocouple_get_data();
-            send_thermocouple_data(thermo_data);
-        }
+        // if (device_loc == DEVICE_BACK) {
+        //     thermocouple_data_t thermo_data = thermocouple_get_data();
+        //     send_thermocouple_data(thermo_data);
+        // }
 
-        strain_gauge_data_t strain_gauge_data = strain_gauge_get_data();
-        send_strain_gauge_data(strain_gauge_data);
+        // strain_gauge_data_t strain_gauge_data = strain_gauge_get_data();
+        // send_strain_gauge_data(strain_gauge_data);
         
-        load_cell_data_t load_cell2_data = load_cell2_get_data();
+        // load_cell_data_t load_cell2_data = load_cell2_get_data();
 
-        misc_adc_data_t misc_adc2_data = misc_adc2_get_data();
-        send_misc_adc_data(misc_adc2_data, MISC_ADC2_CAN_ID);
+        // misc_adc_data_t misc_adc2_data = misc_adc2_get_data();
+        // send_misc_adc_data(misc_adc2_data, MISC_ADC2_CAN_ID);
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        // tx_thread_sleep(_sensors_thread.sleep / 4);
 
         adc_switchMuxStates(LOW);
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        // tx_thread_sleep(_sensors_thread.sleep / 4);
 
         shock_pot_data_t shock_pot_data = shock_pot_get_data();
-        send_shock_pot_data(shock_pot_data);
+        send_front_shockpot(shock_pot_data.inch_travel[SHOCK_POT1], shock_pot_data.position[SHOCK_POT1]);
+        send_back_shockpot(shock_pot_data.inch_travel[SHOCK_POT2], shock_pot_data.position[SHOCK_POT2]);
 
-        if (device_loc == DEVICE_FRONT) {
-            steering_angle_data_t steering_angle_data = steering_angle_get_data();
-            send_steering_angle_data(steering_angle_data);
-        }
+        // if (device_loc == DEVICE_FRONT) {
+        //     steering_angle_data_t steering_angle_data = steering_angle_get_data();
+        //     send_steering_angle_data(steering_angle_data);
+        // }
 
-        load_cell_data_t load_cell1_data = load_cell1_get_data();
-        send_load_cell_data(load_cell1_data, load_cell2_data);
+        // load_cell_data_t load_cell1_data = load_cell1_get_data();
+        // send_load_cell_data(load_cell1_data, load_cell2_data);
 
-        misc_adc_data_t misc_adc1_data = misc_adc1_get_data();
-        send_misc_adc_data(misc_adc1_data, MISC_ADC1_CAN_ID);
-        misc_adc_data_t misc_adc3_data = misc_adc3_get_data();
-        send_misc_adc_data(misc_adc3_data, MISC_ADC3_CAN_ID);
+        // misc_adc_data_t misc_adc1_data = misc_adc1_get_data();
+        // send_misc_adc_data(misc_adc1_data, MISC_ADC1_CAN_ID);
+        // misc_adc_data_t misc_adc3_data = misc_adc3_get_data();
+        // send_misc_adc_data(misc_adc3_data, MISC_ADC3_CAN_ID);
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        // tx_thread_sleep(_sensors_thread.sleep / 4);
 
-        adc_switchMuxStates(HIGH);
+        // adc_switchMuxStates(HIGH);
 
-        tx_thread_sleep(_sensors_thread.sleep / 4);
+        tx_thread_sleep(_sensors_thread.sleep);
     }
 }
 
