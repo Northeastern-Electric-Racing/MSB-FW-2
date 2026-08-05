@@ -614,6 +614,7 @@ static int _ssc_i2c_read(uint16_t dev_addr, uint8_t *buf, uint16_t len) {
 
 uint16_t init_ssc() {
     honeywellSSC_init(&ssc, _ssc_i2c_read, (SSC_I2C_ADDR << 1), 0, 60);
+    return 0;
 }
 
 uint16_t read_ssc() {
