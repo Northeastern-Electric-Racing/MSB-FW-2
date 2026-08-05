@@ -7,16 +7,37 @@
 
 #define LENGTH_MM_TO_INCHES           1.9685
 
-#define SHOCK_POT1_ZERO_OFFSET   0.0f
+// #define SHOCK_POT1_ZERO_OFFSET   0.0f
 #define SHOCK_POT1_SCALE_FACTOR  1.0f
 #define SHOCK_POT1_CALIBRATED_V  3.3 //MEASURE AND REPLACE THIS
 
-#define SHOCK_POT2_ZERO_OFFSET   0.0f
+// #define SHOCK_POT2_ZERO_OFFSET   0.0f
 #define SHOCK_POT2_SCALE_FACTOR  1.0f
 #define SHOCK_POT2_CALIBRATED_V  3.3 //MEASURE AND REPLACE THIS
 
 #define SHOCK_POT_LENGTH_IN_MM   0.0 //REPLACE THIS
 #define SHOCK_POT_LENGTH_IN_INCHES   1.9685 //REPLACE THIS 
+
+float SHOCK_POT1_ZERO_OFFSET = 3.3; //INITIAL VALUES THAT GET REPLACED BY THE INIT FUNCTION BELOW
+float SHOCK_POT2_ZERO_OFFSET = 3.3; //INITIAL VALUES THAT GET REPLACED BY THE INIT FUNCTION BELOW
+
+int16_t sample_accum = 0;
+float sample_data_shock_pots[10];
+
+float init_shock_pot_1(){
+
+    while (sample_accum < 10){
+        sample_data_shock_pots[sample_accum] = shock_pot_get_data().position[SHOCK_POT1];
+    }
+
+    float average;
+
+    average = 
+
+    SHOCK_POT1_ZERO_OFFSET 
+}
+
+
 
 shock_pot_data_t shock_pot_get_data() {
     raw_shock_pot_adc_t rawData = adc_get_shock_pot_data();
@@ -28,8 +49,8 @@ shock_pot_data_t shock_pot_get_data() {
     sp.position[SHOCK_POT1] = adc_calibrate(shockPot1Volts, SHOCK_POT1_ZERO_OFFSET, SHOCK_POT1_SCALE_FACTOR);
     sp.position[SHOCK_POT2] = adc_calibrate(shockPot2Volts, SHOCK_POT2_ZERO_OFFSET, SHOCK_POT2_SCALE_FACTOR);
 
-    sp.inch_travel[SHOCK_POT1] = SHOCK_POT_LENGTH_IN_INCHES - ((sp.position[SHOCK_POT1]) * ((1.9685) / (SHOCK_POT1_CALIBRATED_V)));
-    sp.inch_travel[SHOCK_POT2] = SHOCK_POT_LENGTH_IN_INCHES - ((sp.position[SHOCK_POT2]) * ((1.9685) / (SHOCK_POT2_CALIBRATED_V)));
+    sp.inch_travel[SHOCK_POT1] = SHOCK_POT_LENGTH_IN_INCHES - ((sp.position[SHOCK_POT1]) * ((SHOCK_POT_LENGTH_IN_INCHES) / (SHOCK_POT1_CALIBRATED_V)));
+    sp.inch_travel[SHOCK_POT2] = SHOCK_POT_LENGTH_IN_INCHES - ((sp.position[SHOCK_POT2]) * ((SHOCK_POT_LENGTH_IN_INCHES) / (SHOCK_POT2_CALIBRATED_V)));
 
     return sp;
 }
@@ -45,6 +66,8 @@ shock_pot_data_t shock_pot_get_data() {
 
 //     return sp;
 // }
+
+
 
 
 

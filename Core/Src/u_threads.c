@@ -80,7 +80,6 @@ void can_incoming_thread(ULONG thread_input) {
 }
 
 /* CAN Outgoing Thread. Sends outgoing CAN messages. */
-static thread_t _can_outgoing_thread = {
     .name       = "CAN Outgoing Thread",     /* Name */
     .size       = 2048,                      /* Stack Size (in bytes) */
     .priority   = PRIO_CAN_OUTGOING,         /* Priority */
