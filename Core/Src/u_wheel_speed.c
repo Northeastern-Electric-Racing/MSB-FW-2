@@ -4,17 +4,11 @@
 #include "tx_api.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include <math.h>
 
 #define WHEEL_ZERO_TIMEOUT_MS 150U
 #define WHEEL_PERIOD_SAMPLES  4U
 #define TIMER_FREQUENCY_HZ    100000U
-#define PULSES_PER_ROTATION   60.0f
-#define WHEEL_RADIUS_M        0.2032f /* 8-inch wheel radius */
-#define WHEEL_CIRCUMFERENCE_M (2.0f * (float)M_PI * WHEEL_RADIUS_M)
-
-/* MPH = RPM x (2 x pi x WHEEL_RADIUS_M) x 60 / 1609.344 */
-#define RPM_TO_MPH (60.0f / 1609.344f)
+#define PULSES_PER_ROTATION   60U
 
 typedef struct {
 	uint16_t previous_capture;
@@ -128,25 +122,19 @@ static void process_capture(wheel_capture_t *capture,
 		capture->previous_capture = current_capture;
 		capture->capture_valid = true;
 		capture->rearm_capture = false;
-
-		return;
-	}
-
-	if (!capture->capture_valid) {
+	} else if (!capture->capture_valid) {
 		capture->previous_capture = current_capture;
 		capture->capture_valid = true;
+	} else {
+		period_ticks =
+			get_capture_period(current_capture,
+					   capture->previous_capture);
 
-		return;
-	}
+		capture->previous_capture = current_capture;
 
-	period_ticks =
-		get_capture_period(current_capture,
-				   capture->previous_capture);
-
-	capture->previous_capture = current_capture;
-
-	if (period_ticks > 0U) {
-		store_period(capture, period_ticks);
+		if (period_ticks > 0U) {
+			store_period(capture, period_ticks);
+		}
 	}
 }
 
@@ -177,24 +165,30 @@ static bool get_average_period(const wheel_capture_t *capture,
 	return new_period_available;
 }
 
-static void calculate_wheel_speed(uint32_t average_period_ticks,
-				  float *rpm,
-				  float *mph)
+static uint16_t calculate_wheel_rpm(uint32_t average_period_ticks)
 {
-	float pulse_frequency_hz;
+	uint64_t numerator;
+	uint64_t denominator;
+	uint64_t rpm;
+	uint16_t rpm_result;
 
-	if (average_period_ticks == 0U) {
-		return;
+	rpm_result = 0U;
+
+	if (average_period_ticks > 0U) {
+		numerator = (uint64_t)TIMER_FREQUENCY_HZ * 60U;
+		denominator =
+			(uint64_t)average_period_ticks *
+			PULSES_PER_ROTATION;
+		rpm = (numerator + (denominator / 2U)) / denominator;
+
+		if (rpm > UINT16_MAX) {
+			rpm_result = UINT16_MAX;
+		} else {
+			rpm_result = (uint16_t)rpm;
+		}
 	}
 
-	pulse_frequency_hz =
-		(float)TIMER_FREQUENCY_HZ /
-		(float)average_period_ticks;
-
-	*rpm = (pulse_frequency_hz * 60.0f) /
-	       PULSES_PER_ROTATION;
-
-	*mph = *rpm * WHEEL_CIRCUMFERENCE_M * RPM_TO_MPH;
+	return rpm_result;
 }
 
 void wheel_speed_init(TIM_HandleTypeDef *_htim_left,
@@ -219,10 +213,8 @@ void wheel_speed_init(TIM_HandleTypeDef *_htim_left,
 	left_last_pulse_tick = current_tick;
 	right_last_pulse_tick = current_tick;
 
-	wheel_speed_data.left_rpm = 0.0f;
-	wheel_speed_data.left_mph = 0.0f;
-	wheel_speed_data.right_rpm = 0.0f;
-	wheel_speed_data.right_mph = 0.0f;
+	wheel_speed_data.left_rpm = 0U;
+	wheel_speed_data.right_rpm = 0U;
 
 	(void)HAL_TIM_IC_Start_IT(htim_left, TIM_CHANNEL_1);
 	(void)HAL_TIM_IC_Start_IT(htim_right, TIM_CHANNEL_1);
@@ -232,20 +224,18 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	uint16_t current_capture;
 
-	if (htim->Channel != HAL_TIM_ACTIVE_CHANNEL_1) {
-		return;
-	}
+	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1) {
+		current_capture =
+			(uint16_t)HAL_TIM_ReadCapturedValue(
+				htim, TIM_CHANNEL_1);
 
-	current_capture =
-		(uint16_t)HAL_TIM_ReadCapturedValue(
-			htim, TIM_CHANNEL_1);
-
-	if (htim->Instance == htim_left->Instance) {
-		process_capture(&left_capture, current_capture);
-	} else if (htim->Instance == htim_right->Instance) {
-		process_capture(&right_capture, current_capture);
-	} else {
-		/* Capture belongs to another timer. */
+		if (htim->Instance == htim_left->Instance) {
+			process_capture(&left_capture, current_capture);
+		} else if (htim->Instance == htim_right->Instance) {
+			process_capture(&right_capture, current_capture);
+		} else {
+			/* Capture belongs to another timer. */
+		}
 	}
 }
 
@@ -259,18 +249,15 @@ void wheel_pulse_check(void)
 	if (get_average_period(&left_capture,
 			       &left_processed_update_count,
 			       &average_period_ticks)) {
-		calculate_wheel_speed(
-			average_period_ticks,
-			&wheel_speed_data.left_rpm,
-			&wheel_speed_data.left_mph);
+		wheel_speed_data.left_rpm =
+			calculate_wheel_rpm(average_period_ticks);
 
 		left_last_pulse_tick = current_tick;
 	} else if (TICKS_TO_MS(current_tick -
 			       left_last_pulse_tick) >=
 		   WHEEL_ZERO_TIMEOUT_MS) {
-		if (wheel_speed_data.left_rpm > 0.0f) {
-			wheel_speed_data.left_rpm = 0.0f;
-			wheel_speed_data.left_mph = 0.0f;
+		if (wheel_speed_data.left_rpm > 0U) {
+			wheel_speed_data.left_rpm = 0U;
 			left_capture.rearm_capture = true;
 		}
 	}
@@ -278,18 +265,15 @@ void wheel_pulse_check(void)
 	if (get_average_period(&right_capture,
 			       &right_processed_update_count,
 			       &average_period_ticks)) {
-		calculate_wheel_speed(
-			average_period_ticks,
-			&wheel_speed_data.right_rpm,
-			&wheel_speed_data.right_mph);
+		wheel_speed_data.right_rpm =
+			calculate_wheel_rpm(average_period_ticks);
 
 		right_last_pulse_tick = current_tick;
 	} else if (TICKS_TO_MS(current_tick -
 			       right_last_pulse_tick) >=
 		   WHEEL_ZERO_TIMEOUT_MS) {
-		if (wheel_speed_data.right_rpm > 0.0f) {
-			wheel_speed_data.right_rpm = 0.0f;
-			wheel_speed_data.right_mph = 0.0f;
+		if (wheel_speed_data.right_rpm > 0U) {
+			wheel_speed_data.right_rpm = 0U;
 			right_capture.rearm_capture = true;
 		}
 	}

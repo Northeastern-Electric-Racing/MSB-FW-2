@@ -265,9 +265,15 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI
+                              |RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_CSI;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSIDiv = RCC_HSI_DIV2;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+  RCC_OscInitStruct.CSIState = RCC_CSI_ON;
+  RCC_OscInitStruct.CSICalibrationValue = RCC_CSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLL1_SOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 2;
@@ -298,6 +304,10 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
+  /** Enables PLL2P clock output
+  */
+  __HAL_RCC_TIMIC_ENABLE();
 
   /** Configure the programming delay
   */
@@ -1017,14 +1027,15 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 0 */
 
-  TIM_SlaveConfigTypeDef sSlaveConfig = {0};
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_IC_InitTypeDef sConfigIC = {0};
 
   /* USER CODE BEGIN TIM1_Init 1 */
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = 1750-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -1034,11 +1045,12 @@ static void MX_TIM1_Init(void)
   {
     Error_Handler();
   }
-  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_EXTERNAL1;
-  sSlaveConfig.InputTrigger = TIM_TS_TI1FP1;
-  sSlaveConfig.TriggerPolarity = TIM_TRIGGERPOLARITY_RISING;
-  sSlaveConfig.TriggerFilter = 4;
-  if (HAL_TIM_SlaveConfigSynchro(&htim1, &sSlaveConfig) != HAL_OK)
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_IC_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -1049,8 +1061,16 @@ static void MX_TIM1_Init(void)
   {
     Error_Handler();
   }
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+  sConfigIC.ICFilter = 4;
+  if (HAL_TIM_IC_ConfigChannel(&htim1, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN TIM1_Init 2 */
-  HAL_TIM_Base_Start(&htim1);
+
   /* USER CODE END TIM1_Init 2 */
 
 }
@@ -1112,14 +1132,15 @@ static void MX_TIM15_Init(void)
 
   /* USER CODE END TIM15_Init 0 */
 
-  TIM_SlaveConfigTypeDef sSlaveConfig = {0};
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_IC_InitTypeDef sConfigIC = {0};
 
   /* USER CODE BEGIN TIM15_Init 1 */
 
   /* USER CODE END TIM15_Init 1 */
   htim15.Instance = TIM15;
-  htim15.Init.Prescaler = 0;
+  htim15.Init.Prescaler = 1750-1;
   htim15.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim15.Init.Period = 65535;
   htim15.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -1129,11 +1150,12 @@ static void MX_TIM15_Init(void)
   {
     Error_Handler();
   }
-  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_EXTERNAL1;
-  sSlaveConfig.InputTrigger = TIM_TS_TI1FP1;
-  sSlaveConfig.TriggerPolarity = TIM_TRIGGERPOLARITY_RISING;
-  sSlaveConfig.TriggerFilter = 4;
-  if (HAL_TIM_SlaveConfigSynchro(&htim15, &sSlaveConfig) != HAL_OK)
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim15, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_IC_Init(&htim15) != HAL_OK)
   {
     Error_Handler();
   }
@@ -1143,8 +1165,16 @@ static void MX_TIM15_Init(void)
   {
     Error_Handler();
   }
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+  sConfigIC.ICFilter = 4;
+  if (HAL_TIM_IC_ConfigChannel(&htim15, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE BEGIN TIM15_Init 2 */
-  HAL_TIM_Base_Start(&htim15);
+
   /* USER CODE END TIM15_Init 2 */
 
 }

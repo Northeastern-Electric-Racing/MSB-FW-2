@@ -5,10 +5,8 @@
 
 /** Latest calculated wheel-speed measurements. */
 typedef struct {
-    float left_rpm;
-    float right_rpm;
-    float left_mph;
-    float right_mph;
+    uint16_t left_rpm;
+    uint16_t right_rpm;
 } wheel_speed_data_t;
 
 /**
