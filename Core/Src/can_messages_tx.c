@@ -438,27 +438,148 @@ uint8_t send_back_msb_orientation
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }
 
-uint8_t send_wheel_speed
-(uint32_t wheel_speed_mph,uint32_t wheel_speed_rpm)
+uint8_t send_load_cell_can_message
+(uint16_t load_cell_1,uint16_t load_cell_2)
 {
     can_msg_t msg;
     msg.id = 0x630;
     msg.id_is_extended = false;
     
-            uint64_t data = 0;
-            msg.len = 8;
-                        uint32_t wheel_speed_mph_i = (uint32_t)(wheel_speed_mph*10);
-                        if(wheel_speed_mph_i > 4294967295ULL) {wheel_speed_mph_i = 4294967295;
+            uint32_t data = 0;
+            msg.len = 4;
+                        uint32_t load_cell_1_i = (uint32_t)(load_cell_1/
+        100);
+                        if(load_cell_1_i > 65535ULL) {load_cell_1_i = 65535;
                         }
-                        data |= ((wheel_speed_mph_i) & 0xFFFFFFFFULL) << 32;
+                        data |= ((load_cell_1_i) & 0xFFFFULL) << 16;
             
-                        uint32_t wheel_speed_rpm_i = (uint32_t)(wheel_speed_rpm*10);
-                        if(wheel_speed_rpm_i > 4294967295ULL) {wheel_speed_rpm_i = 4294967295;
+                        uint32_t load_cell_2_i = (uint32_t)(load_cell_2/
+        100);
+                        if(load_cell_2_i > 65535ULL) {load_cell_2_i = 65535;
                         }
-                        data |= ((wheel_speed_rpm_i) & 0xFFFFFFFFULL) << 0;
+                        data |= ((load_cell_2_i) & 0xFFFFULL) << 0;
             
-            uint64_t data_bigendian = __builtin_bswap64(data);
-            memcpy(msg.data, &data_bigendian, 8);
+            uint32_t data_bigendian = __builtin_bswap32(data);
+            memcpy(msg.data, &data_bigendian, 4);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_wheel_speed
+(uint16_t left_rpm,uint16_t right_rpm)
+{
+    can_msg_t msg;
+    msg.id = 0x631;
+    msg.id_is_extended = false;
+    
+            uint32_t data = 0;
+            msg.len = 4;
+                        uint32_t left_rpm_i = (uint32_t)(left_rpm);
+                        if(left_rpm_i > 65535ULL) {left_rpm_i = 65535;
+                        }
+                        data |= ((left_rpm_i) & 0xFFFFULL) << 16;
+            
+                        uint32_t right_rpm_i = (uint32_t)(right_rpm);
+                        if(right_rpm_i > 65535ULL) {right_rpm_i = 65535;
+                        }
+                        data |= ((right_rpm_i) & 0xFFFFULL) << 0;
+            
+            uint32_t data_bigendian = __builtin_bswap32(data);
+            memcpy(msg.data, &data_bigendian, 4);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_steering_angle
+(int32_t steering_angle_1)
+{
+    can_msg_t msg;
+    msg.id = 0x632;
+    msg.id_is_extended = false;
+    
+            uint32_t data = 0;
+            msg.len = 4;
+                        int32_t steering_angle_1_i = (int32_t)(steering_angle_1/
+        100);
+                        if(steering_angle_1_i > 2147483647) {steering_angle_1_i = 2147483647;
+                        } else if(steering_angle_1_i < -2147483648) {steering_angle_1_i = -2147483648;
+                        }
+                        data |= ((uint32_t)(steering_angle_1_i) & 0xFFFFFFFFULL) << 0;
+            
+            uint32_t data_bigendian = __builtin_bswap32(data);
+            memcpy(msg.data, &data_bigendian, 4);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_thermocouple
+(int32_t thermocouple1)
+{
+    can_msg_t msg;
+    msg.id = 0x633;
+    msg.id_is_extended = false;
+    
+            uint32_t data = 0;
+            msg.len = 4;
+                        int32_t thermocouple1_i = (int32_t)(thermocouple1/
+        100);
+                        if(thermocouple1_i > 2147483647) {thermocouple1_i = 2147483647;
+                        } else if(thermocouple1_i < -2147483648) {thermocouple1_i = -2147483648;
+                        }
+                        data |= ((uint32_t)(thermocouple1_i) & 0xFFFFFFFFULL) << 0;
+            
+            uint32_t data_bigendian = __builtin_bswap32(data);
+            memcpy(msg.data, &data_bigendian, 4);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_front_msb_ssc
+(float pressure,float temp)
+{
+    can_msg_t msg;
+    msg.id = 0x610;
+    msg.id_is_extended = false;
+    
+            uint32_t data = 0;
+            msg.len = 4;
+                        uint32_t pressure_i = (uint32_t)(pressure);
+                        if(pressure_i > 65535ULL) {pressure_i = 65535;
+                        }
+                        data |= ((pressure_i) & 0xFFFFULL) << 16;
+            
+                        uint32_t temp_i = (uint32_t)(temp);
+                        if(temp_i > 65535ULL) {temp_i = 65535;
+                        }
+                        data |= ((temp_i) & 0xFFFFULL) << 0;
+            
+            uint32_t data_bigendian = __builtin_bswap32(data);
+            memcpy(msg.data, &data_bigendian, 4);
+
+    return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
+}
+
+uint8_t send_back_msb_ssc
+(float pressure,float temp)
+{
+    can_msg_t msg;
+    msg.id = 0x634;
+    msg.id_is_extended = false;
+    
+            uint32_t data = 0;
+            msg.len = 4;
+                        uint32_t pressure_i = (uint32_t)(pressure);
+                        if(pressure_i > 65535ULL) {pressure_i = 65535;
+                        }
+                        data |= ((pressure_i) & 0xFFFFULL) << 16;
+            
+                        uint32_t temp_i = (uint32_t)(temp);
+                        if(temp_i > 65535ULL) {temp_i = 65535;
+                        }
+                        data |= ((temp_i) & 0xFFFFULL) << 0;
+            
+            uint32_t data_bigendian = __builtin_bswap32(data);
+            memcpy(msg.data, &data_bigendian, 4);
 
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }

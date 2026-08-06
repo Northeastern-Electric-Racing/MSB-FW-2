@@ -548,7 +548,6 @@ typedef struct {
  bool die_temp_max;
  bool segment_comms;
  bool hv_plate_comms;
- bool cell_open_wire;
 } fault_status_t;
 
 void receive_fault_status(const can_msg_t *message, fault_status_t *fault_status);
@@ -635,8 +634,6 @@ typedef struct {
  bool discharging_b;
  bool cvs_a;
  bool cvs_b;
- bool ow_a;
- bool ow_b;
 } alpha_cell_data_debug_t;
 
 void receive_alpha_cell_data_debug(const can_msg_t *message, alpha_cell_data_debug_t *alpha_cell_data_debug);
@@ -652,31 +649,9 @@ typedef struct {
  bool discharging_b;
  bool cvs_a;
  bool cvs_b;
- bool ow_a;
- bool ow_b;
 } beta_cell_data_debug_t;
 
 void receive_beta_cell_data_debug(const can_msg_t *message, beta_cell_data_debug_t *beta_cell_data_debug);
-
-typedef struct {
- float s_voltage_a;
- float s_voltage_b;
- uint8_t chip_id;
- uint8_t cell_a;
- uint8_t cell_b;
-} alpha_cell_s_adc_data_t;
-
-void receive_alpha_cell_s_adc_data(const can_msg_t *message, alpha_cell_s_adc_data_t *alpha_cell_s_adc_data);
-
-typedef struct {
- float s_voltage_a;
- float s_voltage_b;
- uint8_t chip_id;
- uint8_t cell_a;
- uint8_t cell_b;
-} beta_cell_s_adc_data_t;
-
-void receive_beta_cell_s_adc_data(const can_msg_t *message, beta_cell_s_adc_data_t *beta_cell_s_adc_data);
 
 typedef struct {
  uint8_t chip_id;

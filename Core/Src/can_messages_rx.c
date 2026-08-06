@@ -1238,9 +1238,6 @@ void receive_fault_status(const can_msg_t *message, fault_status_t *fault_status
     uint64_t hv_plate_comms_mask = (1ULL << 1) - 1ULL;
     uint64_t hv_plate_comms_raw = (data >> 7) & hv_plate_comms_mask;
     fault_status->hv_plate_comms = (bool)hv_plate_comms_raw;
-    uint64_t cell_open_wire_mask = (1ULL << 1) - 1ULL;
-    uint64_t cell_open_wire_raw = (data >> 6) & cell_open_wire_mask;
-    fault_status->cell_open_wire = (bool)cell_open_wire_raw;
 }
 
 void receive_segment_average_voltages(const can_msg_t *message, segment_average_voltages_t *segment_average_voltages) {
@@ -1427,12 +1424,6 @@ void receive_alpha_cell_data_debug(const can_msg_t *message, alpha_cell_data_deb
     uint64_t cvs_b_mask = (1ULL << 1) - 1ULL;
     uint64_t cvs_b_raw = (data >> 12) & cvs_b_mask;
     alpha_cell_data_debug->cvs_b = (bool)cvs_b_raw;
-    uint64_t ow_a_mask = (1ULL << 1) - 1ULL;
-    uint64_t ow_a_raw = (data >> 11) & ow_a_mask;
-    alpha_cell_data_debug->ow_a = (bool)ow_a_raw;
-    uint64_t ow_b_mask = (1ULL << 1) - 1ULL;
-    uint64_t ow_b_raw = (data >> 10) & ow_b_mask;
-    alpha_cell_data_debug->ow_b = (bool)ow_b_raw;
 }
 
 void receive_beta_cell_data_debug(const can_msg_t *message, beta_cell_data_debug_t *beta_cell_data_debug) {
@@ -1470,56 +1461,6 @@ void receive_beta_cell_data_debug(const can_msg_t *message, beta_cell_data_debug
     uint64_t cvs_b_mask = (1ULL << 1) - 1ULL;
     uint64_t cvs_b_raw = (data >> 12) & cvs_b_mask;
     beta_cell_data_debug->cvs_b = (bool)cvs_b_raw;
-    uint64_t ow_a_mask = (1ULL << 1) - 1ULL;
-    uint64_t ow_a_raw = (data >> 11) & ow_a_mask;
-    beta_cell_data_debug->ow_a = (bool)ow_a_raw;
-    uint64_t ow_b_mask = (1ULL << 1) - 1ULL;
-    uint64_t ow_b_raw = (data >> 10) & ow_b_mask;
-    beta_cell_data_debug->ow_b = (bool)ow_b_raw;
-}
-
-void receive_alpha_cell_s_adc_data(const can_msg_t *message, alpha_cell_s_adc_data_t *alpha_cell_s_adc_data) {
-    
-    uint64_t data_bigendian;
-    memcpy(&data_bigendian, message->data, 8);
-    uint64_t data = __builtin_bswap64(data_bigendian);
-    uint64_t s_voltage_a_mask = (1ULL << 13) - 1ULL;
-    uint64_t s_voltage_a_raw = (data >> 51) & s_voltage_a_mask;
-    alpha_cell_s_adc_data->s_voltage_a = (float)(s_voltage_a_raw / 1000);
-    uint64_t s_voltage_b_mask = (1ULL << 13) - 1ULL;
-    uint64_t s_voltage_b_raw = (data >> 38) & s_voltage_b_mask;
-    alpha_cell_s_adc_data->s_voltage_b = (float)(s_voltage_b_raw / 1000);
-    uint64_t chip_id_mask = (1ULL << 4) - 1ULL;
-    uint64_t chip_id_raw = (data >> 34) & chip_id_mask;
-    alpha_cell_s_adc_data->chip_id = (uint8_t)chip_id_raw;
-    uint64_t cell_a_mask = (1ULL << 4) - 1ULL;
-    uint64_t cell_a_raw = (data >> 30) & cell_a_mask;
-    alpha_cell_s_adc_data->cell_a = (uint8_t)cell_a_raw;
-    uint64_t cell_b_mask = (1ULL << 4) - 1ULL;
-    uint64_t cell_b_raw = (data >> 26) & cell_b_mask;
-    alpha_cell_s_adc_data->cell_b = (uint8_t)cell_b_raw;
-}
-
-void receive_beta_cell_s_adc_data(const can_msg_t *message, beta_cell_s_adc_data_t *beta_cell_s_adc_data) {
-    
-    uint64_t data_bigendian;
-    memcpy(&data_bigendian, message->data, 8);
-    uint64_t data = __builtin_bswap64(data_bigendian);
-    uint64_t s_voltage_a_mask = (1ULL << 13) - 1ULL;
-    uint64_t s_voltage_a_raw = (data >> 51) & s_voltage_a_mask;
-    beta_cell_s_adc_data->s_voltage_a = (float)(s_voltage_a_raw / 1000);
-    uint64_t s_voltage_b_mask = (1ULL << 13) - 1ULL;
-    uint64_t s_voltage_b_raw = (data >> 38) & s_voltage_b_mask;
-    beta_cell_s_adc_data->s_voltage_b = (float)(s_voltage_b_raw / 1000);
-    uint64_t chip_id_mask = (1ULL << 4) - 1ULL;
-    uint64_t chip_id_raw = (data >> 34) & chip_id_mask;
-    beta_cell_s_adc_data->chip_id = (uint8_t)chip_id_raw;
-    uint64_t cell_a_mask = (1ULL << 4) - 1ULL;
-    uint64_t cell_a_raw = (data >> 30) & cell_a_mask;
-    beta_cell_s_adc_data->cell_a = (uint8_t)cell_a_raw;
-    uint64_t cell_b_mask = (1ULL << 4) - 1ULL;
-    uint64_t cell_b_raw = (data >> 26) & cell_b_mask;
-    beta_cell_s_adc_data->cell_b = (uint8_t)cell_b_raw;
 }
 
 void receive_alpha_chip_a_debug(const can_msg_t *message, alpha_chip_a_debug_t *alpha_chip_a_debug) {
