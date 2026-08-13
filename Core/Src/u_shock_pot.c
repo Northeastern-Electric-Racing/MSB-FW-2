@@ -24,18 +24,18 @@ float SHOCK_POT2_ZERO_OFFSET = 3.3; //INITIAL VALUES THAT GET REPLACED BY THE IN
 int16_t sample_accum = 0;
 float sample_data_shock_pots[10];
 
-float init_shock_pot_1(){
+// float init_shock_pot_1(){
 
-    while (sample_accum < 10){
-        sample_data_shock_pots[sample_accum] = shock_pot_get_data().position[SHOCK_POT1];
-    }
+//     while (sample_accum < 10){
+//         sample_data_shock_pots[sample_accum] = shock_pot_get_data().position[SHOCK_POT1];
+//     }
 
-    float average;
+//     float average;
 
-    average = 
+//     average = 
 
-    SHOCK_POT1_ZERO_OFFSET 
-}
+//     SHOCK_POT1_ZERO_OFFSET 
+// }
 
 
 
