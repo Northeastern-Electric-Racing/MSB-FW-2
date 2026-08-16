@@ -39,11 +39,11 @@ uint8_t send_front_msb_strain
 
 /**
 * Contents of this message:
-* MSB/F/Shock - Shuck deflection
-* MSB/F/ShockRaw - Raw shock value
+* MSB/F/ShockLeft - Front-left shock deflection
+* MSB/F/ShockRawLeft - Raw shock value
 */
-uint8_t send_front_shockpot
-(float shock1,uint16_t shock1_raw);
+uint8_t send_front_left_shockpot
+(float shock_left,uint32_t shock_left_raw);
 
 /**
 * Contents of this message:
@@ -97,11 +97,11 @@ uint8_t send_back_msb_strain
 
 /**
 * Contents of this message:
-* MSB/B/Shock - Shuck deflection
-* MSB/B/ShockRaw - Raw shock value
+* MSB/F/ShockRight - Front-right shock deflection
+* MSB/F/ShockRawRight - Raw front-right shock value
 */
-uint8_t send_back_shockpot
-(float shock1,uint16_t shock1_raw);
+uint8_t send_front_right_shockpot
+(float shock_right,uint32_t shock_right_raw);
 
 /**
 * Contents of this message:
@@ -126,47 +126,9 @@ uint8_t send_back_msb_orientation
 
 /**
 * Contents of this message:
-* MSB/LoadCell1 - Load Cell 1 Data
-* MSB/LoadCell2 - Load Cell 2 Data
-*/
-uint8_t send_load_cell_can_message
-(uint16_t load_cell_1,uint16_t load_cell_2);
-
-/**
-* Contents of this message:
-* MSB/WheelSpeedLeft - Left Wheel Speed Data
-* MSB/WheelSpeedRight - Right Wheel Speed Data
+* MSB/WheelSpeedLeft - Left wheel speed
+* MSB/WheelSpeedRight - Right wheel speed
 */
 uint8_t send_wheel_speed
 (uint16_t left_rpm,uint16_t right_rpm);
-
-/**
-* Contents of this message:
-* MSB/SteeringAngle - Steering Angle Data
-*/
-uint8_t send_steering_angle
-(int32_t steering_angle_1);
-
-/**
-* Contents of this message:
-* MSB/Thermocouple1 - Thermocouple 1 Data
-*/
-uint8_t send_thermocouple
-(int32_t thermocouple1);
-
-/**
-* Contents of this message:
-* MSB/F/SSCPressure - Front SSC Pressure Reading
-* MSB/F/SSCTemp - Front SSC Temperature Reading
-*/
-uint8_t send_front_msb_ssc
-(float pressure,float temp);
-
-/**
-* Contents of this message:
-* MSB/B/SSCPressure - Back SSC Pressure Reading
-* MSB/B/SSCTemp - Back SSC Temperature Reading
-*/
-uint8_t send_back_msb_ssc
-(float pressure,float temp);
 #endif

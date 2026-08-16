@@ -192,7 +192,7 @@ static thread_t _adcs_thread = {
     .threshold  = 0,                 /* Preemption Threshold */
     .time_slice = TX_NO_TIME_SLICE,  /* Time Slice */
     .auto_start = TX_AUTO_START,     /* Auto Start */
-    .sleep      = 100,               /* Sleep (in ticks) */
+    .sleep      = MS_TO_TICKS(10U),  /* Shock-pot update period */
     .function   = adcs_thread     /* Thread Function */
 };
 void adcs_thread(ULONG thread_input) {
@@ -220,8 +220,10 @@ void adcs_thread(ULONG thread_input) {
         // tx_thread_sleep(_sensors_thread.sleep / 4);
 
         shock_pot_data_t shock_pot_data = shock_pot_get_data();
-        send_front_shockpot(shock_pot_data.inch_travel[SHOCK_POT1], shock_pot_data.position[SHOCK_POT1]);
-        send_back_shockpot(shock_pot_data.inch_travel[SHOCK_POT2], shock_pot_data.position[SHOCK_POT2]);
+        send_front_left_shockpot(shock_pot_data.inch_travel[SHOCK_POT1],
+                                 shock_pot_data.raw_adc[SHOCK_POT1]);
+        send_front_right_shockpot(shock_pot_data.inch_travel[SHOCK_POT2],
+                                  shock_pot_data.raw_adc[SHOCK_POT2]);
 
         // if (device_loc == DEVICE_FRONT) {
         //     steering_angle_data_t steering_angle_data = steering_angle_get_data();
@@ -240,7 +242,7 @@ void adcs_thread(ULONG thread_input) {
 
         // adc_switchMuxStates(HIGH);
 
-        tx_thread_sleep(_sensors_thread.sleep);
+        tx_thread_sleep(_adcs_thread.sleep);
     }
 }
 
