@@ -81,7 +81,7 @@ static void reset_capture_state(wheel_capture_t *capture)
 static uint16_t get_capture_period(uint16_t current_capture,
 				   uint16_t previous_capture)
 {
-	uint32_t period_ticks;
+	uint16_t period_ticks;
 
 	if (current_capture >= previous_capture) {
 		period_ticks = current_capture - previous_capture;
@@ -92,7 +92,7 @@ static uint16_t get_capture_period(uint16_t current_capture,
 			current_capture + 1U;
 	}
 
-	return (uint16_t)period_ticks;
+	return period_ticks;
 }
 
 /**
