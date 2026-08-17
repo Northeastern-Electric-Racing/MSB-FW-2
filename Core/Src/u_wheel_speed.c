@@ -36,6 +36,11 @@ static uint32_t right_last_pulse_tick;
 
 static wheel_speed_data_t wheel_speed_data;
 
+/**
+ * @brief Reset the stored pulse-period samples for one wheel.
+ *
+ * @param capture Wheel capture state.
+ */
 static void reset_period_history(wheel_capture_t *capture)
 {
 	uint8_t index;
@@ -50,6 +55,11 @@ static void reset_period_history(wheel_capture_t *capture)
 	}
 }
 
+/**
+ * @brief Reset all capture state for one wheel.
+ *
+ * @param capture Wheel capture state.
+ */
 static void reset_capture_state(wheel_capture_t *capture)
 {
 	capture->previous_capture = 0U;
@@ -60,34 +70,48 @@ static void reset_capture_state(wheel_capture_t *capture)
 	reset_period_history(capture);
 }
 
+/**
+ * @brief Calculate the timer period between two capture events.
+ *
+ * @param current_capture  Current timer capture value.
+ * @param previous_capture Previous timer capture value.
+ *
+ * @return Period between captures in timer ticks.
+ */
 static uint16_t get_capture_period(uint16_t current_capture,
 				   uint16_t previous_capture)
 {
 	uint32_t period_ticks;
 
 	if (current_capture >= previous_capture) {
-		period_ticks =
-			(uint32_t)current_capture -
-			(uint32_t)previous_capture;
+		period_ticks = current_capture - previous_capture;
 	} else {
+		// Account for timer counter rollover.
 		period_ticks =
-			((uint32_t)UINT16_MAX -
-			 (uint32_t)previous_capture) +
-			(uint32_t)current_capture + 1U;
+			(UINT16_MAX - previous_capture) +
+			current_capture + 1U;
 	}
 
 	return (uint16_t)period_ticks;
 }
 
+/**
+ * @brief Store a pulse period and update the moving average.
+ *
+ * @param capture      Wheel capture state.
+ * @param period_ticks New pulse period in timer ticks.
+ */
 static void store_period(wheel_capture_t *capture, uint16_t period_ticks)
 {
 	if (capture->period_count < WHEEL_PERIOD_SAMPLES) {
+		// Fill the sample history before using it as a circular buffer.
 		capture->period_history[capture->period_index] =
 			period_ticks;
 
 		capture->period_sum += (uint32_t)period_ticks;
 		capture->period_count++;
 	} else {
+		// Replace the oldest sample while maintaining the running sum.
 		capture->period_sum -=
 			(uint32_t)capture->
 				period_history[capture->period_index];
@@ -101,6 +125,7 @@ static void store_period(wheel_capture_t *capture, uint16_t period_ticks)
 	capture->period_index++;
 
 	if (capture->period_index >= WHEEL_PERIOD_SAMPLES) {
+		// Wrap the circular-buffer index.
 		capture->period_index = 0U;
 	}
 
@@ -111,18 +136,26 @@ static void store_period(wheel_capture_t *capture, uint16_t period_ticks)
 	capture->update_count++;
 }
 
+/**
+ * @brief Process one wheel input-capture event.
+ *
+ * @param capture         Wheel capture state.
+ * @param current_capture Current timer capture value.
+ */
 static void process_capture(wheel_capture_t *capture,
 			    uint16_t current_capture)
 {
 	uint16_t period_ticks;
 
 	if (capture->rearm_capture) {
+		// Discard stale samples and use this pulse as the new reference.
 		reset_period_history(capture);
 
 		capture->previous_capture = current_capture;
 		capture->capture_valid = true;
 		capture->rearm_capture = false;
 	} else if (!capture->capture_valid) {
+		// Two captures are required before a period can be calculated.
 		capture->previous_capture = current_capture;
 		capture->capture_valid = true;
 	} else {
@@ -138,6 +171,15 @@ static void process_capture(wheel_capture_t *capture,
 	}
 }
 
+/**
+ * @brief Read the latest average pulse period.
+ *
+ * @param capture                Wheel capture state.
+ * @param processed_update_count Last processed update count.
+ * @param average_period_ticks   Destination for the average pulse period.
+ *
+ * @return true if a new period is available, otherwise false.
+ */
 static bool get_average_period(const wheel_capture_t *capture,
 			       uint32_t *processed_update_count,
 			       uint32_t *average_period_ticks)
@@ -147,6 +189,7 @@ static bool get_average_period(const wheel_capture_t *capture,
 	bool new_period_available;
 
 	do {
+		// Retry if the ISR updates the average during the read.
 		update_count_before = capture->update_count;
 
 		*average_period_ticks =
@@ -165,21 +208,34 @@ static bool get_average_period(const wheel_capture_t *capture,
 	return new_period_available;
 }
 
+/**
+ * @brief Convert the average pulse period to wheel RPM.
+ *
+ * @param average_period_ticks Average period between sensor pulses.
+ *
+ * @return Wheel speed in RPM.
+ */
 static uint16_t calculate_wheel_rpm(uint32_t average_period_ticks)
 {
-	uint64_t numerator;
-	uint64_t denominator;
-	uint64_t rpm;
+	uint32_t timer_ticks_per_minute;
+	uint32_t ticks_per_wheel_rotation;
+	uint32_t rpm;
 	uint16_t rpm_result;
 
 	rpm_result = 0U;
 
 	if (average_period_ticks > 0U) {
-		numerator = (uint64_t)TIMER_FREQUENCY_HZ * 60U;
-		denominator =
-			(uint64_t)average_period_ticks *
+		timer_ticks_per_minute = TIMER_FREQUENCY_HZ * 60U;
+
+		// Convert the pulse period into one full wheel rotation.
+		ticks_per_wheel_rotation =
+			average_period_ticks *
 			PULSES_PER_ROTATION;
-		rpm = (numerator + (denominator / 2U)) / denominator;
+
+		// Round the calculated RPM to the nearest whole number.
+		rpm = (timer_ticks_per_minute +
+		       (ticks_per_wheel_rotation / 2U)) /
+		      ticks_per_wheel_rotation;
 
 		if (rpm > UINT16_MAX) {
 			rpm_result = UINT16_MAX;
@@ -234,7 +290,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 		} else if (htim->Instance == htim_right->Instance) {
 			process_capture(&right_capture, current_capture);
 		} else {
-			/* Capture belongs to another timer. */
+			// Capture belongs to another timer.
 		}
 	}
 }
@@ -257,6 +313,7 @@ void wheel_pulse_check(void)
 			       left_last_pulse_tick) >=
 		   WHEEL_ZERO_TIMEOUT_MS) {
 		if (wheel_speed_data.left_rpm > 0U) {
+			// Rearm so the first returning pulse is only a reference.
 			wheel_speed_data.left_rpm = 0U;
 			left_capture.rearm_capture = true;
 		}
@@ -273,6 +330,7 @@ void wheel_pulse_check(void)
 			       right_last_pulse_tick) >=
 		   WHEEL_ZERO_TIMEOUT_MS) {
 		if (wheel_speed_data.right_rpm > 0U) {
+			// Rearm so the first returning pulse is only a reference.
 			wheel_speed_data.right_rpm = 0U;
 			right_capture.rearm_capture = true;
 		}
