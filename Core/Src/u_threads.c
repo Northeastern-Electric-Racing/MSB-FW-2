@@ -130,7 +130,6 @@ void sensors_thread(ULONG thread_input) {
     while (1) {
         // read_imu_and_magnometer();
         // wheel_pulse_check();
-        // send_wheel_speed();
 
         if (is_timer_expired(&data_send_timer)) {
             read_hdc2021();
@@ -174,7 +173,15 @@ void wheel_speed_thread(ULONG thread_input) {
     while (1) {
         wheel_pulse_check();
         wheel_speed_data_t data = wheel_speed_get_data();
-        send_wheel_speed(data.left_rpm, data.right_rpm);
+        switch (device_loc) {
+            case DEVICE_FRONT:
+                send_front_wheel_rpm(data.left_rpm, data.right_rpm);
+                break;
+
+            case DEVICE_BACK:
+                /* Back wheel RPM CAN message is not defined yet. */
+                break;
+        }
 
         printf("Wheel speed: left=%u RPM, right=%u RPM\r\n",
                (unsigned int)data.left_rpm,
@@ -220,10 +227,18 @@ void adcs_thread(ULONG thread_input) {
         // tx_thread_sleep(_sensors_thread.sleep / 4);
 
         shock_pot_data_t shock_pot_data = shock_pot_get_data();
-        send_front_left_shockpot(shock_pot_data.inch_travel[SHOCK_POT1],
-                                 shock_pot_data.raw_adc[SHOCK_POT1]);
-        send_front_right_shockpot(shock_pot_data.inch_travel[SHOCK_POT2],
-                                  shock_pot_data.raw_adc[SHOCK_POT2]);
+        switch (device_loc) {
+            case DEVICE_FRONT:
+                send_front_left_shockpot(shock_pot_data.inch_travel[SHOCK_POT1],
+                                         shock_pot_data.raw_adc[SHOCK_POT1]);
+                send_front_right_shockpot(shock_pot_data.inch_travel[SHOCK_POT2],
+                                          shock_pot_data.raw_adc[SHOCK_POT2]);
+                break;
+
+            case DEVICE_BACK:
+                /* Back shock-pot CAN messages are not defined yet. */
+                break;
+        }
 
         // if (device_loc == DEVICE_FRONT) {
         //     steering_angle_data_t steering_angle_data = steering_angle_get_data();

@@ -126,9 +126,9 @@ uint8_t send_back_msb_orientation
 
 /**
 * Contents of this message:
-* MSB/WheelSpeedLeft - Left wheel speed
-* MSB/WheelSpeedRight - Right wheel speed
+* MSB/F/WheelRPMLeft - Front-left wheel RPM
+* MSB/F/WheelRPMRight - Front-right wheel RPM
 */
-uint8_t send_wheel_speed
+uint8_t send_front_wheel_rpm
 (uint16_t left_rpm,uint16_t right_rpm);
 #endif

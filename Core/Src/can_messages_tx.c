@@ -446,7 +446,7 @@ uint8_t send_back_msb_orientation
     return queue_send(&can_outgoing, &msg, TX_NO_WAIT);
 }
 
-uint8_t send_wheel_speed
+uint8_t send_front_wheel_rpm
 (uint16_t left_rpm,uint16_t right_rpm)
 {
     can_msg_t msg;
