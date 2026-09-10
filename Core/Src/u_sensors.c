@@ -711,7 +711,7 @@ int32_t read_vl53l7cx() {
 }
 
 void send_vl53l7cx_data() {
-    can_msg_t can_message = {.id = convert_can_id(VL53L7CX_CAN_ID), .len = 8, .data = {0}};
+    can_msg_t can_message = {.id = VL53L7CX_CAN_ID, .len = 8, .data = {0}};
 
     memcpy(can_message.data, &vl53l7cx_data, can_message.len);
 
