@@ -21,9 +21,6 @@ endif()
 # Set the project name
 set(CMAKE_PROJECT_NAME MSB-FW-2)
 
-# NER Include toolchain file
-include("cmake/gcc-arm-none-eabi.cmake")
-
 # Enable compile command to ease indexing with e.g. clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
@@ -37,11 +34,14 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/art")
     message("${ASCII_ART}")
 endif()
 
+
 # Enable CMake support for ASM and C languages
 enable_language(C ASM)
 
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME})
+
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -u _printf_float")  
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
@@ -65,6 +65,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "../Drivers/Embedded-Base/general/src/hdc2021debr.c"
     "../Drivers/Embedded-Base/general/include/lsm6dsv_reg.h"
     "../Drivers/Embedded-Base/general/src/lsm6dsv_reg.c"
+    "../Drivers/Embedded-Base/general/src/honeywellSSC.c"
     "../Drivers/Embedded-Base/general/src/lis2mdl_reg.c"
     "../Drivers/Embedded-Base/platforms/stm32h563/src/fdcan.c"
     "./Drivers/Embedded-Base/middleware/src/bitstream.c"
@@ -88,6 +89,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     "./Core/Src/u_queues.c"
     "./Core/Src/u_sensors.c"
     "./Core/Src/u_threads.c"
+    "./Core/Src/can_messages_tx.c"
+    "./Core/Src/can_messages_rx.c"
 )
 
 # Add include paths

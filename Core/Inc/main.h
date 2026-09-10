@@ -49,6 +49,8 @@ extern SPI_HandleTypeDef hspi1;
 extern SPI_HandleTypeDef hspi2;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim15;
 
 /* USER CODE END EC */
 
@@ -81,6 +83,8 @@ void Error_Handler(void);
 #define MUX1_SEL3_GPIO_Port GPIOF
 #define MUX1_SEL4_Pin GPIO_PIN_9
 #define MUX1_SEL4_GPIO_Port GPIOF
+#define SPI_1_NSS_Pin GPIO_PIN_4
+#define SPI_1_NSS_GPIO_Port GPIOA
 #define PHY_IRQ_Pin GPIO_PIN_7
 #define PHY_IRQ_GPIO_Port GPIOE
 #define PHY_IRQ_EXTI_IRQn EXTI7_IRQn
@@ -102,6 +106,8 @@ void Error_Handler(void);
 #define MUX2_SEL3_GPIO_Port GPIOC
 #define MUX2_SEL4_Pin GPIO_PIN_9
 #define MUX2_SEL4_GPIO_Port GPIOC
+#define SPI_2_NSS_Pin GPIO_PIN_11
+#define SPI_2_NSS_GPIO_Port GPIOA
 #define MSB_ADDR_Pin GPIO_PIN_10
 #define MSB_ADDR_GPIO_Port GPIOC
 

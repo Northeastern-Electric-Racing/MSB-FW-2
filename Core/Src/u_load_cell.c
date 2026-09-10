@@ -28,7 +28,7 @@ load_cell_data_t load_cell2_get_data() {
     float loadCell2Volts = adc_to_voltage(rawData.data[LOAD_CELL2]);
 
     load_cell_data_t lc;
-    lc.force[LOAD_CELL1] = adc_calibrate(loadCell2Volts, LOAD_CELL1_ZERO_OFFSET, LOAD_CELL1_SCALE_FACTOR);
+    lc.force[LOAD_CELL2] = adc_calibrate(loadCell2Volts, LOAD_CELL2_ZERO_OFFSET, LOAD_CELL2_SCALE_FACTOR);
 
     return lc;
 }
