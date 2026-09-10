@@ -1927,6 +1927,16 @@ void receive_pack_current_and_shunt_temp_adbms(const can_msg_t *message, pack_cu
     pack_current_and_shunt_temp_adbms->shunt_temp = (float)(shunt_temp_raw / 100);
 }
 
+void receive_current_cell_balancing_pwm_duty_cycle(const can_msg_t *message, current_cell_balancing_pwm_duty_cycle_t *current_cell_balancing_pwm_duty_cycle) {
+    
+    uint16_t data_bigendian;
+    memcpy(&data_bigendian, message->data, 2);
+    uint16_t data = __builtin_bswap16(data_bigendian);
+    uint64_t balancing_pwm_duty_cycle_mask = (1ULL << 16) - 1ULL;
+    uint64_t balancing_pwm_duty_cycle_raw = (data >> 0) & balancing_pwm_duty_cycle_mask;
+    current_cell_balancing_pwm_duty_cycle->balancing_pwm_duty_cycle = (float)(balancing_pwm_duty_cycle_raw / 10);
+}
+
 void receive_ac_current_command(const can_msg_t *message, ac_current_command_t *ac_current_command) {
     
     uint16_t data_bigendian;
