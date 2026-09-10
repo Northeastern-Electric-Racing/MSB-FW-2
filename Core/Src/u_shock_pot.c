@@ -28,8 +28,8 @@ shock_pot_data_t shock_pot_get_data() {
     sp.position[SHOCK_POT1] = adc_calibrate(shockPot1Volts, SHOCK_POT1_ZERO_OFFSET, SHOCK_POT1_SCALE_FACTOR);
     sp.position[SHOCK_POT2] = adc_calibrate(shockPot2Volts, SHOCK_POT2_ZERO_OFFSET, SHOCK_POT2_SCALE_FACTOR);
 
-    sp.inch_travel[SHOCK_POT1] = SHOCK_POT_LENGTH_IN_INCHES - ((sp.position[SHOCK_POT1]) * ((1.9685) / (SHOCK_POT1_CALIBRATED_V)));
-    sp.inch_travel[SHOCK_POT2] = SHOCK_POT_LENGTH_IN_INCHES - ((sp.position[SHOCK_POT2]) * ((1.9685) / (SHOCK_POT2_CALIBRATED_V)));
+    sp.inch_travel[SHOCK_POT1] = ((SHOCK_POT1_CALIBRATED_V - sp.position[SHOCK_POT1]) * (SHOCK_POT_LENGTH_IN_INCHES / 3.3f)) - 0.195; //CALIBRATED SHOCK POT VALUE FOR LEFT
+    sp.inch_travel[SHOCK_POT2] = ((SHOCK_POT2_CALIBRATED_V - sp.position[SHOCK_POT2]) * (SHOCK_POT_LENGTH_IN_INCHES / 3.3f)) - 0.140; //CALIBRATED SHOCK POT VALUE FOR RIGHT
 
     return sp;
 }
