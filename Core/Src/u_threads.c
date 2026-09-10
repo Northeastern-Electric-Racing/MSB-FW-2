@@ -240,6 +240,12 @@ void adcs_thread(ULONG thread_input) {
                 break;
         }
 
+
+        steering_angle_data_t steering_angle_data = steering_angle_get_data();
+        PRINTLN_INFO("STEERING ANGLE RAW VOLTAGE: %f", steering_angle_data.angle[STEERING_ANGLE1]);
+
+
+
         // if (device_loc == DEVICE_FRONT) {
         //     steering_angle_data_t steering_angle_data = steering_angle_get_data();
         //     send_steering_angle_data(steering_angle_data);
